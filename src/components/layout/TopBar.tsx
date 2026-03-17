@@ -1,12 +1,14 @@
 'use client';
 
-import { Home, Bell, User, ChevronDown, LogOut, UserCircle } from 'lucide-react';
+import { Home, Bell, User, ChevronDown, LogOut, UserCircle, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
+import { useLayoutState } from '@/components/providers/LayoutProvider';
 
 export default function TopBar() {
   const { user, logout } = useAuth();
+  const { toggleSidebar } = useLayoutState();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +26,12 @@ export default function TopBar() {
   return (
     <header className="h-16 border-b border-gray-800 bg-[#161a25] flex items-center justify-between px-6 shrink-0 z-10 sticky top-0">
       <div className="flex items-center gap-2 text-sm text-gray-400">
+        <button 
+          onClick={toggleSidebar}
+          className="lg:hidden p-1 mr-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-md transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
         <Link href="/" className="hover:text-gray-200 transition-colors">
           <Home className="w-4 h-4" />
         </Link>
