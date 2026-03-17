@@ -1,10 +1,12 @@
 name: Build and Deploy Next.js to cPanel
 
-# This tells GitHub to run this script every time you push to the 'main' branch
+# This tells GitHub to run this script every time you push to 'master', 
+# and allows you to trigger it manually via the Actions tab.
 on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -15,19 +17,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Set up a Node.js environment
+      # 2. Set up a Node.js environment (Updated to 24 to fix deprecation warning)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Standard stable Node version
+          node-version: '24' 
 
       # 3. Install your project dependencies
       - name: Install Dependencies
         run: npm ci
 
-      # 4. Build the static HTML export (This creates the /out folder)
+      # 4. Build the static HTML export with injected Environment Variables
       - name: Build Next.js App
         run: npm run build
+        env:
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
 
       # 5. Sync the /out folder to your cPanel via FTP
       - name: FTP Deploy to cPanel
@@ -37,4 +49,3 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./out/
-          # This ensures it only uploads the contents of the 'out' folder, not your source code
