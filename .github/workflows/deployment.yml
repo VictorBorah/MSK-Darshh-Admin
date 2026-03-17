@@ -4,7 +4,7 @@ name: Build and Deploy Next.js to cPanel
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build-and-deploy:
