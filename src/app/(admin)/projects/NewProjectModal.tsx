@@ -171,6 +171,11 @@ const customSelectStyles = {
   })
 };
 
+interface NewProjectModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
 export default function NewProjectModal({ isOpen, onClose }: NewProjectModalProps) {
   // Config State
   const [configData, setConfigData] = useState<any>(null);
