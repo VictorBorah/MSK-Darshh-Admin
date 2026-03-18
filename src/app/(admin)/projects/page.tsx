@@ -1,3 +1,5 @@
+'use client';
+
 import { 
   Play, 
   Square, 
@@ -16,8 +18,12 @@ import {
   RefreshCcw,
   List
 } from 'lucide-react';
+import { useState } from 'react';
+import NewProjectModal from '@/app/(admin)/projects/NewProjectModal';
 
 export default function Home() {
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+
   return (
     <div className="p-6 text-gray-300 bg-[#11141e] min-h-full">
       <div className="flex items-center gap-3 mb-6">
@@ -65,7 +71,10 @@ export default function Home() {
             </button>
           </div>
           <div className="flex items-center gap-3 mt-4 sm:mt-0">
-             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-1.5 text-sm transition-colors gap-2">
+             <button 
+               onClick={() => setIsNewProjectModalOpen(true)}
+               className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-1.5 text-sm transition-colors gap-2"
+             >
                <Plus className="w-4 h-4" /> New Project
              </button>
           </div>
@@ -232,6 +241,11 @@ export default function Home() {
             </div>
         </div>
       </div>
+      
+      <NewProjectModal 
+        isOpen={isNewProjectModalOpen} 
+        onClose={() => setIsNewProjectModalOpen(false)} 
+      />
     </div>
   );
 }
