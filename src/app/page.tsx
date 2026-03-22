@@ -213,7 +213,7 @@ export default function Login() {
              <Building2 className="w-8 h-8 text-white" />
           </div>
           <div className="text-center">
-            <h1 className="font-bold text-white text-2xl tracking-tight">Darshh Builders</h1>
+            <h1 className="font-bold text-white text-2xl tracking-tight">ZYN</h1>
             <span className="text-xs text-gray-400 uppercase tracking-wider">CONSTRUCTIONS MANAGEMENT NETWORK</span>
           </div>
         </div>
@@ -286,7 +286,7 @@ export default function Login() {
         </div>
 
         <div className="mt-8 text-center text-xs text-gray-600">
-          &copy; 2026 Darshh Builders. All rights reserved. Version 1.0.1
+          &copy; 2026 ZYN All rights reserved. Version 1.0.1
         </div>
       </div>
 

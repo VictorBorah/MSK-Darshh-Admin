@@ -1,0 +1,205 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "stages": [
+            {
+                "id": "1",
+                "stage": "Land Clearing"
+            },
+            {
+                "id": "2",
+                "stage": "Foundation Initiation"
+            }
+        ],
+        "clients": [
+            {
+                "id": "1",
+                "client_name": "Aryan Borah",
+                "client_mobile_1": "9987412202"
+            },
+            {
+                "id": "2",
+                "client_name": "Simran Singh",
+                "client_mobile_1": "7002140258"
+            }
+        ],
+        "districts": [
+            {
+                "id": "1",
+                "district": "BAKSA"
+            },
+            {
+                "id": "2",
+                "district": "BARPETA"
+            }
+        ],
+        "hr_array": {
+            "accountants": [
+                {
+                    "id": "2",
+                    "name": "Test Accountant 1"
+                },
+                {
+                    "id": "3",
+                    "name": "Test Accountant 2"
+                }
+            ],
+            "engineers": [
+                {
+                    "id": "4",
+                    "name": "Test Engineer 1"
+                },
+                {
+                    "id": "5",
+                    "name": "Test Engineer 2"
+                }
+            ],
+            "managers": [
+                {
+                    "id": "6",
+                    "name": "Test Manager 1"
+                },
+                {
+                    "id": "7",
+                    "name": "Test Manager 2"
+                }
+            ],
+            "masons": [
+                {
+                    "id": "18",
+                    "name": "Test Mistry 1"
+                },
+                {
+                    "id": "19",
+                    "name": "Test Mistry 2"
+                }
+            ],
+            "supervisors": [
+                {
+                    "id": "8",
+                    "name": "Test Supervisor 1"
+                },
+                {
+                    "id": "9",
+                    "name": "Test Supervisor 2"
+                }
+            ],
+            "contractors": [
+                {
+                    "id": "16",
+                    "name": "Test Contractor 1"
+                },
+                {
+                    "id": "17",
+                    "name": "Test Contractor 2"
+                }
+            ],
+            "procurement_managers": [
+                {
+                    "id": "10",
+                    "name": "Test PM 1"
+                },
+                {
+                    "id": "11",
+                    "name": "Test PM 2"
+                }
+            ],
+            "operation_managers": [
+                {
+                    "id": "12",
+                    "name": "Test OM 1"
+                },
+                {
+                    "id": "13",
+                    "name": "Test OM 2"
+                }
+            ],
+            "office_staff": [
+                {
+                    "id": "14",
+                    "name": "Test Office Staff 1"
+                },
+                {
+                    "id": "15",
+                    "name": "Test Office Staff 2"
+                }
+            ]
+        },
+        "budget_heads_array": [
+            {
+                "id": "1",
+                "head": "Labour Payment"
+            },
+            {
+                "id": "2",
+                "head": "Materials Payment"
+            },
+            {
+                "id": "3",
+                "head": "Transportation Charges"
+            },
+            {
+                "id": "4",
+                "head": "Food Expenses"
+            },
+            {
+                "id": "5",
+                "head": "Lodging Expenses"
+            },
+            {
+                "id": "6",
+                "head": "Road Toll"
+            },
+            {
+                "id": "7",
+                "head": "Municipality Tax"
+            },
+            {
+                "id": "8",
+                "head": "Electricity Bill"
+            },
+            {
+                "id": "9",
+                "head": "Internet Bill"
+            },
+            {
+                "id": "10",
+                "head": "Office Supply Expenses"
+            },
+            {
+                "id": "11",
+                "head": "Medical Expenses"
+            },
+            {
+                "id": "12",
+                "head": "Salary Expenses"
+            },
+            {
+                "id": "13",
+                "head": "Rent and similar expenses"
+            },
+            {
+                "id": "14",
+                "head": "Donations"
+            },
+            {
+                "id": "15",
+                "head": "Contingencies "
+            },
+            {
+                "id": "16",
+                "head": "Test Head"
+            },
+            {
+                "id": "17",
+                "head": "Test Head 2"
+            },
+            {
+                "id": "18",
+                "head": "Test Head 12"
+            }
+        ],
+        "Message": "Configuration data fetched successfully"
+    }
+]

@@ -1,0 +1,127 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "pagination_size": "10",
+        "file_max_size": "2",
+        "send_Email": "1",
+        "Menu_Data": [
+            {
+                "menu_type": "1",
+                "menu_item": "Dashboard",
+                "slug": "dashboard"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Projects",
+                "slug": "projects"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Staff",
+                "slug": "staff"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Procurements",
+                "slug": "procurements"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Payments",
+                "slug": "payments"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Supply Ledger",
+                "slug": "supply-ledger"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Stock Inventory",
+                "slug": "stock-inventory"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Item Categories",
+                "slug": "item-categories"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Item Master",
+                "slug": "item-master"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Vendor Master",
+                "slug": "vendor-master"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Settings",
+                "slug": "system-settings"
+            }
+        ],
+        "User_Data": [
+            {
+                "display_name": "Mandeep",
+                "full_name": "Mandeep Singh",
+                "grp_id": 1,
+                "grp_name": "Super Admin",
+                "username": "",
+                "projects_csv": "0",
+                "auth_email": "victorborah@gmail.com",
+                "email2": "",
+                "mobile_1": "9954817702",
+                "mobile_2": "",
+                "profile_photo": "",
+                "pan_no": "",
+                "aadhaar_no": "",
+                "address": "",
+                "district_id": "3",
+                "district_name": "BISWANATH",
+                "pincode": "784176",
+                "marital_status": "1",
+                "marital_status_txt": "Married",
+                "father_name": null,
+                "mother_name": null,
+                "sex_key": "1",
+                "sex_txt": "Male",
+                "pan_file": null,
+                "aadhaar_file": null,
+                "emergency_mobile_no": null,
+                "emergency_contact_person": null,
+                "kyc_approved": "1",
+                "is_suspended": "0"
+            }
+        ],
+        "System_Data": {
+            "appName": "Darshh Automation",
+            "apiVersion": "1.00",
+            "curSession": "1",
+            "curSession_txt": "2026-27",
+            "androidVersion": "1.00",
+            "frontendVersion": "1.01",
+            "bucketHost": "digital-ocean-cloud",
+            "s3BucketBasePath": "https://sirish-core-2024.blr1.digitaloceanspaces.com",
+            "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
+            "s3BucketName": "doca",
+            "s3BucketKey": "DO00XLCD7FPRXXBX28HQ",
+            "s3Region": "blr1",
+            "appLogo": null,
+            "webAppLogo": "Logo.png",
+            "smsPEId": "1205165992846067265",
+            "hostName": "api.zlabz.space",
+            "appBaseUrl": "api.zlabz.space/webservices/v1",
+            "frontEndBaseUrl": "zlabz.space",
+            "fileMaxSize": "2",
+            "maxStorage": "524300000",
+            "ticketFileMaxSize": "2",
+            "dpFileMaxSize": "2",
+            "paginationRowNum": "2",
+            "sendTicketmails": "0",
+            "sendEmail": "1"
+        },
+        "Message": "App Data Fetched Successfully"
+    }
+]

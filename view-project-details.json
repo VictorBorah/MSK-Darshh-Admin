@@ -1,0 +1,63 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "project_data": {
+            "project_id": "1",
+            "status": "Running",
+            "progress_percent": "25",
+            "project_name": "TEST PROJECT",
+            "project_code": "TST-001",
+            "district": "GOALPARA",
+            "client_name": "SIMRAN SINGH",
+            "current_stage": "PLINTH CONSTRUCTION",
+            "start_date": "12-07-2022",
+            "end_date": "",
+            "site_address": "NEW YORK",
+            "site_coordinates": "121212.344334,34343.343434",
+            "stages_csv": "2,4,6,14,17",
+            "geofence_json": "",
+            "allocated_budget": "4158700.00",
+            "inital_expenditure": "2217214.00",
+            "setup_complete": "Yes",
+            "active": "1",
+            "accountants_data": [
+                "Test Accountant 1",
+                "Test Accountant 2",
+                "Test Engineer 1"
+            ],
+            "supervisors_data": [
+                "Test Accountant 1",
+                "Test Engineer 1"
+            ],
+            "engineers_data": [
+                "Mandeep Singh",
+                "Test Accountant 1"
+            ],
+            "managers_data": [
+                "Test Accountant 1",
+                "Test Engineer 1",
+                "Test Engineer 2"
+            ],
+            "contractors_data": [
+                "Test Manager 1",
+                "Test Manager 2"
+            ],
+            "masons_data": [
+                "Test Manager 1",
+                "Test Manager 2",
+                "Test Supervisor 2"
+            ],
+            "procurement_managers_data": [
+                "Test Engineer 1",
+                "Test Supervisor 2"
+            ],
+            "operation_managers_data": [
+                "Test Accountant 1",
+                "Test Engineer 1",
+                "Test Engineer 2"
+            ]
+        },
+        "Message": "System ready to proceed"
+    }
+]

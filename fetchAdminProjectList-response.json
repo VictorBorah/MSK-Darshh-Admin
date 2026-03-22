@@ -1,0 +1,120 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "total_rows": "3",
+        "pagination_size": "10",
+        "project_data": [
+            {
+                "project_id": "1",
+                "status": "Running",
+                "progress_percent": "50",
+                "project_name": "TEST PROJECT",
+                "project_code": "TST-001",
+                "district": "GOALPARA",
+                "client_name": "SIMRAN SINGH",
+                "current_stage": "BEAM CONSTRUCTION",
+                "start_date": "12-07-2022",
+                "end_date": "",
+                "site_address": "NEW YORK",
+                "site_coordinates": "121212.344334,34343.343434",
+                "stages_csv": "2,4,6,14,17",
+                "geofence_json": "",
+                "allocated_budget": "4158700.00",
+                "inital_expenditure": "2217214.00",
+                "accountants_data": [
+                    "Test Accountant 1",
+                    "Test Accountant 2",
+                    "Test Engineer 1"
+                ],
+                "supervisors_data": [
+                    "Test Accountant 1",
+                    "Test Engineer 1"
+                ],
+                "engineers_data": [
+                    "Mandeep Singh",
+                    "Test Accountant 1"
+                ],
+                "managers_data": [
+                    "Test Accountant 1",
+                    "Test Engineer 1",
+                    "Test Engineer 2"
+                ],
+                "contractors_data": [
+                    "Test Manager 1",
+                    "Test Manager 2"
+                ],
+                "masons_data": [
+                    "Test Manager 1",
+                    "Test Manager 2",
+                    "Test Supervisor 2"
+                ],
+                "procurement_managers_data": [
+                    "Test Engineer 1",
+                    "Test Supervisor 2"
+                ],
+                "operation_data": [
+                    "Test Accountant 1",
+                    "Test Engineer 1",
+                    "Test Engineer 2"
+                ],
+                "active": "1"
+            },
+            {
+                "project_id": "2",
+                "status": "Paused",
+                "progress_percent": "50",
+                "project_name": "TEST 123",
+                "project_code": "TST213",
+                "district": "",
+                "client_name": "",
+                "current_stage": "",
+                "start_date": "",
+                "end_date": "",
+                "site_address": "",
+                "site_coordinates": "",
+                "stages_csv": "",
+                "geofence_json": "",
+                "allocated_budget": "0.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "active": "1"
+            },
+            {
+                "project_id": "3",
+                "status": "Running",
+                "progress_percent": "50",
+                "project_name": "TEST PROJECT 12234",
+                "project_code": "TST-1234",
+                "district": "",
+                "client_name": "",
+                "current_stage": "",
+                "start_date": "",
+                "end_date": "",
+                "site_address": "",
+                "site_coordinates": "",
+                "stages_csv": "",
+                "geofence_json": "",
+                "allocated_budget": "0.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "active": "1"
+            }
+        ],
+        "Message": "System ready to proceed"
+    }
+]

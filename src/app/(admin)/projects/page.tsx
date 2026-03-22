@@ -2,33 +2,108 @@
 
 import { 
   Play, 
-  Square, 
-  XCircle, 
-  RefreshCw, 
   Pause, 
-  Trash2, 
-  FileText, 
   Info, 
-  Activity, 
-  SquareTerminal, 
-  User,
-  Shield,
   Search,
   Plus,
   RefreshCcw,
-  List
+  List,
+  LineChart,
+  Eye,
+  Pencil,
+  Settings,
+  Archive,
+  Loader2
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import toast from 'react-hot-toast';
 import NewProjectModal from '@/app/(admin)/projects/NewProjectModal';
+import ViewProjectModal from '@/app/(admin)/projects/ViewProjectModal';
+import SettingsProjectModal from '@/app/(admin)/projects/SettingsProjectModal';
+import EditProjectModal from '@/app/(admin)/projects/EditProjectModal';
 
 export default function Home() {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  
+  // Data Flow State
+  const [projects, setProjects] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  
+  // Action Modal Triggers
+  const [activeModal, setActiveModal] = useState<{type: 'view'|'settings'|'edit', id: string, name: string} | null>(null);
+
+  const fetchProjects = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/fetchAdminProjectList`;
+      
+      const res = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      if (!res.ok) throw new Error('Failed to fetch projects');
+      
+      const rawText = await res.text();
+      let arr;
+      try {
+        arr = JSON.parse(rawText);
+      } catch (e) {
+        throw new Error('Invalid JSON server response');
+      }
+
+      const data = Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && String(data.Status) === '1') {
+        const total = parseInt(data.total_rows || "0", 10);
+        const pageSize = parseInt(data.pagination_size || "10", 10);
+        
+        if (data.project_data && Array.isArray(data.project_data)) {
+          setProjects(data.project_data);
+        } else {
+          setProjects([]);
+        }
+        
+        // Calculate Pagination context 
+        if (total && pageSize) {
+          setTotalPages(Math.ceil(total / pageSize));
+          setItemsPerPage(pageSize);
+        } else {
+          setTotalPages(1);
+        }
+        
+        toast.success(data.Message || 'Projects loaded successfully');
+      } else {
+        throw new Error(data?.Message || 'API Error');
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || 'Error fetching projects');
+      setProjects([]);
+      setTotalPages(1);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
 
   return (
     <div className="p-6 text-gray-300 bg-[#11141e] min-h-full">
+      
+      
       <div className="flex items-center gap-3 mb-6">
         <h1 className="text-xl font-bold text-white">Projects list</h1>
-        <RefreshCcw className="w-4 h-4 text-gray-500 cursor-pointer hover:text-white transition-colors" />
+        <RefreshCcw 
+           onClick={fetchProjects} 
+           className={`w-4 h-4 text-gray-500 cursor-pointer hover:text-white transition-colors ${isLoading ? 'animate-spin text-white' : ''}`} 
+        />
       </div>
       
       <div className="bg-[#191e2b] border border-gray-800 rounded-xl shadow-sm overflow-hidden">
@@ -55,19 +130,10 @@ export default function Home() {
               <Play className="w-3.5 h-3.5 text-green-500 fill-green-500/20" /> Start
             </button>
             <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <Square className="w-3.5 h-3.5 text-gray-400" /> Stop
-            </button>
-            <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <XCircle className="w-3.5 h-3.5 text-red-500" /> Kill
-            </button>
-            <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <RefreshCw className="w-3.5 h-3.5 text-blue-400" /> Restart
-            </button>
-            <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
               <Pause className="w-3 h-3 text-orange-400 fill-orange-400" /> Pause
             </button>
             <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <Trash2 className="w-3.5 h-3.5 text-red-500" /> Remove
+              <Archive className="w-3.5 h-3.5 text-blue-400" /> Archive
             </button>
           </div>
           <div className="flex items-center gap-3 mt-4 sm:mt-0">
@@ -88,180 +154,117 @@ export default function Home() {
                 <th className="px-5 py-3.5 w-10">
                   <input type="checkbox" className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600" />
                 </th>
-                <th className="px-4 py-3.5">Name</th>
-                <th className="px-4 py-3.5">State</th>
-                <th className="px-4 py-3.5">Quick Actions</th>
-                <th className="px-4 py-3.5">Stack</th>
-                <th className="px-4 py-3.5">Image</th>
-                <th className="px-4 py-3.5">Created</th>
-                <th className="px-4 py-3.5">IP Address</th>
-                <th className="px-4 py-3.5">Published Ports</th>
-                <th className="px-4 py-3.5">Ownership</th>
+                <th className="px-4 py-3.5 w-48">Name</th>
+                <th className="px-4 py-3.5 w-24 hidden lg:table-cell">Code</th>
+                <th className="px-4 py-3.5 w-24">Status</th>
+                <th className="px-4 py-3.5 w-32">Actions</th>
+                <th className="px-4 py-3.5 w-32 hidden lg:table-cell">Client</th>
+                <th className="px-4 py-3.5 w-32">Progress</th>
+                <th className="px-4 py-3.5 w-20 text-center">View</th>
+                <th className="px-4 py-3.5 w-24 text-center">Settings</th>
+                <th className="px-4 py-3.5 w-20 text-center">Edit</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800 bg-[#161a25]">
-              <TableRow 
-                name="atlas"
-                state="RUNNING"
-                stack="atlas"
-                image="keinstien/atlas:latest"
-                created="2025-09-18 15:15:18"
-                ip="-"
-                ports="-"
-                ownership="Public"
-              />
-              <TableRow 
-                name="dockpeek"
-                state="RUNNING"
-                stack="dockpeek"
-                image="ghcr.io/dockpeek/do..."
-                created="2025-09-23 23:05:44"
-                ip="192.168.128.2"
-                ports="3420:8080"
-                hasLinks
-              />
-              <TableRow 
-                name="heimdall"
-                state="RUNNING"
-                stack="heimdall"
-                image="linuxserver/heimdall:..."
-                created="2025-09-23 23:05:17"
-                ip="192.168.224.2"
-                ports="8443:443, 8088:80"
-                hasLinks
-              />
-              <TableRow 
-                name="homeassistant"
-                state="RUNNING"
-                stack="homeassistant"
-                image="ghcr.io/home-assist..."
-                created="2025-09-23 23:06:11"
-                ip="-"
-                ports="-"
-                ownership="Public"
-              />
-              <TableRow 
-                name="Karakeep-CHROME"
-                state="RUNNING"
-                stack="karakeep"
-                image="gcr.io/zenika-hub/al..."
-                created="2025-09-08 11:12:31"
-                ip="192.168.144.2"
-                ports="-"
-                ownership="Administrator"
-                isAdmin
-              />
-               <TableRow 
-                name="Karakeep-MEILI"
-                state="RUNNING"
-                stack="karakeep"
-                image="getmeili/meilisearch:..."
-                created="2025-09-08 11:12:31"
-                ip="192.168.144.3"
-                ports="-"
-                ownership="Public"
-              />
-              <TableRow 
-                name="Karakeep-WEB"
-                state="HEALTHY"
-                stack="karakeep"
-                image="1aa231caa19f"
-                created="2025-09-08 11:12:31"
-                ip="192.168.144.4"
-                ports="3022:3000"
-                hasLinks
-                stateColor="green"
-              />
-              <TableRow 
-                name="mariadb"
-                state="RUNNING"
-                stack="mariadb-standalone"
-                image="c14f2faa3568"
-                created="2025-05-28 18:22:27"
-                ip="172.27.0.2"
-                ports="3306:3306"
-                hasLinks
-              />
-              <TableRow 
-                name="pinchflat"
-                state="HEALTHY"
-                stack="pinchflat"
-                image="ghcr.io/kieraneglin/p..."
-                created="2025-09-09 13:32:08"
-                ip="192.168.16.2"
-                ports="8945:8945"
-                hasLinks
-                stateColor="green"
-              />
-              <TableRow 
-                name="portainer"
-                state="RUNNING"
-                stack="-"
-                image="2a1f1b992b45"
-                created="2025-05-12 12:04:33"
-                ip="172.17.0.2"
-                ports="9000:9000, 9443:9443"
-                hasLinks
-                ownership="Administrator"
-                isAdmin
-              />
-               <TableRow 
-                name="repliqate"
-                state="RUNNING"
-                stack="repliqate"
-                image="b5f8786b6822"
-                created="2025-09-08 19:35:49"
-                ip="192.168.240.2"
-                ports="-"
-              />
-              <TableRow 
-                name="scanservjs"
-                state="RUNNING"
-                stack="-"
-                image="0961fbfcfd90"
-                created="2025-05-21 14:37:20"
-                ip="-"
-                ports="-"
-              />
+              {isLoading ? (
+                <tr>
+                   <td colSpan={10} className="py-12 text-center text-gray-500">
+                     <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />
+                     Loading Projects...
+                   </td>
+                </tr>
+              ) : projects.length === 0 ? (
+                 <tr>
+                   <td colSpan={10} className="py-12 text-center text-gray-500">
+                     No projects found matching the criteria.
+                   </td>
+                 </tr>
+              ) : (
+                 projects.map((project: any) => (
+                   <TableRow 
+                     key={project.project_id}
+                     id={project.project_id}
+                     name={project.project_name}
+                     code={project.project_code}
+                     status={project.status}
+                     client={project.client_name || '-'}
+                     progress={project.progress_percent}
+                     statusColor={String(project.status).toLowerCase() === 'running' ? 'green' : 'cyan'}
+                     onAction={(type: 'view'|'settings'|'edit') => setActiveModal({ type, id: String(project.project_id), name: project.project_name })}
+                   />
+                 ))
+              )}
             </tbody>
           </table>
         </div>
         
         {/* Footer */ }
         <div className="p-4 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center bg-[#191e2b]">
-            <span>Showing 1-12 of 12 items</span>
-            <div className="flex items-center gap-2">
-                <select className="bg-[#11141e] border border-gray-700 rounded-md px-2 py-1 text-gray-300 focus:outline-none focus:border-gray-500">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>50</option>
-                    <option>100</option>
-                </select>
-                <span>items per page</span>
+            <span>Page {currentPage} of {totalPages} ({projects.length} Total rows fetched)</span>
+            <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                    <select value={itemsPerPage} disabled className="bg-[#11141e] border border-gray-700 rounded-md px-2 py-1 text-gray-300 focus:outline-none focus:border-gray-500 cursor-not-allowed hidden sm:block">
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                    </select>
+                    <span className="hidden sm:inline">items per page</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                   <button 
+                     disabled={currentPage === 1}
+                     className="px-3 py-1.5 border border-gray-700 rounded bg-[#1f2536] text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                   >
+                     Prev
+                   </button>
+                   <button 
+                     disabled={currentPage >= totalPages}
+                     className="px-3 py-1.5 border border-gray-700 rounded bg-[#1f2536] text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                   >
+                     Next
+                   </button>
+                </div>
             </div>
         </div>
       </div>
       
+      {/* Component Modals */}
       <NewProjectModal 
         isOpen={isNewProjectModalOpen} 
         onClose={() => setIsNewProjectModalOpen(false)} 
+        onSuccess={fetchProjects}
+      />
+      <ViewProjectModal 
+        isOpen={activeModal?.type === 'view'} 
+        onClose={() => setActiveModal(null)} 
+        projectId={activeModal?.id || ''} 
+        projectName={activeModal?.name || ''} 
+      />
+      <SettingsProjectModal 
+        isOpen={activeModal?.type === 'settings'} 
+        onClose={() => setActiveModal(null)} 
+        projectId={activeModal?.id || ''} 
+        projectName={activeModal?.name || ''} 
+      />
+      <EditProjectModal 
+        isOpen={activeModal?.type === 'edit'} 
+        onClose={() => setActiveModal(null)} 
+        projectId={activeModal?.id || ''} 
+        projectName={activeModal?.name || ''} 
       />
     </div>
   );
 }
 
 function TableRow({ 
+  id,
   name, 
-  state, 
-  stack, 
-  image, 
-  created, 
-  ip, 
-  ports, 
-  ownership = "Public",
-  isAdmin = false,
-  hasLinks = false,
-  stateColor = "emerald"
+  code, 
+  status, 
+  client,
+  progress,
+  statusColor = "emerald",
+  onAction
 }: any) {
   return (
     <tr className="hover:bg-[#1f2536] transition-colors group">
@@ -269,35 +272,44 @@ function TableRow({
         <input type="checkbox" className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600 opacity-70 group-hover:opacity-100 transition-opacity" />
       </td>
       <td className="px-4 py-3.5 font-medium text-blue-500 hover:text-blue-400 cursor-pointer">{name}</td>
+      <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{code}</td>
       <td className="px-4 py-3.5">
-        <span className={`px-2 py-1 text-[10px] font-bold tracking-wider ${stateColor === 'green' ? 'text-green-500 border border-green-500/30' : 'text-[#00BFA5] border border-[#00BFA5]/30'} bg-transparent rounded shadow-sm`}>
-          {state}
+        <span className={`px-2 py-1 text-[10px] font-bold tracking-wider ${statusColor === 'green' ? 'text-green-500 border border-green-500/30' : 'text-[#00BFA5] border border-[#00BFA5]/30'} bg-transparent rounded shadow-sm`}>
+          {status}
         </span>
       </td>
       <td className="px-4 py-3.5">
-        <div className="flex items-center gap-2 text-gray-500">
-          <FileText className="w-3.5 h-3.5 hover:text-gray-300 cursor-pointer transition-colors" />
-          <Info className="w-3.5 h-3.5 hover:text-gray-300 cursor-pointer transition-colors" />
-          <Activity className="w-3.5 h-3.5 hover:text-gray-300 cursor-pointer transition-colors" />
-          <SquareTerminal className="w-3.5 h-3.5 hover:text-gray-300 cursor-pointer transition-colors" />
+        <div className="flex items-center gap-3 text-gray-500">
+          <span title="Graph"><LineChart className="w-3.5 h-3.5 hover:text-blue-400 cursor-pointer transition-colors" /></span>
+          <span title="Pause"><Pause className="w-3.5 h-3.5 hover:text-orange-400 cursor-pointer transition-colors" /></span>
+          <span title="View" onClick={() => onAction('view')}><Eye className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer transition-colors" /></span>
+          <span title="Edit" onClick={() => onAction('edit')}><Pencil className="w-3.5 h-3.5 hover:text-yellow-400 cursor-pointer transition-colors" /></span>
+          <span title="Info"><Info className="w-3.5 h-3.5 hover:text-purple-400 cursor-pointer transition-colors" /></span>
         </div>
       </td>
-      <td className="px-4 py-3.5 text-gray-400">{stack}</td>
-      <td className="px-4 py-3.5 text-gray-400">{image}</td>
-      <td className="px-4 py-3.5 text-gray-400">{created}</td>
-      <td className="px-4 py-3.5 text-gray-400">{ip}</td>
-      <td className="px-4 py-3.5">
-        {hasLinks ? (
-          <span className="text-blue-500 hover:text-blue-400 cursor-pointer">{ports}</span>
-        ) : (
-          <span className="text-gray-500">{ports}</span>
-        )}
-      </td>
-      <td className="px-4 py-3.5">
-        <div className="flex items-center gap-1.5 text-gray-400 text-xs">
-          {isAdmin ? <Shield className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-          {ownership}
+      <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{client}</td>
+      <td className="px-4 py-3.5 text-gray-400">
+        <div className="flex items-center gap-2">
+          <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
+          </div>
+          <span className="text-xs">{progress}%</span>
         </div>
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <button onClick={() => onAction('view')} className="px-2 py-1 text-[10px] bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <Eye className="w-2.5 h-2.5" /> View
+        </button>
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <button onClick={() => onAction('settings')} className="px-2 py-1 text-[10px] bg-gray-700/50 text-gray-300 hover:bg-gray-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <Settings className="w-2.5 h-2.5" /> Settings
+        </button>
+      </td>
+      <td className="px-4 py-3.5 text-center">
+        <button onClick={() => onAction('edit')} className="px-2 py-1 text-[10px] bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+          <Pencil className="w-2.5 h-2.5" /> Edit
+        </button>
       </td>
     </tr>
   );

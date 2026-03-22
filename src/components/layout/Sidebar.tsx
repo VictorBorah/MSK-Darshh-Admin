@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const { menu } = useAuth();
+  const { menu, user } = useAuth();
   const { sidebarOpen, setSidebarOpen } = useLayoutState();
   const pathname = usePathname();
 
@@ -64,10 +64,10 @@ export default function Sidebar() {
         className={`${baseClasses} ${activeClasses}`}
       >
         {getIconForSlug(item.slug)}
-        <span className="md:hidden lg:inline truncate">{item.menu_item}</span>
+        <span className={`truncate ${sidebarOpen ? '' : 'md:hidden'}`}>{item.menu_item}</span>
 
-        {/* Hover Tooltip (Only visible on md screens when width is w-16) */}
-        <div className="absolute left-full ml-4 px-2.5 py-1.5 bg-[#1f2536] text-white text-xs rounded-md shadow-xl border border-gray-700 opacity-0 md:group-hover:opacity-100 lg:group-hover:opacity-0 pointer-events-none transition-opacity duration-200 z-50 whitespace-nowrap">
+        {/* Hover Tooltip */}
+        <div className={`absolute left-full ml-4 px-2.5 py-1.5 bg-[#1f2536] text-white text-xs rounded-md shadow-xl border border-gray-700 opacity-0 ${sidebarOpen ? '' : 'md:group-hover:opacity-100'} pointer-events-none transition-opacity duration-200 z-50 whitespace-nowrap`}>
           {item.menu_item}
         </div>
       </Link>
@@ -86,8 +86,7 @@ export default function Sidebar() {
 
       <aside 
         className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen shrink-0 bg-[#191e2b] border-r border-gray-800 text-gray-300 transition-all duration-300 ease-in-out
-          w-64 md:w-16 lg:w-64 
-          ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:relative'}
+          ${sidebarOpen ? 'w-[200px] translate-x-0 md:relative' : 'w-[200px] md:w-16 -translate-x-full md:translate-x-0 md:relative'}
         `}
       >
         {/* Sidebar Header Logo */}
@@ -95,8 +94,8 @@ export default function Sidebar() {
           <div className="bg-blue-600 rounded-md p-1.5 flex items-center justify-center shrink-0">
              <Box className="w-5 h-5 text-white" />
           </div>
-          <div className="flex flex-col md:hidden lg:flex overflow-hidden">
-            <span className="font-bold text-gray-100 leading-tight truncate">DARSH</span>
+          <div className={`flex flex-col overflow-hidden ${sidebarOpen ? '' : 'md:hidden'}`}>
+            <span className="font-bold text-gray-100 leading-tight truncate">ZYN</span>
             <span className="text-[10px] text-gray-400 font-medium truncate">WORKSPACE</span>
           </div>
 
@@ -122,30 +121,44 @@ export default function Sidebar() {
              }`}
           >
             <Home className="w-4 h-4 shrink-0" />
-            <span className="md:hidden lg:inline truncate">Home</span>
+            <span className={`truncate ${sidebarOpen ? '' : 'md:hidden'}`}>Home</span>
 
-            <div className="absolute left-full ml-4 px-2.5 py-1.5 bg-[#1f2536] text-white text-xs rounded-md shadow-xl border border-gray-700 opacity-0 md:group-hover:opacity-100 lg:group-hover:opacity-0 pointer-events-none transition-opacity duration-200 z-50 whitespace-nowrap">
+            <div className={`absolute left-full ml-4 px-2.5 py-1.5 bg-[#1f2536] text-white text-xs rounded-md shadow-xl border border-gray-700 opacity-0 ${sidebarOpen ? '' : 'md:group-hover:opacity-100'} pointer-events-none transition-opacity duration-200 z-50 whitespace-nowrap`}>
               Home
             </div>
           </Link>
           
+          {/* Menu Skeleton Loader */}
+          {!user && (
+            <div className="mt-4 flex flex-col gap-3 px-3">
+              <div className={`h-3 bg-gray-800 rounded animate-pulse mb-1 ${sidebarOpen ? 'w-12' : 'w-8 md:mx-auto'}`}></div>
+              <div className="h-8 w-full bg-gray-800/60 rounded animate-pulse"></div>
+              <div className="h-8 w-full bg-gray-800/60 rounded animate-pulse"></div>
+              <div className="h-8 w-full bg-gray-800/60 rounded animate-pulse"></div>
+              
+              <div className={`mt-4 h-3 bg-gray-800 rounded animate-pulse mb-1 ${sidebarOpen ? 'w-16' : 'w-8 md:mx-auto'}`}></div>
+              <div className="h-8 w-full bg-gray-800/60 rounded animate-pulse"></div>
+              <div className="h-8 w-full bg-gray-800/60 rounded animate-pulse"></div>
+            </div>
+          )}
+
           {/* Dynamic Category 1: Local */}
-          {localMenu.length > 0 && (
+          {user && localMenu.length > 0 && (
             <>
-              <div className="mt-4 mb-2 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider md:text-center lg:text-left">
-                <span className="md:hidden lg:inline">Local</span>
-                <span className="hidden md:inline lg:hidden text-gray-600">--</span>
+              <div className={`mt-4 mb-2 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
+                <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Local</span>
+                <span className={`hidden ${sidebarOpen ? '' : 'md:inline'} text-gray-600`}>--</span>
               </div>
               {localMenu.map(renderMenuItem)}
             </>
           )}
 
           {/* Dynamic Category 2: Master */}
-          {masterMenu.length > 0 && (
+          {user && masterMenu.length > 0 && (
             <>
-              <div className="mt-4 mb-2 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider md:text-center lg:text-left">
-                <span className="md:hidden lg:inline">Master</span>
-                <span className="hidden md:inline lg:hidden text-gray-600">--</span>
+              <div className={`mt-4 mb-2 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
+                <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Master</span>
+                <span className={`hidden ${sidebarOpen ? '' : 'md:inline'} text-gray-600`}>--</span>
               </div>
               {masterMenu.map(renderMenuItem)}
             </>
@@ -154,8 +167,8 @@ export default function Sidebar() {
         </div>
         
         {/* Footer Version */}
-        <div className="p-4 text-xs text-gray-500 border-t border-gray-800 flex justify-between items-center bg-[#191e2b] mt-auto md:justify-center lg:justify-between overflow-hidden">
-          <span className="md:hidden lg:inline shrink-0">1.0.1</span>
+        <div className={`p-4 text-xs text-gray-500 border-t border-gray-800 flex items-center bg-[#191e2b] mt-auto overflow-hidden ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
+          <span className={`shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>1.0.1</span>
         </div>
       </aside>
     </>
