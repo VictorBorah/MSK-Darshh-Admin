@@ -13,7 +13,8 @@ import {
   Pencil,
   Settings,
   Archive,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
@@ -190,6 +191,7 @@ export default function Home() {
                      client={project.client_name || '-'}
                      progress={project.progress_percent}
                      statusColor={String(project.status).toLowerCase() === 'running' ? 'green' : 'cyan'}
+                     setupComplete={project.setup_complete}
                      onAction={(type: 'view'|'settings'|'edit') => setActiveModal({ type, id: String(project.project_id), name: project.project_name })}
                    />
                  ))
@@ -264,14 +266,26 @@ function TableRow({
   client,
   progress,
   statusColor = "emerald",
+  setupComplete,
   onAction
 }: any) {
+  const isSetupIncomplete = String(setupComplete) === '0';
+
   return (
-    <tr className="hover:bg-[#1f2536] transition-colors group">
+    <tr className={`${isSetupIncomplete ? 'bg-[#2a303d] hover:bg-[#323847]' : 'hover:bg-[#1f2536]'} transition-colors group`}>
       <td className="px-5 py-3.5">
         <input type="checkbox" className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600 opacity-70 group-hover:opacity-100 transition-opacity" />
       </td>
-      <td className="px-4 py-3.5 font-medium text-blue-500 hover:text-blue-400 cursor-pointer">{name}</td>
+      <td className="px-4 py-3.5 font-medium text-blue-500 hover:text-blue-400 cursor-pointer">
+        <div className="flex items-center gap-2">
+           {name}
+           {isSetupIncomplete && (
+             <span title="Setup Incomplete">
+               <AlertTriangle className="w-4 h-4 text-orange-500" />
+             </span>
+           )}
+        </div>
+      </td>
       <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{code}</td>
       <td className="px-4 py-3.5">
         <span className={`px-2 py-1 text-[10px] font-bold tracking-wider ${statusColor === 'green' ? 'text-green-500 border border-green-500/30' : 'text-[#00BFA5] border border-[#00BFA5]/30'} bg-transparent rounded shadow-sm`}>

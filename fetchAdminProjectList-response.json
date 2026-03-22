@@ -2,18 +2,18 @@
     {
         "Error": false,
         "Status": "1",
-        "total_rows": "3",
+        "total_rows": "6",
         "pagination_size": "10",
         "project_data": [
             {
                 "project_id": "1",
                 "status": "Running",
-                "progress_percent": "50",
+                "progress_percent": "25",
                 "project_name": "TEST PROJECT",
                 "project_code": "TST-001",
                 "district": "GOALPARA",
                 "client_name": "SIMRAN SINGH",
-                "current_stage": "BEAM CONSTRUCTION",
+                "current_stage": "PLINTH CONSTRUCTION",
                 "start_date": "12-07-2022",
                 "end_date": "",
                 "site_address": "NEW YORK",
@@ -58,22 +58,23 @@
                     "Test Engineer 1",
                     "Test Engineer 2"
                 ],
+                "setup_complete": "1",
                 "active": "1"
             },
             {
                 "project_id": "2",
                 "status": "Paused",
-                "progress_percent": "50",
+                "progress_percent": "78",
                 "project_name": "TEST 123",
                 "project_code": "TST213",
                 "district": "",
-                "client_name": "",
-                "current_stage": "",
+                "client_name": "ARYAN BORAH",
+                "current_stage": "BRICK LAYERING",
                 "start_date": "",
                 "end_date": "",
                 "site_address": "",
                 "site_coordinates": "",
-                "stages_csv": "",
+                "stages_csv": "1,2,3,4,5,6,7,8,9,10",
                 "geofence_json": "",
                 "allocated_budget": "0.00",
                 "inital_expenditure": "0.00",
@@ -85,14 +86,43 @@
                 "masons_data": [],
                 "procurement_managers_data": [],
                 "operation_data": [],
+                "setup_complete": "0",
                 "active": "1"
             },
             {
                 "project_id": "3",
                 "status": "Running",
-                "progress_percent": "50",
+                "progress_percent": "9",
                 "project_name": "TEST PROJECT 12234",
                 "project_code": "TST-1234",
+                "district": "",
+                "client_name": "MANJIT BORAH",
+                "current_stage": "FOUNDATION INITIATION",
+                "start_date": "",
+                "end_date": "",
+                "site_address": "",
+                "site_coordinates": "",
+                "stages_csv": "1,2,3,4,5,6,7,8,9,10,11,12",
+                "geofence_json": "",
+                "allocated_budget": "0.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "0",
+                "active": "1"
+            },
+            {
+                "project_id": "4",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "TEST 1234",
+                "project_code": "TST",
                 "district": "",
                 "client_name": "",
                 "current_stage": "",
@@ -112,9 +142,82 @@
                 "masons_data": [],
                 "procurement_managers_data": [],
                 "operation_data": [],
+                "setup_complete": "0",
+                "active": "1"
+            },
+            {
+                "project_id": "5",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "TEST X",
+                "project_code": "BRAH-007",
+                "district": "",
+                "client_name": "",
+                "current_stage": "",
+                "start_date": "",
+                "end_date": "",
+                "site_address": "",
+                "site_coordinates": "",
+                "stages_csv": "",
+                "geofence_json": "",
+                "allocated_budget": "0.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "0",
+                "active": "1"
+            },
+            {
+                "project_id": "6",
+                "status": "Running",
+                "progress_percent": "40",
+                "project_name": "BRAHMAPUTRA HEIGHTS",
+                "project_code": "BRAH-007",
+                "district": "DHEMAJI",
+                "client_name": "SIMRAN SINGH",
+                "current_stage": "COLUMN CONSTRUCTION",
+                "start_date": "18-03-2026",
+                "end_date": "",
+                "site_address": "TEST ADDRESS",
+                "site_coordinates": "27.47276765669245, 94.5598360439044",
+                "stages_csv": "2,3,5,9,14,19",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              94.560277,\r\n              27.472709\r\n            ],\r\n            [\r\n              94.560116,\r\n              27.47229\r\n            ],\r\n            [\r\n              94.56024,\r\n              27.472257\r\n            ],\r\n            [\r\n              94.560395,\r\n              27.472652\r\n            ],\r\n            [\r\n              94.560277,\r\n              27.472709\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "457802.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [
+                    "Test Accountant 1"
+                ],
+                "supervisors_data": [
+                    "Test Supervisor 2"
+                ],
+                "engineers_data": [
+                    "Test Engineer 1"
+                ],
+                "managers_data": [
+                    "Test Manager 1"
+                ],
+                "contractors_data": [
+                    "Test Contractor 1"
+                ],
+                "masons_data": [
+                    "Test Mistry 2"
+                ],
+                "procurement_managers_data": [
+                    "Test PM 2"
+                ],
+                "operation_data": [
+                    "Test Manager 1"
+                ],
+                "setup_complete": "1",
                 "active": "1"
             }
         ],
-        "Message": "System ready to proceed"
+        "Message": "Projects List Fetched Successfully"
     }
 ]
