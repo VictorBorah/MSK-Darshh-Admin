@@ -253,6 +253,7 @@ export default function Home() {
         onClose={() => setActiveModal(null)} 
         projectId={activeModal?.id || ''} 
         projectName={activeModal?.name || ''} 
+        onSuccess={() => fetchProjects()}
       />
     </div>
   );
