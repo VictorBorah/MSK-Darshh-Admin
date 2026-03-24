@@ -3,7 +3,7 @@
 import { 
   Play, 
   Pause, 
-  Info, 
+  IndianRupee, 
   Search,
   Plus,
   RefreshCcw,
@@ -22,6 +22,7 @@ import NewProjectModal from '@/app/(admin)/projects/NewProjectModal';
 import ViewProjectModal from '@/app/(admin)/projects/ViewProjectModal';
 import SettingsProjectModal from '@/app/(admin)/projects/SettingsProjectModal';
 import EditProjectModal from '@/app/(admin)/projects/EditProjectModal';
+import BudgetConfigModal from '@/app/(admin)/projects/BudgetConfigModal';
 
 export default function Home() {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
@@ -34,7 +35,7 @@ export default function Home() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
   // Action Modal Triggers
-  const [activeModal, setActiveModal] = useState<{type: 'view'|'settings'|'edit', id: string, name: string} | null>(null);
+  const [activeModal, setActiveModal] = useState<{type: 'view'|'settings'|'edit'|'budget', id: string, name: string} | null>(null);
 
   const fetchProjects = useCallback(async () => {
     setIsLoading(true);
@@ -192,7 +193,7 @@ export default function Home() {
                      progress={project.progress_percent}
                      statusColor={String(project.status).toLowerCase() === 'running' ? 'green' : 'cyan'}
                      setupComplete={project.setup_complete}
-                     onAction={(type: 'view'|'settings'|'edit') => setActiveModal({ type, id: String(project.project_id), name: project.project_name })}
+                     onAction={(type: 'view'|'settings'|'edit'|'budget') => setActiveModal({ type, id: String(project.project_id), name: project.project_name })}
                    />
                  ))
               )}
@@ -255,6 +256,12 @@ export default function Home() {
         projectName={activeModal?.name || ''} 
         onSuccess={() => fetchProjects()}
       />
+      <BudgetConfigModal 
+        isOpen={activeModal?.type === 'budget'} 
+        onClose={() => setActiveModal(null)} 
+        projectId={activeModal?.id || ''} 
+        projectName={activeModal?.name || ''} 
+      />
     </div>
   );
 }
@@ -299,7 +306,7 @@ function TableRow({
           <span title="Pause"><Pause className="w-3.5 h-3.5 hover:text-orange-400 cursor-pointer transition-colors" /></span>
           <span title="View" onClick={() => onAction('view')}><Eye className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer transition-colors" /></span>
           <span title="Edit" onClick={() => onAction('edit')}><Pencil className="w-3.5 h-3.5 hover:text-yellow-400 cursor-pointer transition-colors" /></span>
-          <span title="Info"><Info className="w-3.5 h-3.5 hover:text-purple-400 cursor-pointer transition-colors" /></span>
+          <span title="Budget Config" onClick={() => onAction('budget')}><IndianRupee className="w-3.5 h-3.5 hover:text-purple-400 cursor-pointer transition-colors" /></span>
         </div>
       </td>
       <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{client}</td>

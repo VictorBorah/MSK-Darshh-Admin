@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "Dashboard for ZYN Construction Management",
 };
 
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -17,9 +19,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-slate-900`}>
-        <Toaster position="top-right" />
-        {children}
+      <body className={`${inter.className} bg-slate-900 transition-colors duration-200`}>
+        <ThemeProvider>
+          <Toaster position="top-right" />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,14 +1,16 @@
 'use client';
 
-import { Home, Bell, User, ChevronDown, LogOut, UserCircle, Menu } from 'lucide-react';
+import { Home, Bell, User, ChevronDown, LogOut, UserCircle, Menu, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useLayoutState } from '@/components/providers/LayoutProvider';
+import { useTheme } from '@/components/providers/ThemeProvider';
 
 export default function TopBar() {
   const { user, logout } = useAuth();
   const { toggleSidebar } = useLayoutState();
+  const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +44,10 @@ export default function TopBar() {
       </div>
 
       <div className="flex items-center gap-5 relative">
+        <button onClick={toggleTheme} className="text-gray-400 hover:text-white transition-colors" title="Toggle Theme">
+          {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+        </button>
+
         <button className="text-gray-400 hover:text-white relative transition-colors">
           <Bell className="w-5 h-5" />
           <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-[#161a25]"></span>
