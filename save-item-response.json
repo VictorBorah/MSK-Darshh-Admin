@@ -1,0 +1,22 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "item_id": "246",
+        "item_code": "TEST12",
+        "item_name": "TEST ITEM 2",
+        "items_data": [
+            {
+                "id": "25",
+                "item_code": "AAC1",
+                "item_name": "AAC Block 600x200x100"
+            },
+            {
+                "id": "26",
+                "item_code": "AAC2",
+                "item_name": "AAC Block 600x200x150"
+            }
+        ],
+        "Message": "Item Added"
+    }
+]

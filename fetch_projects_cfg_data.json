@@ -10,6 +10,82 @@
             {
                 "id": "2",
                 "stage": "Foundation Initiation"
+            },
+            {
+                "id": "3",
+                "stage": "Foundation Construction"
+            },
+            {
+                "id": "4",
+                "stage": "Plinth Construction"
+            },
+            {
+                "id": "5",
+                "stage": "Column Construction"
+            },
+            {
+                "id": "6",
+                "stage": "Beam Construction"
+            },
+            {
+                "id": "7",
+                "stage": "Shed Construction"
+            },
+            {
+                "id": "8",
+                "stage": "Brick Layering"
+            },
+            {
+                "id": "9",
+                "stage": "Electrical Fixtures"
+            },
+            {
+                "id": "10",
+                "stage": "Plastering "
+            },
+            {
+                "id": "11",
+                "stage": "Painting"
+            },
+            {
+                "id": "12",
+                "stage": "Tiling"
+            },
+            {
+                "id": "13",
+                "stage": "Test Stage"
+            },
+            {
+                "id": "14",
+                "stage": "Test Stage"
+            },
+            {
+                "id": "15",
+                "stage": "Test Stage 2"
+            },
+            {
+                "id": "16",
+                "stage": "Test Stage 3"
+            },
+            {
+                "id": "17",
+                "stage": "My New Stage"
+            },
+            {
+                "id": "18",
+                "stage": "Test Stage 8"
+            },
+            {
+                "id": "19",
+                "stage": "Ne Stage1"
+            },
+            {
+                "id": "20",
+                "stage": "Test 12345"
+            },
+            {
+                "id": "21",
+                "stage": "Civil Repairing"
             }
         ],
         "clients": [
@@ -22,6 +98,16 @@
                 "id": "2",
                 "client_name": "Simran Singh",
                 "client_mobile_1": "7002140258"
+            },
+            {
+                "id": "3",
+                "client_name": "Manjit Borah",
+                "client_mobile_1": null
+            },
+            {
+                "id": "4",
+                "client_name": "Raghav Bordoloi",
+                "client_mobile_1": null
             }
         ],
         "districts": [
@@ -32,57 +118,185 @@
             {
                 "id": "2",
                 "district": "BARPETA"
+            },
+            {
+                "id": "3",
+                "district": "BISWANATH"
+            },
+            {
+                "id": "4",
+                "district": "BONGAIGAON"
+            },
+            {
+                "id": "5",
+                "district": "CACHAR"
+            },
+            {
+                "id": "6",
+                "district": "CHARAIDEO"
+            },
+            {
+                "id": "7",
+                "district": "DARRANG"
+            },
+            {
+                "id": "8",
+                "district": "DHEMAJI"
+            },
+            {
+                "id": "9",
+                "district": "DHUBRI"
+            },
+            {
+                "id": "10",
+                "district": "DIBRUGARH"
+            },
+            {
+                "id": "11",
+                "district": "DIMA HASAO"
+            },
+            {
+                "id": "12",
+                "district": "GOALPARA"
+            },
+            {
+                "id": "13",
+                "district": "GOLAGHAT"
+            },
+            {
+                "id": "14",
+                "district": "HAILAKANDI"
+            },
+            {
+                "id": "15",
+                "district": "HOJAI"
+            },
+            {
+                "id": "16",
+                "district": "JORHAT"
+            },
+            {
+                "id": "17",
+                "district": "KAMRUP METRO"
+            },
+            {
+                "id": "18",
+                "district": "KAMRUP RURAL"
+            },
+            {
+                "id": "19",
+                "district": "KARBI ANGLONG"
+            },
+            {
+                "id": "20",
+                "district": "SRIBHUMI"
+            },
+            {
+                "id": "21",
+                "district": "KOKRAJHAR"
+            },
+            {
+                "id": "22",
+                "district": "LAKHIMPUR"
+            },
+            {
+                "id": "23",
+                "district": "MAJULI"
+            },
+            {
+                "id": "24",
+                "district": "MORIGAON"
+            },
+            {
+                "id": "25",
+                "district": "NAGAON"
+            },
+            {
+                "id": "26",
+                "district": "NALBARI"
+            },
+            {
+                "id": "28",
+                "district": "SIVASAGAR"
+            },
+            {
+                "id": "29",
+                "district": "SONITPUR"
+            },
+            {
+                "id": "30",
+                "district": "SOUTH SALMARA"
+            },
+            {
+                "id": "31",
+                "district": "TINSUKIA"
+            },
+            {
+                "id": "32",
+                "district": "UDALGURI"
+            },
+            {
+                "id": "33",
+                "district": "W/KARBI ANGLONG"
+            },
+            {
+                "id": "34",
+                "district": "CHIRANG"
+            },
+            {
+                "id": "35",
+                "district": "TAMULPUR"
+            },
+            {
+                "id": "36",
+                "district": "BAJALI"
             }
         ],
         "hr_array": {
             "accountants": [
                 {
-                    "id": "2",
-                    "name": "Test Accountant 1"
-                },
-                {
                     "id": "3",
-                    "name": "Test Accountant 2"
+                    "name": "Srikant Ghosle"
                 }
             ],
             "engineers": [
                 {
                     "id": "4",
-                    "name": "Test Engineer 1"
+                    "name": "Amir Khan"
                 },
                 {
                     "id": "5",
-                    "name": "Test Engineer 2"
+                    "name": "Salman Khan"
                 }
             ],
             "managers": [
                 {
                     "id": "6",
-                    "name": "Test Manager 1"
+                    "name": "Hardik Goswami"
                 },
                 {
                     "id": "7",
-                    "name": "Test Manager 2"
+                    "name": "Manoj Gupta"
                 }
             ],
             "masons": [
                 {
                     "id": "18",
-                    "name": "Test Mistry 1"
+                    "name": "Billa Mistry"
                 },
                 {
                     "id": "19",
-                    "name": "Test Mistry 2"
+                    "name": "Raju Mistry"
                 }
             ],
             "supervisors": [
                 {
                     "id": "8",
-                    "name": "Test Supervisor 1"
+                    "name": "Rakesh Bedi"
                 },
                 {
                     "id": "9",
-                    "name": "Test Supervisor 2"
+                    "name": "Mohan Singh"
                 }
             ],
             "contractors": [
@@ -118,7 +332,7 @@
             "office_staff": [
                 {
                     "id": "14",
-                    "name": "Test Office Staff 1"
+                    "name": "Birju Dada"
                 },
                 {
                     "id": "15",
@@ -126,6 +340,26 @@
                 }
             ]
         },
+        "items_data": [
+            {
+                "id": "25",
+                "item_name": "AAC Block 600x200x100"
+            },
+            {
+                "id": "26",
+                "item_name": "AAC Block 600x200x150"
+            }
+        ],
+        "item_categories_data": [
+            {
+                "master_category_id": "2",
+                "master_category_name": "Aggregates"
+            },
+            {
+                "master_category_id": "3",
+                "master_category_name": "Bricks & Blocks"
+            }
+        ],
         "budget_heads_array": [
             {
                 "id": "1",
@@ -138,66 +372,6 @@
             {
                 "id": "3",
                 "head": "Transportation Charges"
-            },
-            {
-                "id": "4",
-                "head": "Food Expenses"
-            },
-            {
-                "id": "5",
-                "head": "Lodging Expenses"
-            },
-            {
-                "id": "6",
-                "head": "Road Toll"
-            },
-            {
-                "id": "7",
-                "head": "Municipality Tax"
-            },
-            {
-                "id": "8",
-                "head": "Electricity Bill"
-            },
-            {
-                "id": "9",
-                "head": "Internet Bill"
-            },
-            {
-                "id": "10",
-                "head": "Office Supply Expenses"
-            },
-            {
-                "id": "11",
-                "head": "Medical Expenses"
-            },
-            {
-                "id": "12",
-                "head": "Salary Expenses"
-            },
-            {
-                "id": "13",
-                "head": "Rent and similar expenses"
-            },
-            {
-                "id": "14",
-                "head": "Donations"
-            },
-            {
-                "id": "15",
-                "head": "Contingencies "
-            },
-            {
-                "id": "16",
-                "head": "Test Head"
-            },
-            {
-                "id": "17",
-                "head": "Test Head 2"
-            },
-            {
-                "id": "18",
-                "head": "Test Head 12"
             }
         ],
         "Message": "Configuration data fetched successfully"

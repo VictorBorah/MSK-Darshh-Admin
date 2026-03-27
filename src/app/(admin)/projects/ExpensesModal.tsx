@@ -34,9 +34,11 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
   const [newHeadName, setNewHeadName] = useState('');
   const [isAddingHead, setIsAddingHead] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [defaultGst, setDefaultGst] = useState('');
 
   // Sync initial setup
   useEffect(() => {
+    setDefaultGst(localStorage.getItem('sys_default_gst') || '18.00');
     try {
       if (initialExpensesJson && initialExpensesJson !== '[]') {
         const parsed = JSON.parse(initialExpensesJson);
@@ -159,6 +161,7 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
       const token = localStorage.getItem('at_ki8Xq1iV');
       const formData = new FormData();
       formData.append('head_name', newHeadName);
+      formData.append('default_gst', defaultGst);
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveHead`, {
         method: 'POST',
@@ -314,8 +317,19 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
               onChange={e => setNewHeadName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAddHead()}
               autoFocus
-              className="w-full bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-9 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
+              className="w-full bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-9 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
             />
+            <div className="mb-5 flex items-center justify-between">
+              <label className="text-[12px] text-gray-300 font-medium">Default GST (%)</label>
+              <input 
+                type="number"
+                placeholder="0.00"
+                value={defaultGst}
+                onChange={e => setDefaultGst(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddHead()}
+                className="w-[100px] bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+              />
+            </div>
             <div className="flex justify-end gap-2 text-sm">
               <button type="button" disabled={isAddingHead} onClick={() => setIsAddModalOpen(false)} className="px-4 py-1.5 text-gray-300 hover:text-white transition-colors bg-transparent border-none outline-none">Cancel</button>
               <button type="button" disabled={isAddingHead} onClick={handleAddHead} className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-500 min-w-[90px] flex items-center justify-center transition-colors outline-none border-none shadow-sm">

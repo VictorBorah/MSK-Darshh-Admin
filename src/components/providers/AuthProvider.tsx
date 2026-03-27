@@ -88,6 +88,11 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         if(userData.projects_csv) {
           localStorage.setItem('p_v7Ykz3ui9x', userData.projects_csv);
         }
+        
+        // Store Default GST
+        if(data.System_Data && data.System_Data.default_gst) {
+          localStorage.setItem('sys_default_gst', data.System_Data.default_gst);
+        }
 
       } else {
         triggerLogout();

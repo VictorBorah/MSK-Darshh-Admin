@@ -64,8 +64,8 @@
         ],
         "User_Data": [
             {
-                "display_name": "Mandeep",
-                "full_name": "Mandeep Singh",
+                "display_name": "Victor",
+                "full_name": "Victor Borah",
                 "grp_id": 1,
                 "grp_name": "Super Admin",
                 "username": "",
@@ -80,7 +80,7 @@
                 "address": "",
                 "district_id": "3",
                 "district_name": "BISWANATH",
-                "pincode": "784176",
+                "pincode": "787057",
                 "marital_status": "1",
                 "marital_status_txt": "Married",
                 "father_name": null,
@@ -103,6 +103,7 @@
             "androidVersion": "1.00",
             "frontendVersion": "1.01",
             "bucketHost": "digital-ocean-cloud",
+            "default_gst": "18.00",
             "s3BucketBasePath": "https://sirish-core-2024.blr1.digitaloceanspaces.com",
             "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "doca",

@@ -30,9 +30,11 @@ export default function StagesModal({ projectId, configStages, initialStagesCsv,
   const [newStageName, setNewStageName] = useState('');
   const [isAddingStage, setIsAddingStage] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [defaultGst, setDefaultGst] = useState('');
 
   // Sync initial setup
   useEffect(() => {
+    setDefaultGst(localStorage.getItem('sys_default_gst') || '18.00');
     if (initialStagesCsv) {
       const ids = initialStagesCsv.split(',').map(id => id.trim());
       const loadedSelectedStages = ids.map(id => availableStages.find(s => String(s.id) === id)).filter(Boolean) as Stage[];
@@ -122,6 +124,7 @@ export default function StagesModal({ projectId, configStages, initialStagesCsv,
       const formData = new FormData();
       formData.append('stage_name', newStageName);
       formData.append('project_id', projectId);
+      formData.append('default_gst', defaultGst);
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveStage`, {
         method: 'POST',
@@ -277,8 +280,19 @@ export default function StagesModal({ projectId, configStages, initialStagesCsv,
               onChange={e => setNewStageName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAddStage()}
               autoFocus
-              className="w-full bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-9 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
+              className="w-full bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-9 focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
             />
+            <div className="mb-5 flex items-center justify-between">
+              <label className="text-[12px] text-gray-300 font-medium">Default GST (%)</label>
+              <input 
+                type="number"
+                placeholder="0.00"
+                value={defaultGst}
+                onChange={e => setDefaultGst(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddStage()}
+                className="w-[100px] bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+              />
+            </div>
             <div className="flex justify-end gap-2 text-sm">
               <button type="button" disabled={isAddingStage} onClick={() => setIsAddModalOpen(false)} className="px-4 py-1.5 text-gray-300 hover:text-white transition-colors bg-transparent border-none outline-none">Cancel</button>
               <button type="button" disabled={isAddingStage} onClick={handleAddStage} className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-500 min-w-[90px] flex items-center justify-center transition-colors outline-none border-none shadow-sm">

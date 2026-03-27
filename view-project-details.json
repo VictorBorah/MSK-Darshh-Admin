@@ -5,57 +5,77 @@
         "project_data": {
             "project_id": "1",
             "status": "Running",
-            "progress_percent": "25",
+            "progress_percent": "20",
             "project_name": "TEST PROJECT",
             "project_code": "TST-001",
             "district": "GOALPARA",
-            "client_name": "SIMRAN SINGH",
-            "current_stage": "PLINTH CONSTRUCTION",
+            "client_name": "RAGHAV BORDOLOI",
+            "current_stage": "BRICK LAYERING",
             "start_date": "12-07-2022",
             "end_date": "",
             "site_address": "NEW YORK",
             "site_coordinates": "121212.344334,34343.343434",
-            "stages_csv": "2,4,6,14,17",
-            "geofence_json": "",
+            "stages_csv": "2,8,4,14,6,17",
+            "stages_data": [
+                {
+                    "stage_id": "2",
+                    "stage_name": "Foundation Initiation",
+                    "status": "0"
+                },
+                {
+                    "stage_id": "8",
+                    "stage_name": "Brick Layering",
+                    "status": "0"
+                },
+                {
+                    "stage_id": "4",
+                    "stage_name": "Plinth Construction",
+                    "status": "0"
+                },
+                {
+                    "stage_id": "14",
+                    "stage_name": "Test Stage",
+                    "status": "0"
+                },
+                {
+                    "stage_id": "6",
+                    "stage_name": "Beam Construction",
+                    "status": "0"
+                },
+                {
+                    "stage_id": "17",
+                    "stage_name": "My New Stage",
+                    "status": "0"
+                }
+            ],
+            "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              94.56215,\r\n              27.475355\r\n            ],\r\n            [\r\n              94.562262,\r\n              27.475236\r\n            ],\r\n            [\r\n              94.562327,\r\n              27.475317\r\n            ],\r\n            [\r\n              94.562262,\r\n              27.47545\r\n            ],\r\n            [\r\n              94.56215,\r\n              27.475355\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
             "allocated_budget": "4158700.00",
             "inital_expenditure": "2217214.00",
             "setup_complete": "Yes",
+            "budget_ledger_status": "Incomplete",
             "active": "1",
             "accountants_data": [
-                "Test Accountant 1",
-                "Test Accountant 2",
-                "Test Engineer 1"
+                "Mandeep Singh",
+                "Srikant Ghosle"
             ],
             "supervisors_data": [
-                "Test Accountant 1",
-                "Test Engineer 1"
+                "Mohan Singh"
             ],
             "engineers_data": [
-                "Mandeep Singh",
-                "Test Accountant 1"
+                "Salman Khan"
             ],
             "managers_data": [
-                "Test Accountant 1",
-                "Test Engineer 1",
-                "Test Engineer 2"
+                "Manoj Gupta"
             ],
             "contractors_data": [
-                "Test Manager 1",
-                "Test Manager 2"
+                "Test Contractor 2"
             ],
-            "masons_data": [
-                "Test Manager 1",
-                "Test Manager 2",
-                "Test Supervisor 2"
-            ],
+            "masons_data": [],
             "procurement_managers_data": [
-                "Test Engineer 1",
-                "Test Supervisor 2"
+                "Test PM 2"
             ],
             "operation_managers_data": [
-                "Test Accountant 1",
-                "Test Engineer 1",
-                "Test Engineer 2"
+                "Manoj Gupta"
             ]
         },
         "Message": "System ready to proceed"
