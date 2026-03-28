@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { X, Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import { X, Loader2, FileText, CheckCircle2, Maximize2, Minimize2, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface BudgetConfigModalProps {
@@ -16,16 +16,24 @@ interface SelectedItem {
   item_id: string;
   item_name: string;
   amount: string;
+  head_id: string;
+  head_name: string;
 }
 
 export default function BudgetConfigModal({ isOpen, onClose, projectId, projectName }: BudgetConfigModalProps) {
   const [loading, setLoading] = useState(false);
   const [projectData, setProjectData] = useState<any>(null);
   const [cfgData, setCfgData] = useState<any>(null);
-  
+
   const [selectedBudgetHead, setSelectedBudgetHead] = useState<any>(null);
   const [selectedItemsList, setSelectedItemsList] = useState<SelectedItem[]>([]);
   const [activeStageId, setActiveStageId] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [pendingStageId, setPendingStageId] = useState<string | null>(null);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [isFetchingStage, setIsFetchingStage] = useState(false);
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
 
   // Add New Item Modal States
   const [showAddItemModal, setShowAddItemModal] = useState(false);
@@ -48,7 +56,12 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       setSelectedBudgetHead(null);
       setActiveStageId(null);
       setShowAddItemModal(false);
-      
+      setIsFullscreen(false);
+      setHasUnsavedChanges(false);
+      setPendingStageId(null);
+      setShowWarningModal(false);
+      setIsSavingConfig(false);
+
       const defaultGstValue = localStorage.getItem('sys_default_gst') || '18.00';
       setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: defaultGstValue });
       setShowAddHeadModal(false);
@@ -90,14 +103,90 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
     }
   };
 
+  const markUnsaved = () => setHasUnsavedChanges(true);
+
+  const handleStageSelect = (stageId: string) => {
+    if (activeStageId !== stageId && selectedItemsList.length > 0 && hasUnsavedChanges) {
+      setPendingStageId(stageId);
+      setShowWarningModal(true);
+    } else {
+      changeStage(stageId);
+    }
+  };
+
+  const changeStage = (stageId: string) => {
+    setActiveStageId(stageId);
+    setSelectedItemsList([]);
+    setHasUnsavedChanges(false);
+    setPendingStageId(null);
+    setShowWarningModal(false);
+    fetchStageConfig(stageId);
+  };
+
+  const fetchStageConfig = async (stageId: string) => {
+    setIsFetchingStage(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchBudgetStageConfig?project_id=${projectId}&stage_id=${stageId}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const data = await res.json();
+      const response = Array.isArray(data) ? data[0] : data;
+
+      if (String(response.Status) === "1") {
+        toast.success(response.Message || 'Stage configuration loaded');
+        
+        if (response.items_config && Array.isArray(response.items_config)) {
+          const mappedItems = response.items_config.map((cfgItem: any) => {
+            const matchedItem = cfgData?.items_data?.find((i: any) => String(i.id) === String(cfgItem.item_id));
+            const matchedHead = cfgData?.budget_heads_array?.find((h: any) => String(h.id) === String(cfgItem.head_id));
+            
+            return {
+              item_id: String(cfgItem.item_id),
+              item_name: matchedItem ? matchedItem.item_name : `Unknown Item ${cfgItem.item_id}`,
+              amount: String(cfgItem.amount),
+              head_id: String(cfgItem.head_id),
+              head_name: matchedHead ? matchedHead.head : `Unknown Head ${cfgItem.head_id}`
+            };
+          });
+          setSelectedItemsList(mappedItems);
+        } else {
+          setSelectedItemsList([]);
+        }
+      } else {
+        toast.error(response.Message || 'Failed to fetch stage configuration');
+        setSelectedItemsList([]);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Network error fetching stage configuration');
+      setSelectedItemsList([]);
+    } finally {
+      setIsFetchingStage(false);
+      setHasUnsavedChanges(false);
+    }
+  };
+
   const handleItemSelect = (option: any) => {
     if (!option) return;
+    if (!selectedBudgetHead) {
+      toast.error('Please select a Budget Head before adding an item.');
+      return;
+    }
     const itemMatch = cfgData?.items_data?.find((i: any) => String(i.id) === String(option.value));
     if (itemMatch) {
       setSelectedItemsList(prev => {
         if (prev.find(p => String(p.item_id) === String(itemMatch.id))) return prev;
-        return [...prev, { item_id: String(itemMatch.id), item_name: itemMatch.item_name, amount: '' }];
+        return [...prev, {
+          item_id: String(itemMatch.id),
+          item_name: itemMatch.item_name,
+          amount: '',
+          head_id: selectedBudgetHead.value,
+          head_name: selectedBudgetHead.label
+        }];
       });
+      markUnsaved();
     }
   };
 
@@ -106,13 +195,29 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       if (item.item_id === itemId) return { ...item, amount: val };
       return item;
     }));
+    markUnsaved();
+  };
+
+  const handleRowHeadChange = (itemId: string, selectedOption: any) => {
+    setSelectedItemsList(prev => prev.map(item => {
+      if (item.item_id === itemId) {
+        return { ...item, head_id: selectedOption.value, head_name: selectedOption.label };
+      }
+      return item;
+    }));
+    markUnsaved();
   };
 
   const handleItemRemove = (itemId: string) => {
     setSelectedItemsList(prev => prev.filter(i => i.item_id !== itemId));
+    markUnsaved();
   };
 
   const handleSaveItemParams = async () => {
+    if (!selectedBudgetHead) {
+      toast.error('Please select a Budget Head before adding a new item.');
+      return;
+    }
     if (!addItemData.category_id || !addItemData.item_name || !addItemData.item_code) {
       toast.error('Please fill in all mandatory fields.');
       return;
@@ -143,9 +248,16 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
         }
         if (response.item_id && response.item_name) {
           setSelectedItemsList(prev => {
-             if (prev.find(p => String(p.item_id) === String(response.item_id))) return prev;
-             return [...prev, { item_id: String(response.item_id), item_name: response.item_name, amount: '' }];
-           });
+            if (prev.find(p => String(p.item_id) === String(response.item_id))) return prev;
+            return [...prev, {
+              item_id: String(response.item_id),
+              item_name: response.item_name,
+              amount: '',
+              head_id: selectedBudgetHead.value,
+              head_name: selectedBudgetHead.label
+            }];
+          });
+          markUnsaved();
         }
         setShowAddItemModal(false);
         setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: localStorage.getItem('sys_default_gst') || '18.00' });
@@ -210,22 +322,73 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
   const budgetHeads = cfgData?.budget_heads_array || [];
   const itemsData = cfgData?.items_data || [];
 
+  const isConfigValid = selectedItemsList.length > 0 && selectedItemsList.every(item => item.amount.trim() !== '' && parseFloat(item.amount) >= 0 && item.head_id);
+  const isSaveEnabled = isConfigValid && hasUnsavedChanges;
+
+  const handleSaveConfig = async () => {
+    if (!activeStageId || !isSaveEnabled) return;
+
+    setIsSavingConfig(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      
+      const configArray = selectedItemsList.map(item => ({
+        project_id: projectId,
+        stage_id: activeStageId,
+        item_id: item.item_id,
+        head_id: item.head_id,
+        amount: item.amount
+      }));
+      
+      const formData = new FormData();
+      formData.append('config_json', JSON.stringify(configArray));
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/commitStageBudgetConfig`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      const data = await res.json();
+      const response = Array.isArray(data) ? data[0] : data;
+
+      if (String(response.Status) === '1') {
+        toast.success(response.Message || 'Budget Config Updated');
+        setHasUnsavedChanges(false);
+        fetchData(); 
+      } else {
+        toast.error(response.Message || 'Failed to update Budget Config');
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error('Network error during configuration save.');
+    } finally {
+      setIsSavingConfig(false);
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm shadow-2xl transition-opacity animate-in fade-in duration-200">
-      <div className="bg-[#1c2130] border border-gray-700 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col relative overflow-hidden transition-all duration-300 w-[1250px] max-w-[95vw] h-auto max-h-[90vh]">
+      <div className={`bg-[#1c2130] border border-gray-700 shadow-[0_0_50px_rgba(0,0,0,0.5)] flex flex-col relative overflow-hidden transition-all duration-300 ${isFullscreen ? 'w-screen h-screen max-w-none max-h-none rounded-none m-0' : 'w-[1250px] max-w-[95vw] h-auto max-h-[90vh] rounded-xl'}`}>
 
         {/* Header */}
         <div className="px-6 py-5 border-b border-gray-700/50 flex justify-between items-center bg-[#1c2130]">
           <div className="flex flex-col">
             <h2 className="text-[17px] text-white tracking-wide flex items-center gap-2">
-              <span className="font-semibold">Budget Configuration:</span> 
+              <span className="font-semibold">Budget Configuration:</span>
               <span className="text-blue-200">{projectName || projectData?.project_name || 'Unnamed Project'}</span>
             </h2>
             <span className="text-[12px] text-gray-500 mt-1 font-medium">Sequence ID: {projectId} / Modifying Project Financials</span>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors bg-transparent border-0 hover:bg-gray-800 p-1.5 rounded-md outline-none">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsFullscreen(!isFullscreen)} className="text-gray-400 hover:text-white transition-colors bg-transparent border-0 hover:bg-gray-800 p-1.5 rounded-md outline-none" title={isFullscreen ? "Restore Down" : "Fullscreen"}>
+              {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            </button>
+            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors bg-transparent border-0 hover:bg-gray-800 p-1.5 rounded-md outline-none">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content Body */}
@@ -241,11 +404,11 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
             </div>
           ) : (
             <div className="flex gap-8 h-full animate-in slide-in-from-bottom-4 duration-300">
-              
+
               {/* Left Column: Stages Tracking */}
-              <div className="w-[320px] shrink-0 flex flex-col border-r border-gray-700/50 pr-6 pl-2">
-                <h3 className="text-[#8cd1ff] font-medium text-[15px] mb-6 tracking-wide border-b border-gray-700/50 pb-2">Project Stages Tracking</h3>
-                <div className="flex flex-col gap-2.5 overflow-y-auto max-h-[60vh] pl-1 py-1 pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+              <div className="w-[320px] shrink-0 flex flex-col border-r border-gray-700/50 pr-6 pl-2 h-full">
+                <h3 className="text-[#8cd1ff] font-medium text-[15px] mb-6 tracking-wide border-b border-gray-700/50 pb-2 shrink-0">Project Stages Tracking</h3>
+                <div className="flex flex-col gap-2.5 overflow-y-auto flex-1 min-h-0 pl-1 py-1 pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
                   {stagesData.map((stage: any, idx: number) => {
                     const isComplete = String(stage.status) === "1";
                     const isActive = activeStageId === stage.stage_id;
@@ -253,16 +416,16 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                     return (
                       <div key={stage.stage_id} className={`p-2.5 rounded-md border ${isActive ? 'bg-[#2a3143] border-blue-400 shadow-md transform scale-[1.02]' : isComplete ? 'bg-emerald-500/10 border-emerald-500/30' : 'bg-[#1e293b] border-gray-700/50'} flex items-center justify-between transition-all duration-200`}>
                         <div className="flex items-center gap-2.5 min-w-0">
-                           <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isActive ? 'bg-blue-500/20 text-blue-400' : isComplete ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-800 text-gray-400'}`}>
-                             {isComplete ? <CheckCircle2 className="w-3.5 h-3.5" /> : <span className="text-[10px] font-bold">{idx + 1}</span>}
-                           </div>
-                           <div className="flex flex-col min-w-0 pr-2" title={stage.stage_name}>
-                             <span className={`text-[13px] font-semibold truncate ${isActive ? 'text-blue-300' : isComplete ? 'text-emerald-400' : 'text-[#e2e8f0]'}`}>{displayName}</span>
-                             <span className="text-[10px] text-gray-500 font-medium tracking-wide">VECTOR {stage.stage_id}</span>
-                           </div>
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isActive ? 'bg-blue-500/20 text-blue-400' : isComplete ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-800 text-gray-400'}`}>
+                            {isComplete ? <CheckCircle2 className="w-3.5 h-3.5" /> : <span className="text-[10px] font-bold">{idx + 1}</span>}
+                          </div>
+                          <div className="flex flex-col min-w-0 pr-2" title={stage.stage_name}>
+                            <span className={`text-[13px] font-semibold truncate ${isActive ? 'text-blue-300' : isComplete ? 'text-emerald-400' : 'text-[#e2e8f0]'}`}>{displayName}</span>
+                            <span className="text-[10px] text-gray-500 font-medium tracking-wide">VECTOR {stage.stage_id}</span>
+                          </div>
                         </div>
-                        <button 
-                          onClick={() => setActiveStageId(stage.stage_id)}
+                        <button
+                          onClick={() => handleStageSelect(stage.stage_id)}
                           title={`Configure Budget for ${stage.stage_name}`}
                           className={`px-3 py-1 rounded text-[11px] font-semibold transition-colors shrink-0 ml-2 ${isActive ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-inner' : isComplete ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-gray-600 hover:bg-gray-500 text-white'}`}
                         >
@@ -272,7 +435,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                     );
                   })}
                   {stagesData.length === 0 && (
-                     <p className="text-gray-500 text-sm italic">No stages explicitly mapped.</p>
+                    <p className="text-gray-500 text-sm italic">No stages explicitly mapped.</p>
                   )}
                 </div>
               </div>
@@ -282,45 +445,27 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                 <h3 className="text-[#8cd1ff] font-medium text-[15px] mb-6 tracking-wide border-b border-gray-700/50 pb-2">
                   Dynamic Configuration Matrix {activeStageId && <span className="text-white ml-2">- Stage {activeStageId}</span>}
                 </h3>
-                
+
                 {!activeStageId ? (
                   <div className="flex flex-col items-center justify-center h-full opacity-50 border border-dashed border-gray-700/50 rounded-xl m-4 bg-[#161a25]">
-                     <p className="text-sm text-[#ccd6f6] font-medium">Select a Stage from the left panel to configure its structural financials.</p>
+                    <p className="text-sm text-[#ccd6f6] font-medium">Select a Stage from the left panel to configure its structural financials.</p>
+                  </div>
+                ) : isFetchingStage ? (
+                  <div className="flex flex-col items-center justify-center h-full opacity-[0.85] border border-gray-700/50 rounded-xl m-4 bg-[#161a25]">
+                     <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
+                     <p className="text-sm text-[#ccd6f6] font-medium tracking-wide">Syncing Configuration Layers...</p>
                   </div>
                 ) : (
                   <div className="flex flex-col h-full animate-in fade-in zoom-in-95 duration-200">
                     <div className="grid grid-cols-2 gap-4 mb-6">
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                           <label className="text-[13px] text-[#ccd6f6] font-medium tracking-wide">Select Item</label>
-                           <button onClick={() => setShowAddItemModal(true)} className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline bg-transparent border-none outline-none">
-                             + Add New Item
-                           </button>
+                          <label className="text-[13px] text-[#ccd6f6] font-medium tracking-wide">Select Budget Head</label>
+                          <button onClick={() => setShowAddHeadModal(true)} className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline bg-transparent border-none outline-none">
+                            + Add New Head
+                          </button>
                         </div>
-                        <Select 
-                          options={itemsData.map((i: any) => ({ value: String(i.id), label: i.item_name }))}
-                          onChange={handleItemSelect}
-                          value={null}
-                          placeholder="Select an item.."
-                          styles={{
-                            control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '38px', boxShadow: 'none' }),
-                            menuPortal: base => ({ ...base, zIndex: 9999 }),
-                            menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
-                            option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
-                            singleValue: base => ({ ...base, color: '#e2e8f0' }),
-                            input: base => ({ ...base, color: '#e2e8f0' })
-                          }}
-                          menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                        />
-                      </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                           <label className="text-[13px] text-[#ccd6f6] font-medium tracking-wide">Select Budget Head</label>
-                           <button onClick={() => setShowAddHeadModal(true)} className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline bg-transparent border-none outline-none">
-                             + Add New Head
-                           </button>
-                        </div>
-                        <Select 
+                        <Select
                           options={budgetHeads.map((h: any) => ({ value: String(h.id), label: h.head }))}
                           value={selectedBudgetHead}
                           onChange={(val) => setSelectedBudgetHead(val)}
@@ -336,51 +481,106 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                           menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                         />
                       </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-[13px] text-[#ccd6f6] font-medium tracking-wide">Select Item</label>
+                          <button onClick={() => setShowAddItemModal(true)} className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline bg-transparent border-none outline-none">
+                            + Add New Item
+                          </button>
+                        </div>
+                        <Select
+                          options={itemsData.map((i: any) => ({ value: String(i.id), label: i.item_name }))}
+                          onChange={handleItemSelect}
+                          value={null}
+                          placeholder="Select an item.."
+                          styles={{
+                            control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '38px', boxShadow: 'none' }),
+                            menuPortal: base => ({ ...base, zIndex: 9999 }),
+                            menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                            option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                            singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                            input: base => ({ ...base, color: '#e2e8f0' })
+                          }}
+                          menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                        />
+                      </div>
                     </div>
 
                     {/* Items Injection Scroll Container */}
-                    <div className="bg-[#191e2b] border border-gray-700/50 p-4 rounded-md min-h-[50px] shadow-inner max-h-[40vh] overflow-y-auto flex flex-col gap-2 scrollbar-thin scrollbar-thumb-gray-600 flex-1">
-                      <div className="flex justify-between items-center mb-2 px-1 border-b border-gray-700/50 pb-2">
-                         <span className="text-[12px] text-gray-400 font-semibold tracking-wide uppercase">Active Item</span>
-                         <span className="text-[12px] text-gray-400 font-semibold tracking-wide uppercase">Financial Allotment</span>
+                    <div className="bg-[#191e2b] border border-gray-700/50 p-4 rounded-md min-h-[50px] shadow-inner overflow-y-auto flex flex-col gap-2 scrollbar-thin scrollbar-thumb-gray-600 flex-1 min-h-0">
+                      <div className="flex justify-between items-center mb-2 px-1 border-b border-gray-700/50 pb-2 shrink-0">
+                        <span className="text-[12px] text-gray-400 font-semibold tracking-wide uppercase">Active Item</span>
+                        <span className="text-[12px] text-gray-400 font-semibold tracking-wide uppercase">Financial Allotment</span>
                       </div>
 
                       {selectedItemsList.length === 0 && (
-                         <div className="flex flex-col items-center justify-center py-6 opacity-50 h-full">
-                           <FileText className="w-8 h-8 text-gray-500 mb-3" />
-                           <span className="text-[13px] text-gray-400 text-center px-4">Search and select items above to compile dynamic fiscal nodes...</span>
-                         </div>
+                        <div className="flex flex-col items-center justify-center py-6 opacity-50 h-full">
+                          <FileText className="w-8 h-8 text-gray-500 mb-3" />
+                          <span className="text-[13px] text-gray-400 text-center px-4">Search and select items above to compile dynamic fiscal nodes...</span>
+                        </div>
                       )}
 
                       {selectedItemsList.map((item) => (
                         <div key={item.item_id} className="flex items-center justify-between gap-3 bg-[#1e293b] p-3 rounded-md border border-gray-700 hover:border-gray-600 transition-colors shadow-sm">
-                          <div className="flex flex-col flex-1 min-w-0 pr-4">
+                          <div className="flex flex-col flex-1 min-w-[150px] pr-2">
                             <span className="text-[#e2e8f0] font-medium text-[13px] truncate" title={item.item_name}>{item.item_name}</span>
                             <span className="text-gray-500 text-[10px] font-bold">NODE {item.item_id}</span>
                           </div>
-                          
+
+                          <div className="w-[180px] shrink-0">
+                            <Select
+                              options={budgetHeads.map((h: any) => ({ value: String(h.id), label: h.head }))}
+                              value={item.head_id ? { value: item.head_id, label: item.head_name } : null}
+                              onChange={(val: any) => handleRowHeadChange(item.item_id, val)}
+                              placeholder="Select Head..."
+                              styles={{
+                                control: (base, state) => ({ ...base, backgroundColor: '#11141e', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '32px', height: '32px', boxShadow: 'none' }),
+                                menuPortal: base => ({ ...base, zIndex: 9999 }),
+                                menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                                option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer', padding: '6px 10px', fontSize: '12px' }),
+                                singleValue: base => ({ ...base, color: '#e2e8f0', fontSize: '12px' }),
+                                input: base => ({ ...base, color: '#e2e8f0', margin: '0' }),
+                                valueContainer: base => ({ ...base, padding: '0 8px' })
+                              }}
+                              menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                            />
+                          </div>
+
                           <div className="flex items-center gap-3 shrink-0">
-                             <div className="relative">
-                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">₹</span>
-                               <input 
-                                 type="number" 
-                                 min="0"
-                                 value={item.amount}
-                                 onChange={(e) => handleAmountChange(item.item_id, e.target.value)}
-                                 placeholder="0.00"
-                                 className="w-[140px] bg-[#11141e] border border-gray-700 text-[#e2e8f0] text-[13px] font-medium rounded pl-7 pr-3 h-8 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                               />
-                             </div>
-                             <button 
-                               onClick={() => handleItemRemove(item.item_id)} 
-                               className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
-                               title="Remove Item"
-                             >
-                               <X className="w-4 h-4" />
-                             </button>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium text-sm">₹</span>
+                              <input
+                                type="number"
+                                min="0"
+                                value={item.amount}
+                                onChange={(e) => handleAmountChange(item.item_id, e.target.value)}
+                                placeholder="0.00"
+                                className="w-[140px] bg-[#11141e] border border-gray-700 text-[#e2e8f0] text-[13px] font-medium rounded pl-7 pr-3 h-8 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleItemRemove(item.item_id)}
+                              className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors"
+                              title="Remove Item"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
                           </div>
                         </div>
                       ))}
+                    </div>
+
+                    <div className="mt-4 bg-[#161a25] border border-gray-700/50 rounded-xl p-4 flex justify-between items-center shadow-[0_0_15px_rgba(0,0,0,0.5)] shrink-0">
+                      <div className="flex flex-col">
+                        <span className="text-[13px] text-gray-400 font-bold tracking-wider uppercase">Total Budget Value</span>
+                        <span className="text-[11px] text-gray-500 mt-1 font-medium">Aggregated sum of all active financial nodes</span>
+                      </div>
+                      <div className="flex items-center justify-center bg-[#1e293b] py-2 px-4 rounded-md border border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.05)]">
+                        <span className="text-emerald-400 text-[14px] font-bold mr-1.5">₹</span>
+                        <span className="text-white text-[16px] font-bold tracking-wide">
+                          {selectedItemsList.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -394,92 +594,122 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
           <button onClick={onClose} className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors duration-200">
             Cancel
           </button>
-          <button onClick={() => toast('Compiling global Configuration Engine Array...')} className="px-5 py-2 text-sm font-semibold bg-[#2563eb] hover:bg-blue-600 text-white rounded transition-colors duration-200 shadow-sm border border-blue-500/50">
-            Save Config
+          <button 
+            onClick={handleSaveConfig}
+            disabled={!isSaveEnabled || isSavingConfig}
+            className={`px-5 py-2 flex items-center justify-center gap-2 text-sm font-semibold rounded transition-colors duration-200 shadow-sm border min-w-[130px] ${(!isSaveEnabled || isSavingConfig) ? 'bg-gray-700/50 text-gray-500 border-gray-600/30 cursor-not-allowed' : 'bg-[#2563eb] hover:bg-blue-600 text-white border-blue-500/50'}`}
+          >
+            {isSavingConfig ? (
+               <><Loader2 className="w-4 h-4 animate-spin"/> Saving...</>
+            ) : "Save Config" }
           </button>
         </div>
 
       </div>
 
+      {/* WARNING MODAL OVERLAY */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-black/80 z-[300] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#1c2130] w-[450px] border border-red-500/30 rounded-xl shadow-2xl flex flex-col p-8 items-center text-center relative overflow-hidden">
+             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-orange-500"></div>
+             <div className="w-14 h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-5 border border-red-500/20">
+                <AlertTriangle className="w-7 h-7 text-red-500" />
+             </div>
+             <h2 className="text-[17px] text-white font-semibold mb-2">Unsaved Stage Configuration</h2>
+             <p className="text-[13px] text-gray-400 mb-8 leading-relaxed px-2">
+               The data for the budget for this stage is not saved. If you continue, your financial allotment data will be permanently lost. Do you wish to continue?
+             </p>
+             <div className="flex gap-4 w-full justify-center">
+               <button onClick={() => setShowWarningModal(false)} className="px-6 py-2.5 text-[13px] font-semibold text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors border border-gray-700 w-full">
+                 No, Go Back
+               </button>
+               <button onClick={() => pendingStageId && changeStage(pendingStageId)} className="px-6 py-2.5 text-[13px] font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-sm w-full">
+                 Yes, Discard Data
+               </button>
+             </div>
+          </div>
+        </div>
+      )}
+
       {/* ADD ITEM MODAL OVERLAY */}
       {showAddItemModal && (
         <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#1c2130] w-[450px] border border-gray-700/80 rounded-xl shadow-2xl flex flex-col relative overflow-hidden">
-             {isAddingItem && (
-                <div className="absolute inset-0 bg-[#1c2130]/60 z-10 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
-                   <p className="text-sm text-blue-300 font-medium tracking-wide animate-pulse">Pushing New Logic Block...</p>
-                </div>
-             )}
-             <div className="px-5 py-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1e2436]">
-               <h2 className="text-[16px] text-[#e2e8f0] font-semibold tracking-wide">Add New Item</h2>
-               <button onClick={() => setShowAddItemModal(false)} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1">
-                 <X className="w-5 h-5" />
-               </button>
-             </div>
-             <div className="p-6 flex flex-col gap-5 bg-[#161a25]">
-               <div>
-                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Category <span className="text-red-400">*</span></label>
-                 <Select 
-                   options={(cfgData?.item_categories_data || []).map((c: any) => ({ value: String(c.master_category_id), label: c.master_category_name }))}
-                   onChange={(val: any) => setAddItemData({...addItemData, category_id: val ? val.value : ''})}
-                   placeholder="Select master category..."
-                   styles={{
-                     control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
-                     menuPortal: base => ({ ...base, zIndex: 99999 }),
-                     menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
-                     option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
-                     singleValue: base => ({ ...base, color: '#e2e8f0' }),
-                     input: base => ({ ...base, color: '#e2e8f0' })
-                   }}
-                   menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                 />
-               </div>
-               <div>
-                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
-                 <input 
-                   type="text" 
-                   value={addItemData.item_name}
-                   onChange={(e) => setAddItemData({...addItemData, item_name: e.target.value})}
-                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                   placeholder="E.g. Steel Fe500"
-                 />
-               </div>
-               <div>
-                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Code <span className="text-red-400">*</span></label>
-                 <input 
-                   type="text" 
-                   value={addItemData.item_code}
-                   onChange={(e) => setAddItemData({...addItemData, item_code: e.target.value})}
-                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                   placeholder="E.g. ST-500"
-                 />
-               </div>
-               <div>
-                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
-                 <input 
-                   type="number" 
-                   value={addItemData.default_gst}
-                   onChange={(e) => setAddItemData({...addItemData, default_gst: e.target.value})}
-                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                   placeholder="18.00"
-                 />
-               </div>
-             </div>
-             <div className="px-5 py-4 border-t border-gray-700/50 bg-[#1e2436] flex justify-end gap-3">
-               <button 
-                 onClick={() => setShowAddItemModal(false)}
-                 className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors"
-               >
-                 Cancel
-               </button>
-               <button 
-                 onClick={handleSaveItemParams}
-                 className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm"
-               >
-                 Add Item
-               </button>
-             </div>
+            {isAddingItem && (
+              <div className="absolute inset-0 bg-[#1c2130]/60 z-10 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
+                <p className="text-sm text-blue-300 font-medium tracking-wide animate-pulse">Pushing New Logic Block...</p>
+              </div>
+            )}
+            <div className="px-5 py-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1e2436]">
+              <h2 className="text-[16px] text-[#e2e8f0] font-semibold tracking-wide">Add New Item</h2>
+              <button onClick={() => setShowAddItemModal(false)} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 flex flex-col gap-5 bg-[#161a25]">
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Category <span className="text-red-400">*</span></label>
+                <Select
+                  options={(cfgData?.item_categories_data || []).map((c: any) => ({ value: String(c.master_category_id), label: c.master_category_name }))}
+                  onChange={(val: any) => setAddItemData({ ...addItemData, category_id: val ? val.value : '' })}
+                  placeholder="Select master category..."
+                  styles={{
+                    control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                    menuPortal: base => ({ ...base, zIndex: 99999 }),
+                    menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                    option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                    singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                    input: base => ({ ...base, color: '#e2e8f0' })
+                  }}
+                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                />
+              </div>
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  value={addItemData.item_name}
+                  onChange={(e) => setAddItemData({ ...addItemData, item_name: e.target.value })}
+                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                  placeholder="E.g. Steel Fe500"
+                />
+              </div>
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Code <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  value={addItemData.item_code}
+                  onChange={(e) => setAddItemData({ ...addItemData, item_code: e.target.value })}
+                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                  placeholder="E.g. ST-500"
+                />
+              </div>
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
+                <input
+                  type="number"
+                  value={addItemData.default_gst}
+                  onChange={(e) => setAddItemData({ ...addItemData, default_gst: e.target.value })}
+                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                  placeholder="18.00"
+                />
+              </div>
+            </div>
+            <div className="px-5 py-4 border-t border-gray-700/50 bg-[#1e2436] flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddItemModal(false)}
+                className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveItemParams}
+                className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm"
+              >
+                Add Item
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -488,54 +718,54 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       {showAddHeadModal && (
         <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-[#1c2130] w-[450px] border border-gray-700/80 rounded-xl shadow-2xl flex flex-col relative overflow-hidden">
-             {isAddingHead && (
-                <div className="absolute inset-0 bg-[#1c2130]/60 z-10 flex flex-col items-center justify-center backdrop-blur-[2px]">
-                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
-                   <p className="text-sm text-blue-300 font-medium tracking-wide animate-pulse">Pushing New Head...</p>
-                </div>
-             )}
-             <div className="px-5 py-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1e2436]">
-               <h2 className="text-[16px] text-[#e2e8f0] font-semibold tracking-wide">Add New Head</h2>
-               <button onClick={() => setShowAddHeadModal(false)} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1">
-                 <X className="w-5 h-5" />
-               </button>
-             </div>
-             <div className="p-6 flex flex-col gap-5 bg-[#161a25]">
-               <div>
-                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Budget Head Name <span className="text-red-400">*</span></label>
-                 <input 
-                   type="text" 
-                   value={addHeadName}
-                   onChange={(e) => setAddHeadName(e.target.value)}
-                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                   placeholder="E.g. Engineering Block"
-                 />
-               </div>
-               <div>
-                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
-                 <input 
-                   type="number" 
-                   value={addHeadGst}
-                   onChange={(e) => setAddHeadGst(e.target.value)}
-                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                   placeholder="18.00"
-                 />
-               </div>
-             </div>
-             <div className="px-5 py-4 border-t border-gray-700/50 bg-[#1e2436] flex justify-end gap-3">
-               <button 
-                 onClick={() => setShowAddHeadModal(false)}
-                 className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors"
-               >
-                 Cancel
-               </button>
-               <button 
-                 onClick={handleSaveHeadParams}
-                 className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm"
-               >
-                 Add Head
-               </button>
-             </div>
+            {isAddingHead && (
+              <div className="absolute inset-0 bg-[#1c2130]/60 z-10 flex flex-col items-center justify-center backdrop-blur-[2px]">
+                <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
+                <p className="text-sm text-blue-300 font-medium tracking-wide animate-pulse">Pushing New Head...</p>
+              </div>
+            )}
+            <div className="px-5 py-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1e2436]">
+              <h2 className="text-[16px] text-[#e2e8f0] font-semibold tracking-wide">Add New Head</h2>
+              <button onClick={() => setShowAddHeadModal(false)} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-6 flex flex-col gap-5 bg-[#161a25]">
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Budget Head Name <span className="text-red-400">*</span></label>
+                <input
+                  type="text"
+                  value={addHeadName}
+                  onChange={(e) => setAddHeadName(e.target.value)}
+                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                  placeholder="E.g. Engineering Block"
+                />
+              </div>
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
+                <input
+                  type="number"
+                  value={addHeadGst}
+                  onChange={(e) => setAddHeadGst(e.target.value)}
+                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                  placeholder="18.00"
+                />
+              </div>
+            </div>
+            <div className="px-5 py-4 border-t border-gray-700/50 bg-[#1e2436] flex justify-end gap-3">
+              <button
+                onClick={() => setShowAddHeadModal(false)}
+                className="px-4 py-2 text-sm font-semibold text-gray-300 hover:text-white hover:bg-gray-700 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveHeadParams}
+                className="px-5 py-2 text-sm font-semibold bg-blue-600 hover:bg-blue-700 text-white rounded transition-colors shadow-sm"
+              >
+                Add Head
+              </button>
+            </div>
           </div>
         </div>
       )}

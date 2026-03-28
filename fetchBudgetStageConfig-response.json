@@ -1,0 +1,27 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "project_id": "8",
+        "stage_id": "2",
+        "items_config": [
+            {
+                "project_id": "8",
+                "stage_id": "2",
+                "item_id": "5",
+                "head_id": "4",
+                "amount": "100.00",
+                "hidden": "0"
+            },
+            {
+                "project_id": "8",
+                "stage_id": "2",
+                "item_id": "2",
+                "head_id": "2",
+                "amount": "0.00",
+                "hidden": "0"
+            }
+        ],
+        "Message": "Configuration Fetched"
+    }
+]
