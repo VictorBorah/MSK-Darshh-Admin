@@ -1,0 +1,121 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "items_data": [
+            {
+                "item_id": "148",
+                "item_code": "ACCL",
+                "item_name": "Accelerator",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "12",
+                "unit_name": "Liter",
+                "status": "1"
+            },
+            {
+                "item_id": "153",
+                "item_code": "BTV1",
+                "item_name": "Bitumen VG10",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "7",
+                "unit_name": "Drums",
+                "status": "1"
+            },
+            {
+                "item_id": "154",
+                "item_code": "BTV3",
+                "item_name": "Bitumen VG30",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "7",
+                "unit_name": "Drums",
+                "status": "1"
+            },
+            {
+                "item_id": "155",
+                "item_code": "CMA",
+                "item_name": "Cold Mix Asphalt",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "4",
+                "unit_name": "Tonne",
+                "status": "1"
+            },
+            {
+                "item_id": "150",
+                "item_code": "CNFB",
+                "item_name": "Concrete Fiber",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "2",
+                "unit_name": "Kilogram",
+                "status": "1"
+            },
+            {
+                "item_id": "156",
+                "item_code": "HMA",
+                "item_name": "Hot Mix Asphalt",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "4",
+                "unit_name": "Tonne",
+                "status": "1"
+            },
+            {
+                "item_id": "145",
+                "item_code": "MSIL",
+                "item_name": "Micro Silica",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "5",
+                "unit_name": "Bag",
+                "status": "1"
+            },
+            {
+                "item_id": "1",
+                "item_code": "OPC4",
+                "item_name": "Ordinary Portland Cement OPC 43",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "5",
+                "unit_name": "Bag",
+                "status": "1"
+            },
+            {
+                "item_id": "2",
+                "item_code": "OPC5",
+                "item_name": "Ordinary Portland Cement OPC 53",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "5",
+                "unit_name": "Bag",
+                "status": "1"
+            },
+            {
+                "item_id": "146",
+                "item_code": "PLST",
+                "item_name": "Plasticizer",
+                "category_id": "1",
+                "category_name": "Cement & Concrete",
+                "default_gst": "0.00",
+                "unit_id": "12",
+                "unit_name": "Liter",
+                "status": "1"
+            }
+        ],
+        "total_rows": "23",
+        "pagination_size": "10",
+        "Message": "Fetched latest item list"
+    }
+]

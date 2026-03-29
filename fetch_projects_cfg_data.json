@@ -2,7 +2,8 @@
     {
         "Error": false,
         "Status": "1",
-        "stages": [
+        "stages":
+ [
             {
                 "id": "1",
                 "stage": "Land Clearing"

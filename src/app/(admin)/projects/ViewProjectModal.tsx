@@ -177,6 +177,29 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
                          <ReadOnlyInput value={projectData.current_stage || ''} />
                        </FormRow>
 
+
+                     </div>
+
+                     {/* Column 2: HR Management */}
+                     <div className="flex flex-col">
+                       <h3 className="text-[#8cd1ff] font-medium text-[15px] mb-6 tracking-wide border-b border-gray-700/50 pb-2">HR Management</h3>
+
+                       <FormRow label="Linked Accountants" alignTop>
+                         <HRList items={projectData.accountants_data} />
+                       </FormRow>
+
+                       <FormRow label="Linked Managers" alignTop>
+                         <HRList items={projectData.managers_data} />
+                       </FormRow>
+
+                       <FormRow label="Linked Engineers" alignTop>
+                         <HRList items={projectData.engineers_data} />
+                       </FormRow>
+
+                       <FormRow label="Linked Contractors" alignTop>
+                         <HRList items={projectData.contractors_data} />
+                       </FormRow>
+
                        <h3 className="text-[#8cd1ff] font-medium text-[15px] mb-6 mt-8 tracking-wide border-b border-gray-700/50 pb-2">Site Financials</h3>
 
                        <FormRow label="Allocated Budget">
@@ -202,27 +225,6 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
                              {projectData.status || 'Archived'}
                            </span>
                          </div>
-                       </FormRow>
-                     </div>
-
-                     {/* Column 2: HR Management */}
-                     <div className="flex flex-col">
-                       <h3 className="text-[#8cd1ff] font-medium text-[15px] mb-6 tracking-wide border-b border-gray-700/50 pb-2">HR Management</h3>
-
-                       <FormRow label="Linked Accountants" alignTop>
-                         <HRList items={projectData.accountants_data} />
-                       </FormRow>
-
-                       <FormRow label="Linked Managers" alignTop>
-                         <HRList items={projectData.managers_data} />
-                       </FormRow>
-
-                       <FormRow label="Linked Engineers" alignTop>
-                         <HRList items={projectData.engineers_data} />
-                       </FormRow>
-
-                       <FormRow label="Linked Contractors" alignTop>
-                         <HRList items={projectData.contractors_data} />
                        </FormRow>
                      </div>
 
