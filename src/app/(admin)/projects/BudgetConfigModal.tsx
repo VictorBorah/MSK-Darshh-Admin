@@ -37,7 +37,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
 
   // Add New Item Modal States
   const [showAddItemModal, setShowAddItemModal] = useState(false);
-  const [addItemData, setAddItemData] = useState({ category_id: '', item_name: '', item_code: '', default_gst: '' });
+  const [addItemData, setAddItemData] = useState({ category_id: '', item_name: '', item_code: '', default_gst: '', unit_id: '' });
   const [isAddingItem, setIsAddingItem] = useState(false);
 
   // Add New Head Modal States
@@ -63,7 +63,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       setIsSavingConfig(false);
 
       const defaultGstValue = localStorage.getItem('sys_default_gst') || '18.00';
-      setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: defaultGstValue });
+      setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: defaultGstValue, unit_id: '' });
       setShowAddHeadModal(false);
       setAddHeadName('');
       setAddHeadGst(defaultGstValue);
@@ -218,7 +218,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       toast.error('Please select a Budget Head before adding a new item.');
       return;
     }
-    if (!addItemData.category_id || !addItemData.item_name || !addItemData.item_code) {
+    if (!addItemData.category_id || !addItemData.item_name || !addItemData.item_code || !addItemData.unit_id) {
       toast.error('Please fill in all mandatory fields.');
       return;
     }
@@ -230,6 +230,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       formData.append('item_name', addItemData.item_name);
       formData.append('item_code', addItemData.item_code);
       formData.append('default_gst', addItemData.default_gst);
+      formData.append('unit_id', addItemData.unit_id);
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveItem`, {
         method: 'POST',
@@ -260,7 +261,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
           markUnsaved();
         }
         setShowAddItemModal(false);
-        setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: localStorage.getItem('sys_default_gst') || '18.00' });
+        setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: localStorage.getItem('sys_default_gst') || '18.00', unit_id: '' });
       } else {
         toast.error('Oops, something went wrong!');
       }
@@ -634,7 +635,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       {/* ADD ITEM MODAL OVERLAY */}
       {showAddItemModal && (
         <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#1c2130] w-[450px] border border-gray-700/80 rounded-xl shadow-2xl flex flex-col relative overflow-hidden">
+          <div className="bg-[#1c2130] w-[650px] max-w-[95vw] border border-gray-700/80 rounded-xl shadow-2xl flex flex-col relative overflow-hidden">
             {isAddingItem && (
               <div className="absolute inset-0 bg-[#1c2130]/60 z-10 flex flex-col items-center justify-center backdrop-blur-[2px]">
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-2" />
@@ -647,7 +648,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 flex flex-col gap-5 bg-[#161a25]">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5 bg-[#161a25]">
               <div>
                 <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Category <span className="text-red-400">*</span></label>
                 <Select
@@ -693,6 +694,23 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                   onChange={(e) => setAddItemData({ ...addItemData, default_gst: e.target.value })}
                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
                   placeholder="18.00"
+                />
+              </div>
+              <div>
+                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Unit <span className="text-red-400">*</span></label>
+                <Select
+                  options={(cfgData?.units_data || []).map((u: any) => ({ value: String(u.id), label: String(u.unit) }))}
+                  onChange={(val: any) => setAddItemData({ ...addItemData, unit_id: val ? val.value : '' })}
+                  placeholder="Select unit..."
+                  styles={{
+                    control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                    menuPortal: base => ({ ...base, zIndex: 99999 }),
+                    menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                    option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                    singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                    input: base => ({ ...base, color: '#e2e8f0' })
+                  }}
+                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 />
               </div>
             </div>

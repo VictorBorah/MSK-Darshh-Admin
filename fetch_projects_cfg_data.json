@@ -2,8 +2,7 @@
     {
         "Error": false,
         "Status": "1",
-        "stages":
- [
+        "stages": [
             {
                 "id": "1",
                 "stage": "Land Clearing"
@@ -11,82 +10,6 @@
             {
                 "id": "2",
                 "stage": "Foundation Initiation"
-            },
-            {
-                "id": "3",
-                "stage": "Foundation Construction"
-            },
-            {
-                "id": "4",
-                "stage": "Plinth Construction"
-            },
-            {
-                "id": "5",
-                "stage": "Column Construction"
-            },
-            {
-                "id": "6",
-                "stage": "Beam Construction"
-            },
-            {
-                "id": "7",
-                "stage": "Shed Construction"
-            },
-            {
-                "id": "8",
-                "stage": "Brick Layering"
-            },
-            {
-                "id": "9",
-                "stage": "Electrical Fixtures"
-            },
-            {
-                "id": "10",
-                "stage": "Plastering "
-            },
-            {
-                "id": "11",
-                "stage": "Painting"
-            },
-            {
-                "id": "12",
-                "stage": "Tiling"
-            },
-            {
-                "id": "13",
-                "stage": "Test Stage"
-            },
-            {
-                "id": "14",
-                "stage": "Test Stage"
-            },
-            {
-                "id": "15",
-                "stage": "Test Stage 2"
-            },
-            {
-                "id": "16",
-                "stage": "Test Stage 3"
-            },
-            {
-                "id": "17",
-                "stage": "My New Stage"
-            },
-            {
-                "id": "18",
-                "stage": "Test Stage 8"
-            },
-            {
-                "id": "19",
-                "stage": "Ne Stage1"
-            },
-            {
-                "id": "20",
-                "stage": "Test 12345"
-            },
-            {
-                "id": "21",
-                "stage": "Civil Repairing"
             }
         ],
         "clients": [
@@ -99,16 +22,26 @@
                 "id": "2",
                 "client_name": "Simran Singh",
                 "client_mobile_1": "7002140258"
-            },
+            }
+        ],
+        "vendors": [
             {
                 "id": "3",
-                "client_name": "Manjit Borah",
-                "client_mobile_1": null
+                "vendor_name": "Borah Electricals",
+                "vendor_mobile": "0987456321",
+                "vendor_gst": "18AABCU9603R1ZM "
             },
             {
-                "id": "4",
-                "client_name": "Raghav Bordoloi",
-                "client_mobile_1": null
+                "id": "2",
+                "vendor_name": "Laxmi Hardware",
+                "vendor_mobile": "1234567890",
+                "vendor_gst": "18AACCB4412L1Z9"
+            },
+            {
+                "id": "1",
+                "vendor_name": "Maa Durga Hardware",
+                "vendor_mobile": "7845124270",
+                "vendor_gst": "18AACCB6672L1Z9"
             }
         ],
         "districts": [
@@ -119,138 +52,6 @@
             {
                 "id": "2",
                 "district": "BARPETA"
-            },
-            {
-                "id": "3",
-                "district": "BISWANATH"
-            },
-            {
-                "id": "4",
-                "district": "BONGAIGAON"
-            },
-            {
-                "id": "5",
-                "district": "CACHAR"
-            },
-            {
-                "id": "6",
-                "district": "CHARAIDEO"
-            },
-            {
-                "id": "7",
-                "district": "DARRANG"
-            },
-            {
-                "id": "8",
-                "district": "DHEMAJI"
-            },
-            {
-                "id": "9",
-                "district": "DHUBRI"
-            },
-            {
-                "id": "10",
-                "district": "DIBRUGARH"
-            },
-            {
-                "id": "11",
-                "district": "DIMA HASAO"
-            },
-            {
-                "id": "12",
-                "district": "GOALPARA"
-            },
-            {
-                "id": "13",
-                "district": "GOLAGHAT"
-            },
-            {
-                "id": "14",
-                "district": "HAILAKANDI"
-            },
-            {
-                "id": "15",
-                "district": "HOJAI"
-            },
-            {
-                "id": "16",
-                "district": "JORHAT"
-            },
-            {
-                "id": "17",
-                "district": "KAMRUP METRO"
-            },
-            {
-                "id": "18",
-                "district": "KAMRUP RURAL"
-            },
-            {
-                "id": "19",
-                "district": "KARBI ANGLONG"
-            },
-            {
-                "id": "20",
-                "district": "SRIBHUMI"
-            },
-            {
-                "id": "21",
-                "district": "KOKRAJHAR"
-            },
-            {
-                "id": "22",
-                "district": "LAKHIMPUR"
-            },
-            {
-                "id": "23",
-                "district": "MAJULI"
-            },
-            {
-                "id": "24",
-                "district": "MORIGAON"
-            },
-            {
-                "id": "25",
-                "district": "NAGAON"
-            },
-            {
-                "id": "26",
-                "district": "NALBARI"
-            },
-            {
-                "id": "28",
-                "district": "SIVASAGAR"
-            },
-            {
-                "id": "29",
-                "district": "SONITPUR"
-            },
-            {
-                "id": "30",
-                "district": "SOUTH SALMARA"
-            },
-            {
-                "id": "31",
-                "district": "TINSUKIA"
-            },
-            {
-                "id": "32",
-                "district": "UDALGURI"
-            },
-            {
-                "id": "33",
-                "district": "W/KARBI ANGLONG"
-            },
-            {
-                "id": "34",
-                "district": "CHIRANG"
-            },
-            {
-                "id": "35",
-                "district": "TAMULPUR"
-            },
-            {
-                "id": "36",
-                "district": "BAJALI"
             }
         ],
         "hr_array": {
@@ -351,14 +152,28 @@
                 "item_name": "AAC Block 600x200x150"
             }
         ],
+        "units_data": [
+            {
+                "id": "1",
+                "unit": "Gram",
+                "abbv": "GM",
+                "active": "1"
+            },
+            {
+                "id": "2",
+                "unit": "Kilogram",
+                "abbv": "KG",
+                "active": "1"
+            }
+        ],
         "item_categories_data": [
             {
                 "master_category_id": "2",
                 "master_category_name": "Aggregates"
             },
             {
-                "master_category_id": "3",
-                "master_category_name": "Bricks & Blocks"
+                "master_category_id": "21",
+                "master_category_name": "Bill Payments"
             }
         ],
         "budget_heads_array": [
@@ -369,12 +184,13 @@
             {
                 "id": "2",
                 "head": "Materials Payment"
-            },
-            {
-                "id": "3",
-                "head": "Transportation Charges"
             }
         ],
+        "app_settings": {
+            "sendEmail": "1",
+            "default_gst": "18.00",
+            "fileMaxSize": "2"
+        },
         "Message": "Configuration data fetched successfully"
     }
 ]

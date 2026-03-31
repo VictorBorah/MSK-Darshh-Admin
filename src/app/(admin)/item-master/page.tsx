@@ -8,10 +8,12 @@ import {
   Eye,
   Pencil,
   Loader2,
-  Filter
+  Filter,
+  AlertTriangle
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import NewItemModal from './NewItemModal';
 
 export default function MasterItemsPage() {
   // Data Flow State
@@ -20,6 +22,14 @@ export default function MasterItemsPage() {
   
   const [isLoading, setIsLoading] = useState(false);
   const [isCatsLoading, setIsCatsLoading] = useState(false);
+  const [isPatching, setIsPatching] = useState(false);
+
+  // Modals
+  const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
+
+  // Selection & Modal States
+  const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
+  const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, title: string, payload: any} | null>(null);
 
   // Pagination & Filters
   const [currentPage, setCurrentPage] = useState(1);
@@ -134,11 +144,161 @@ export default function MasterItemsPage() {
     setFilterCategory('');
     setFilterStatus('');
     setCurrentPage(1);
+    setSelectedItemsIds([]);
+  };
+
+  // Selection Handlers
+  const handleToggleAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedItemsIds(items.map(i => String(i.item_id)));
+    } else {
+      setSelectedItemsIds([]);
+    }
+  };
+
+  const handleToggleIndividual = (itemId: string) => {
+    setSelectedItemsIds(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  // Patch Operations Handlers
+  const handleBulkCategoryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newCategoryId = e.target.value;
+    if (!newCategoryId) return;
+    
+    if (selectedItemsIds.length === 0) {
+      toast.error('Please select at least one item first');
+      e.target.value = '';
+      return;
+    }
+    
+    const categoryName = e.target.options[e.target.selectedIndex].text;
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: `Change Category to ${categoryName} ?`,
+      payload: {
+        items_csv: selectedItemsIds.join(','),
+        category: newCategoryId
+      }
+    });
+    
+    e.target.value = '';
+  };
+
+  const handleBulkStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    if (!newStatus) return;
+    
+    if (selectedItemsIds.length === 0) {
+      toast.error('Please select at least one item first');
+      e.target.value = '';
+      return;
+    }
+    
+    const statusText = e.target.options[e.target.selectedIndex].text;
+    
+    setConfirmDialog({
+      isOpen: true,
+      title: `Change Status to ${statusText} ?`,
+      payload: {
+        items_csv: selectedItemsIds.join(','),
+        status: newStatus
+      }
+    });
+    
+    e.target.value = '';
+  };
+
+  const handleStatusToggleRequest = (item: any) => {
+    const currentStatus = String(item.status);
+    const newStatus = currentStatus === "1" ? "0" : "1";
+    const statusText = newStatus === "1" ? "Enable" : "Disable";
+    
+    setConfirmDialog({
+       isOpen: true,
+       title: `Change Status to ${statusText} ?`,
+       payload: {
+         items_csv: String(item.item_id),
+         status: newStatus
+       }
+    });
+  };
+
+  // Execution API
+  const executePatch = async () => {
+    if (!confirmDialog || !confirmDialog.payload) return;
+    setIsPatching(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const formData = new FormData();
+      Object.entries(confirmDialog.payload).forEach(([key, value]) => {
+         formData.append(key, String(value));
+      });
+      
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/patchItem`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      
+      const rawText = await res.text();
+      let arr;
+      try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
+      const data = Array.isArray(arr) ? arr[0] : arr;
+      
+      if (data && String(data.Status) === "1") {
+        toast.success(data.Message || 'Successfully updated items');
+        setSelectedItemsIds([]);
+        setConfirmDialog(null);
+        fetchItems();
+      } else {
+         throw new Error(data?.Message || 'Failed to update items');
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || 'Error executing update');
+    } finally {
+      setIsPatching(false);
+    }
   };
 
   return (
     <div className="p-6 text-gray-300 bg-[#11141e] min-h-full">
       
+      {/* Confirmation Modal Overlay */}
+      {confirmDialog?.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-[#1f2536] border border-gray-700 rounded-lg shadow-2xl w-full max-w-md p-6">
+            <div className="flex items-center gap-3 mb-4 text-orange-400">
+               <AlertTriangle className="w-6 h-6" />
+               <h3 className="text-lg font-bold text-white tracking-wide">Confirm Action</h3>
+            </div>
+            <p className="text-gray-300 font-medium mb-8 text-[15px]">{confirmDialog.title}</p>
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setConfirmDialog(null)}
+                disabled={isPatching}
+                className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-800 rounded-md transition-colors disabled:opacity-50"
+              >
+                No, Cancel
+              </button>
+              <button 
+                onClick={executePatch}
+                disabled={isPatching}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex items-center gap-2 disabled:opacity-50"
+              >
+                {isPatching && <Loader2 className="w-4 h-4 animate-spin" />}
+                Yes, Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-3 mb-6">
         <h1 className="text-xl font-bold text-white">Item Master</h1>
         <RefreshCcw 
@@ -172,15 +332,29 @@ export default function MasterItemsPage() {
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             {/* With Selected Action */}
-            <div className="flex items-center gap-2 bg-[#1f2536] border border-gray-700 p-1 rounded-md">
-              <span className="text-[12px] text-gray-400 font-medium pl-2 pr-1 uppercase tracking-wider">With Selected:</span>
-              <select className="bg-[#11141e] border border-gray-700 rounded text-[13px] text-gray-300 px-2 py-1 outline-none focus:border-gray-500 w-[140px]">
+            <div className="flex items-center bg-[#1f2536] border border-gray-700 p-1 rounded-md overflow-hidden">
+              <span className="text-[12px] text-gray-400 font-medium pl-2 pr-2 uppercase tracking-wider">With Selected:</span>
+              <select 
+                className="bg-[#11141e] border border-gray-700 rounded text-[13px] text-gray-300 px-2 py-1 outline-none focus:border-gray-500 w-[160px] cursor-pointer"
+                onChange={handleBulkCategoryChange}
+              >
                 <option value="">Change Category</option>
                 {categories.map((cat: any) => (
                   <option key={cat.master_category_id} value={cat.master_category_id}>
                     {cat.master_category_name}
                   </option>
                 ))}
+              </select>
+              
+              <div className="mx-2 h-5 w-[1px] bg-gray-700/80"></div>
+              
+              <select 
+                className="bg-[#11141e] border border-gray-700 rounded text-[13px] text-gray-300 px-2 py-1 outline-none focus:border-gray-500 w-[130px] cursor-pointer"
+                onChange={handleBulkStatusChange}
+              >
+                <option value="">Status: Active</option>
+                <option value="1">Enable</option>
+                <option value="0">Disable</option>
               </select>
             </div>
 
@@ -217,6 +391,7 @@ export default function MasterItemsPage() {
           </div>
 
           <button 
+            onClick={() => setIsNewItemModalOpen(true)}
             className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-1.5 text-sm transition-colors gap-2 shadow-sm"
           >
             <Plus className="w-4 h-4" /> New Item
@@ -229,7 +404,12 @@ export default function MasterItemsPage() {
             <thead className="text-[11px] text-gray-400 font-semibold uppercase bg-[#191e2b] border-b border-gray-800 sticky top-0 z-10">
               <tr>
                 <th className="px-5 py-3.5 w-10">
-                  <input type="checkbox" className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600" />
+                  <input 
+                    type="checkbox" 
+                    className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600"
+                    checked={items.length > 0 && selectedItemsIds.length === items.length}
+                    onChange={handleToggleAll}
+                  />
                 </th>
                 <th className="px-4 py-3.5 w-24">Item Code</th>
                 <th className="px-4 py-3.5 w-64">Item Name</th>
@@ -260,6 +440,9 @@ export default function MasterItemsPage() {
                    <TableRow 
                      key={item.item_id}
                      item={item}
+                     isSelected={selectedItemsIds.includes(String(item.item_id))}
+                     onToggle={() => handleToggleIndividual(String(item.item_id))}
+                     onRequestStatusToggle={() => handleStatusToggleRequest(item)}
                    />
                  ))
               )}
@@ -299,11 +482,27 @@ export default function MasterItemsPage() {
         </div>
 
       </div>
+
+      <NewItemModal 
+        isOpen={isNewItemModalOpen} 
+        onClose={() => setIsNewItemModalOpen(false)} 
+        onSuccess={fetchItems}
+      />
     </div>
   );
 }
 
-function TableRow({ item }: { item: any }) {
+function TableRow({ 
+  item, 
+  isSelected, 
+  onToggle, 
+  onRequestStatusToggle 
+}: { 
+  item: any, 
+  isSelected: boolean, 
+  onToggle: () => void, 
+  onRequestStatusToggle: () => void 
+}) {
   // Using generic mock data for fields that might be missing in API payload.
   const isStatusActive = String(item.status) === "1"; 
   const dateAdded = "28 Mar 2026"; 
@@ -311,7 +510,12 @@ function TableRow({ item }: { item: any }) {
   return (
     <tr className="hover:bg-[#1f2536] transition-colors group">
       <td className="px-5 py-3.5">
-        <input type="checkbox" className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600 opacity-70 group-hover:opacity-100 transition-opacity" />
+        <input 
+          type="checkbox" 
+          checked={isSelected}
+          onChange={onToggle}
+          className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600 opacity-70 group-hover:opacity-100 transition-opacity" 
+        />
       </td>
       <td className="px-4 py-3.5 font-bold tracking-wide text-gray-300">
         {item.item_code}
@@ -336,7 +540,12 @@ function TableRow({ item }: { item: any }) {
       <td className="px-4 py-3.5 text-center">
          {/* Toggle Switch Component Structure */}
          <label className="relative inline-flex items-center cursor-pointer">
-           <input type="checkbox" className="sr-only peer" defaultChecked={isStatusActive} />
+           <input 
+             type="checkbox" 
+             className="sr-only peer" 
+             checked={isStatusActive}
+             onChange={onRequestStatusToggle}
+           />
            <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
          </label>
       </td>
