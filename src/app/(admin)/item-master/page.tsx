@@ -11,7 +11,7 @@ import {
   Filter,
   AlertTriangle
 } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import NewItemModal from './NewItemModal';
 import ViewItemModal from './ViewItemModal';
@@ -42,8 +42,6 @@ export default function MasterItemsPage() {
   
   const [filterCategory, setFilterCategory] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
-  
-  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch Categories for Filters
   const fetchCategories = useCallback(async () => {
@@ -127,6 +125,137 @@ export default function MasterItemsPage() {
       setIsLoading(false);
     }
   }, [currentPage, filterCategory, filterStatus]);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const lastSearchedQuery = useRef('');
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.length === 0) {
+      if (lastSearchedQuery.current !== '') {
+         lastSearchedQuery.current = '';
+         setSearchResults([]);
+         setShowSearchDropdown(false);
+         fetchItems();
+      }
+      return;
+    }
+
+    if (searchQuery.length < 4) {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    if (searchQuery === lastSearchedQuery.current) {
+       return; 
+    }
+
+    const performSearch = async () => {
+       if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+       }
+       const controller = new AbortController();
+       abortControllerRef.current = controller;
+       
+       setIsSearching(true);
+       
+       try {
+         const token = localStorage.getItem('at_ki8Xq1iV');
+         const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/searchItem?query_str=${encodeURIComponent(searchQuery)}`;
+         
+         const res = await fetch(endpoint, {
+           method: 'GET',
+           headers: { 'Authorization': `Bearer ${token}` },
+           signal: controller.signal
+         });
+         
+         const rawText = await res.text();
+         let arr;
+         try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
+         const data = Array.isArray(arr) ? arr[0] : arr;
+         
+         if (data && String(data.Status) === '1' && data.items_data) {
+           setSearchResults(data.items_data);
+           setShowSearchDropdown(true);
+           lastSearchedQuery.current = searchQuery;
+         } else {
+           setSearchResults([]);
+           setShowSearchDropdown(false);
+         }
+       } catch (err: any) {
+         if (err.name !== 'AbortError') {
+           console.error('Search error:', err);
+           setSearchResults([]);
+         }
+       } finally {
+         if (abortControllerRef.current === controller) {
+            setIsSearching(false);
+         }
+       }
+    };
+    
+    const timeoutId = setTimeout(() => {
+       performSearch();
+    }, 300);
+    
+    return () => clearTimeout(timeoutId);
+
+  }, [searchQuery, fetchItems]);
+
+  const handleSelectSearchResult = async (selectedItem: any) => {
+    setShowSearchDropdown(false);
+    setIsLoading(true);
+    
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/getItemDetails?item_id=${selectedItem.item_id}`;
+      
+      const res = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      
+      const rawText = await res.text();
+      let arr;
+      try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
+      const data = Array.isArray(arr) ? arr[0] : arr;
+      
+      if (data && String(data.Status) === '1' && data.item_data) {
+        setItems([data.item_data]);
+        setTotalPages(1);
+        toast.success(data.Message || 'Item details fetched');
+      } else {
+        throw new Error(data?.Message || 'Failed to fetch item details');
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || 'Error fetching item details');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
 
   // Initial Boot
   useEffect(() => {
@@ -319,15 +448,45 @@ export default function MasterItemsPage() {
             <List className="w-4 h-4 text-gray-400" />
             Items List
           </h2>
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-            <input 
-              type="text" 
-              placeholder="Search items..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
-            />
+          <div className="flex flex-col relative" ref={searchContainerRef}>
+            <div className="relative">
+              {isSearching ? (
+                <Loader2 className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 animate-spin" />
+              ) : (
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              )}
+              <input 
+                type="text" 
+                placeholder="Search items..." 
+                value={searchQuery}
+                onFocus={() => { if (searchQuery.length >= 4 && searchResults.length > 0) setShowSearchDropdown(true); }}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
+              />
+            </div>
+            <p className="text-[10px] text-gray-500/70 mt-1 ml-1 font-medium tracking-wide">Minimum 4 characters</p>
+            
+            {showSearchDropdown && searchResults.length > 0 && (
+              <div className="absolute top-[38px] left-0 right-0 bg-[#1f2536] border border-gray-600 rounded-md shadow-2xl z-50 max-h-64 overflow-y-auto overflow-x-hidden">
+                <ul className="py-1">
+                  {searchResults.map((result) => (
+                    <li 
+                      key={result.item_id}
+                      onClick={() => handleSelectSearchResult(result)}
+                      className="px-3 py-2 text-sm text-gray-300 hover:bg-blue-600/20 hover:text-white cursor-pointer transition-colors border-b border-gray-700/50 last:border-0"
+                    >
+                      <div className="font-medium truncate">{result.item_name}</div>
+                      <div className="text-[11px] text-gray-400 mt-0.5 font-mono">{result.item_code}</div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            {showSearchDropdown && searchQuery.length >= 4 && searchResults.length === 0 && !isSearching && (
+              <div className="absolute top-[38px] left-0 right-0 bg-[#1f2536] border border-gray-600 rounded-md shadow-xl z-50 p-3 text-center text-sm text-gray-400">
+                No items found
+              </div>
+            )}
           </div>
         </div>
 
