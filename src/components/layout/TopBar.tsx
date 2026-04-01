@@ -6,13 +6,15 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useLayoutState } from '@/components/providers/LayoutProvider';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { usePathname } from 'next/navigation';
 
 export default function TopBar() {
-  const { user, logout } = useAuth();
+  const { user, logout, menu } = useAuth();
   const { toggleSidebar } = useLayoutState();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -25,6 +27,14 @@ export default function TopBar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Determine Breadcrumbs dynamically based on current route
+  const pathSegments = pathname?.split('/').filter(Boolean) || [];
+  const rootSegment = pathSegments[0] || '';
+  const currentMenuItem = menu.find(m => m.slug === rootSegment);
+  
+  const category = currentMenuItem ? (currentMenuItem.menu_type === "1" ? "Local" : "Master") : (rootSegment === 'home' ? '' : 'Navigate');
+  const pageName = currentMenuItem ? currentMenuItem.menu_item : (rootSegment.charAt(0).toUpperCase() + rootSegment.slice(1));
+
   return (
     <header className="h-16 border-b border-gray-800 bg-[#161a25] flex items-center justify-between px-6 shrink-0 z-10 sticky top-0">
       <div className="flex items-center gap-2 text-sm text-gray-400">
@@ -34,13 +44,17 @@ export default function TopBar() {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <Link href="/" className="hover:text-gray-200 transition-colors">
+        <Link href="/home" className="hover:text-gray-200 transition-colors flex items-center">
           <Home className="w-4 h-4" />
         </Link>
-        <span>/</span>
-        <span className="hover:text-gray-200 cursor-pointer transition-colors">local</span>
-        <span>/</span>
-        <span className="text-gray-200 font-medium">Projects</span>
+        {rootSegment && rootSegment !== 'home' && (
+          <>
+            <span>/</span>
+            <span className="hover:text-gray-200 cursor-pointer transition-colors">{category}</span>
+            <span>/</span>
+            <span className="text-gray-200 font-medium">{pageName}</span>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-5 relative">

@@ -14,6 +14,8 @@ import {
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import NewItemModal from './NewItemModal';
+import ViewItemModal from './ViewItemModal';
+import EditItemModal from './EditItemModal';
 
 export default function MasterItemsPage() {
   // Data Flow State
@@ -26,6 +28,8 @@ export default function MasterItemsPage() {
 
   // Modals
   const [isNewItemModalOpen, setIsNewItemModalOpen] = useState(false);
+  const [viewItemId, setViewItemId] = useState<string | null>(null);
+  const [editItemId, setEditItemId] = useState<string | null>(null);
 
   // Selection & Modal States
   const [selectedItemsIds, setSelectedItemsIds] = useState<string[]>([]);
@@ -443,6 +447,8 @@ export default function MasterItemsPage() {
                      isSelected={selectedItemsIds.includes(String(item.item_id))}
                      onToggle={() => handleToggleIndividual(String(item.item_id))}
                      onRequestStatusToggle={() => handleStatusToggleRequest(item)}
+                     onRequestView={() => setViewItemId(String(item.item_id))}
+                     onRequestEdit={() => setEditItemId(String(item.item_id))}
                    />
                  ))
               )}
@@ -488,6 +494,19 @@ export default function MasterItemsPage() {
         onClose={() => setIsNewItemModalOpen(false)} 
         onSuccess={fetchItems}
       />
+
+      <ViewItemModal 
+         isOpen={viewItemId !== null}
+         onClose={() => setViewItemId(null)}
+         itemId={viewItemId}
+      />
+
+      <EditItemModal 
+         isOpen={editItemId !== null}
+         onClose={() => setEditItemId(null)}
+         itemId={editItemId}
+         onSuccess={fetchItems}
+      />
     </div>
   );
 }
@@ -496,12 +515,16 @@ function TableRow({
   item, 
   isSelected, 
   onToggle, 
-  onRequestStatusToggle 
+  onRequestStatusToggle,
+  onRequestView,
+  onRequestEdit
 }: { 
   item: any, 
   isSelected: boolean, 
   onToggle: () => void, 
-  onRequestStatusToggle: () => void 
+  onRequestStatusToggle: () => void,
+  onRequestView: () => void,
+  onRequestEdit: () => void
 }) {
   // Using generic mock data for fields that might be missing in API payload.
   const isStatusActive = String(item.status) === "1"; 
@@ -550,12 +573,12 @@ function TableRow({
          </label>
       </td>
       <td className="px-4 py-3.5 text-center">
-        <button className="px-2.5 py-1.5 text-[11px] bg-blue-600/10 text-blue-400 hover:bg-blue-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+        <button onClick={onRequestView} className="px-2.5 py-1.5 text-[11px] bg-blue-600/10 text-blue-400 hover:bg-blue-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
           <Eye className="w-3.5 h-3.5" />
         </button>
       </td>
       <td className="px-4 py-3.5 text-center">
-        <button className="px-2.5 py-1.5 text-[11px] bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+        <button onClick={onRequestEdit} className="px-2.5 py-1.5 text-[11px] bg-emerald-600/10 text-emerald-400 hover:bg-emerald-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
           <Pencil className="w-3.5 h-3.5" />
         </button>
       </td>

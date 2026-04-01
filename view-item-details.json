@@ -1,0 +1,20 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "item_data": {
+            "item_id": "1",
+            "item_code": "OPC4",
+            "item_name": "Ordinary Portland Cement OPC 43",
+            "category_id": "1",
+            "category_name": "Cement & Concrete",
+            "default_gst": "0.00",
+            "default_vendor_id": "",
+            "default_vendor_name": "",
+            "unit_id": "5",
+            "unit_name": "Bag",
+            "status": "1"
+        },
+        "Message": "Item details fetched"
+    }
+]
