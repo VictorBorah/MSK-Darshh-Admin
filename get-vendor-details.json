@@ -1,0 +1,16 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "vendor_data": {
+            "vendor_id": "1",
+            "vendor_name": "Maa Durga Hardware",
+            "vendor_mobile": "9954120017",
+            "vendor_address": "Tezpur Town",
+            "vendor_email": "maadurga2012@gmail.com",
+            "vendor_gst": "18AACCB6672L1Z9",
+            "status": "1"
+        },
+        "Message": "Vendor details fetched"
+    }
+]
