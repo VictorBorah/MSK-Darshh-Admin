@@ -1,0 +1,47 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "items_data": [
+            {
+                "master_category_id": "2",
+                "master_category_name": "Aggregates",
+                "description": "Sand, gravel and crushed stones",
+                "status": "1"
+            },
+            {
+                "master_category_id": "22",
+                "master_category_name": "TEST CAT",
+                "description": "THE LION IS THE KING OF THE JUNGLE",
+                "status": "1"
+            },
+            {
+                "master_category_id": "23",
+                "master_category_name": "TEST CAT S",
+                "description": "THE LION IS THE KING OF THE JUNGLE",
+                "status": "0"
+            },
+            {
+                "master_category_id": "24",
+                "master_category_name": "TEST CAT X",
+                "description": "TST description of this category name",
+                "status": "1"
+            },
+            {
+                "master_category_id": "26",
+                "master_category_name": "TEST CAT XYZ",
+                "description": "TST DSCRP",
+                "status": "1"
+            },
+            {
+                "master_category_id": "25",
+                "master_category_name": "Test X",
+                "description": "Testing new category adding",
+                "status": "1"
+            }
+        ],
+        "total_rows": "6",
+        "pagination_size": "10",
+        "Message": "Fetched item categories"
+    }
+]

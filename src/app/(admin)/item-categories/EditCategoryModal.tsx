@@ -1,0 +1,203 @@
+import { X, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+
+interface EditCategoryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  categoryId: string | null;
+  onSuccess?: () => void;
+}
+
+export default function EditCategoryModal({ isOpen, onClose, categoryId, onSuccess }: EditCategoryModalProps) {
+  const [categoryName, setCategoryName] = useState('');
+  const [description, setDescription] = useState('');
+  const [statusToggle, setStatusToggle] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
+
+  // Clear form when opening for a "New" category
+  useEffect(() => {
+    if (isOpen) {
+      if (!categoryId) {
+        setCategoryName('');
+        setDescription('');
+        setStatusToggle(true);
+      } else {
+        const fetchCategory = async () => {
+          setIsFetching(true);
+          try {
+            const token = localStorage.getItem('at_ki8Xq1iV');
+            const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchItemCategory?master_category_id=${categoryId}`;
+            const res = await fetch(endpoint, {
+               method: 'GET',
+               headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+            const response = Array.isArray(data) ? data[0] : data;
+            
+            if (String(response.Status) === "1" && response.category_data) {
+               setCategoryName(response.category_data.master_category_name || '');
+               setDescription(response.category_data.description || '');
+               setStatusToggle(String(response.category_data.status) === "1");
+            } else {
+               toast.error(response.Message || 'Failed to fetch category details');
+            }
+          } catch (e) {
+             console.error(e);
+             toast.error('Network Error fetching category data');
+          } finally {
+             setIsFetching(false);
+          }
+        };
+        fetchCategory();
+      }
+    }
+  }, [isOpen, categoryId]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!categoryName.trim()) {
+      toast.error('Category Name is mandatory');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const payload = new FormData();
+      
+      let endpoint = '';
+      if (categoryId) {
+        payload.append('ids_csv', categoryId);
+        payload.append('status', statusToggle ? '1' : '0');
+        payload.append('category_name', categoryName);
+        if (description) payload.append('description', description);
+        endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/patchItemCategory`;
+      } else {
+        payload.append('category', categoryName);
+        if (description) payload.append('description', description);
+        endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveItemCategory`;
+      }
+      
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: payload
+      });
+
+      const data = await res.json();
+      const response = Array.isArray(data) ? data[0] : data;
+
+      if (String(response.Status) === "1" || response.Status === 1) {
+        toast.success(response.Message || (categoryId ? 'Category Updated' : 'Category Added'));
+        if (onSuccess) onSuccess();
+        onClose();
+      } else {
+        toast.error(response.Message || 'Action failed');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Network error communicating with endpoint.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="bg-[#1f2536] border border-gray-700 rounded-lg shadow-xl w-full max-w-lg p-0 overflow-hidden flex flex-col">
+        
+        <div className="flex items-center justify-between p-5 border-b border-gray-700 bg-[#161a25]">
+          <h2 className="text-lg font-bold text-white tracking-wide">
+            {categoryId ? 'Edit Category' : 'Add New Category'}
+          </h2>
+          <button 
+            onClick={onClose} 
+            disabled={isSaving}
+            className="p-1 hover:bg-gray-700 rounded-full transition-colors text-gray-400 hover:text-white disabled:opacity-50"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSave} className="flex flex-col flex-1">
+          <div className="p-6 space-y-5">
+            <div>
+              <label className="block text-[13px] font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
+                Category Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+                autoFocus
+                placeholder="Enter category name"
+                className="w-full bg-[#11141e] border border-gray-700 rounded-md px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                disabled={isSaving || isFetching}
+              />
+            </div>
+
+            <div>
+              <label className="block text-[13px] font-medium text-gray-400 mb-1.5 uppercase tracking-wide">
+                Description
+              </label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Enter description (optional)"
+                rows={3}
+                maxLength={200}
+                className="w-full bg-[#11141e] border border-gray-700 rounded-md px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors resize-none"
+                disabled={isSaving || isFetching}
+              />
+              <div className="flex justify-end mt-1.5">
+                <span className={`text-[11px] font-medium ${description.length >= 200 ? 'text-red-500' : 'text-gray-500'}`}>
+                  {description.length}/200
+                </span>
+              </div>
+            </div>
+
+            {categoryId && (
+              <div className="flex items-center justify-between border border-gray-700 p-3 rounded-md mt-4">
+                <span className="text-[13px] font-medium text-gray-400 uppercase tracking-wide">Status</span>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox" 
+                    className="sr-only peer" 
+                    checked={statusToggle}
+                    onChange={(e) => setStatusToggle(e.target.checked)}
+                    disabled={isSaving || isFetching}
+                  />
+                  <div className="w-11 h-6 bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500 disabled:opacity-50"></div>
+                </label>
+              </div>
+            )}
+          </div>
+
+          <div className="p-5 border-t border-gray-700 bg-[#161a25] flex justify-end gap-3 mt-auto">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="px-5 py-2 text-sm font-medium text-gray-400 hover:text-white bg-gray-800/50 hover:bg-gray-800 border border-gray-700 rounded-md transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex items-center justify-center min-w-[120px] disabled:opacity-50 gap-2"
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+              {categoryId ? 'Update Category' : 'Add Category'}
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  );
+}

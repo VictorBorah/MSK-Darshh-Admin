@@ -9,7 +9,8 @@ import {
   Pencil,
   Loader2,
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
@@ -461,8 +462,14 @@ export default function MasterItemsPage() {
                 value={searchQuery}
                 onFocus={() => { if (searchQuery.length >= 4 && searchResults.length > 0) setShowSearchDropdown(true); }}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
+                className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-9 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
               />
+              {searchQuery && (
+                <X 
+                  className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer hover:text-gray-300 transition-colors" 
+                  onClick={() => setSearchQuery('')}
+                />
+              )}
             </div>
             <p className="text-[10px] text-gray-500/70 mt-1 ml-1 font-medium tracking-wide">Minimum 4 characters</p>
             
