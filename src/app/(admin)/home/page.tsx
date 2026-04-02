@@ -1,4 +1,4 @@
-import { CheckSquare, Square, AlertCircle } from 'lucide-react';
+import { CheckSquare, Square, CheckCircle } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -12,14 +12,14 @@ export default function Home() {
         <p className="text-[#ccd6f6] text-[15px] leading-relaxed max-w-4xl">
           An enterprise-grade, centralized cloud infrastructure explicitly engineered to orchestrate scaling site operations, real-time financial allocations, and comprehensive workforce logistics across distributed projects.
         </p>
-        <div className="mt-5 bg-orange-950/30 border border-orange-500/30 rounded-md p-4 flex items-start gap-3 w-fit">
-          <AlertCircle className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
+        <div className="mt-5 bg-emerald-950/30 border border-emerald-500/30 rounded-md p-4 flex items-center gap-3 w-fit">
+          <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
           <div className="flex flex-col">
-            <span className="text-orange-400 font-bold text-[14px]">
-              Current Status: <span className="font-medium text-orange-300">Project Delayed by 3 Days due to vital Architectural changes for User Privileges.</span>
+            <span className="text-white font-bold text-[14px]">
+              Current Status: <span className="font-medium text-emerald-300">Project progress is on-time</span>
             </span>
-            <span className="text-orange-400/80 font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-orange-300 font-semibold">'Master Entries Management'</span>
+            <span className="text-white font-medium text-[13px] mt-1">
+              Currently Working on: <span className="text-emerald-300 font-semibold">Procurements Section</span>
             </span>
           </div>
         </div>
@@ -40,16 +40,24 @@ export default function Home() {
               <span className="text-gray-400 line-through">01 March - 28 March 2026: Design and build the Admin Projects Management Flow</span>
             </li>
             <li className="flex items-start gap-3">
-              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>29 March - 02 April 2026: Design and build the Master Entries Management</span>
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">29 March - 02 April 2026: Design and build the Master Entries Management</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>02 April - 07 April 2026: Design and build the Site Supervisor App</span>
+              <span>02 April - 04 April 2026: Design and build the Procurements Section </span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>07 April - 12 April 2026: Design and build the Other Staff App</span>
+              <span>04 April - 07 April 2026: Design and build the Payments Section </span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
+              <span>07 April - 10 April 2026: Design and build the Site Supervisor App</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
+              <span>10 April - 12 April 2026: Design and build the Other Staff App</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
@@ -72,7 +80,7 @@ export default function Home() {
 
         <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-md p-4">
           <p className="text-emerald-400 font-medium text-[13px] flex items-center gap-2">
-            Target SLA: The Project infrastructure will hit finalized production deployment pipelines by 23 April 2026.
+            Target SLA: The Project infrastructure will hit finalized production deployment pipelines by 27 April 2026.
           </p>
         </div>
       </div>
