@@ -1,0 +1,68 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "vendors": [
+            {
+                "id": "6",
+                "vendor_name": "Balaji Traders",
+                "vendor_mobile": "4578203214",
+                "vendor_gst": "18ABCDE1234F1Z5"
+            },
+            {
+                "id": "3",
+                "vendor_name": "Borah Electricals",
+                "vendor_mobile": "0987456321",
+                "vendor_gst": "18AABCU9603R1ZM "
+            }
+        ],
+        "items_data": [
+            {
+                "id": "255",
+                "item_name": "2 Pin Top"
+            },
+            {
+                "id": "256",
+                "item_name": "A1 Ghost Buster"
+            }
+        ],
+        "projects_data": [
+            {
+                "id": "1",
+                "project_name": "TEST PROJECT",
+                "project_code": "TST-001"
+            },
+            {
+                "id": "2",
+                "project_name": "TEST 123",
+                "project_code": "TST213"
+            }
+        ],
+        "app_settings": {
+            "sendEmail": "1",
+            "default_gst": "18.00",
+            "fileMaxSize": "2"
+        },
+        "procurement_status_options": [
+            {
+                "id": "1",
+                "status": "Fulfilled"
+            },
+            {
+                "id": "2",
+                "status": "Delivered"
+            }
+        ],
+        "demands_status_options": [
+            {
+                "id": "1",
+                "status": "Fulfilled"
+            },
+            {
+                "id": "2",
+                "status": "Delivered"
+            }
+        ],
+        "Message": "Obtained system config"
+    }
+]

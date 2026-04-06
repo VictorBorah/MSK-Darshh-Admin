@@ -1,0 +1,36 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "demands_data": [
+            {
+                "demand_id": "1",
+                "item_id": "1",
+                "item_name": "Ordinary Portland Cement OPC 43",
+                "quantity": "12",
+                "recieved_quantity": "0.00",
+                "quantity_txt": "12 Bag",
+                "recieved_quantity_txt": "0.00 Bag",
+                "project_id": "1",
+                "project_name": "TEST PROJECT",
+                "demand_date": "01-04-2026",
+                "priority_id": "1",
+                "priority_txt": "High",
+                "procurement_status_id": "6",
+                "procurement_txt": "Raised",
+                "is_fulfilled": "No",
+                "delivery_confirmed": "No",
+                "delivery_date": "",
+                "gps_photo_file": "<File String Placeholder>",
+                "exif_match_success": "No",
+                "geofence_check_pass": "No",
+                "description": "This is a test",
+                "status": "1"
+            }
+        ],
+        "total_rows": "1",
+        "pagination_size": "10",
+        "Message": "Demands List Fetched"
+    }
+]
+]

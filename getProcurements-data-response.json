@@ -1,0 +1,35 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "procurements_data": [
+            {
+                "id": "2",
+                "demand_id": "N/A",
+                "staff_id": "2",
+                "staffname": "Mandeep Singh",
+                "project_id": "1",
+                "project_name": "TEST PROJECT",
+                "vendor_id": "2",
+                "vendor_name": "Laxmi Hardware",
+                "demand_date": "N/A",
+                "purchase_date": "04-03-2026",
+                "fulfil_date": "01-04-2026",
+                "purchased_by_id": "4",
+                "purchased_by_name": "Mandeep Singh",
+                "invoice_number": "AS-09/Q1123232",
+                "has_gst_invoice": "No",
+                "invoice_file": "<File String Placeholder>",
+                "is_closed": "Yes",
+                "is_paid": "Yes",
+                "procurement_status_id": "4",
+                "procurement_txt": "Ordered and Paid",
+                "comment": "Order Paid Off",
+                "active": "1"
+            }
+        ],
+        "total_rows": "1",
+        "pagination_size": "10",
+        "Message": "Procurements List Fetched"
+    }
+]
