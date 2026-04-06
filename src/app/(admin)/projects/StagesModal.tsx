@@ -100,11 +100,13 @@ export default function StagesModal({ projectId, configStages, initialStagesCsv,
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
-        toast.success(data.Message || 'Stages Configuration Saved');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Stages Configuration Saved');
         onConfirm(csv, currentStageId, availableStages);
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to save stages configuration');
       } else {
-        toast.error(data.Message || 'Failed to save stages configuration');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server');
       }
     } catch (e: any) {
       toast.error('Network connectivity error. Unable to save stages configuration.');
@@ -135,8 +137,8 @@ export default function StagesModal({ projectId, configStages, initialStagesCsv,
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
-        toast.success(data.Message || 'Stage Added successfully!');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Stage Added successfully!');
         
         let newStageId = data.stage_id;
         
@@ -153,8 +155,10 @@ export default function StagesModal({ projectId, configStages, initialStagesCsv,
 
         setNewStageName('');
         setIsAddModalOpen(false);
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to add Stage. Try again.');
       } else {
-        toast.error(data.Message || 'Failed to add Stage. Try again.');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server');
       }
     } catch (e: any) {
       toast.error('Network connectivity error. Unable to perform HTTP POST.');

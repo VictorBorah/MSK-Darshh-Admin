@@ -122,11 +122,13 @@ export default function EditVendorModal({ isOpen, onClose, vendorId, onSuccess }
       const response = Array.isArray(data) ? data[0] : data;
 
       if (String(response.Status) === "1" || response.Status === 1) {
-        toast.success(response.Message || (vendorId ? 'Vendor Updated' : 'Vendor Added'));
+        toast.success(response.Message || response.message || (vendorId ? 'Vendor Updated' : 'Vendor Added'));
         if (onSuccess) onSuccess();
         onClose();
+      } else if (String(response.Status) === "0" || response.Status === 0) {
+        toast.error(response.Message || response.message || 'Action failed');
       } else {
-        toast.error(response.Message || 'Action failed');
+        toast.error(response?.Message || response?.message || 'Unexpected response from server');
       }
     } catch (error) {
       console.error(error);

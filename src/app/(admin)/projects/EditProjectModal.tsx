@@ -414,12 +414,14 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
-        toast.success(data.Message || 'Project details updated efficiently.');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Project details updated efficiently.');
         if (onSuccess) onSuccess();
         onClose();
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to update project details.');
       } else {
-        toast.error(data.Message || 'Failed to update project details.');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server.');
       }
     } catch (e: any) {
       toast.error(e.message || 'Network executing error occurred.');

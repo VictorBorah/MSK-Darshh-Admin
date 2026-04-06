@@ -24,6 +24,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
     item_name: '',
     item_code: '',
     default_gst: '',
+    default_price: '0.00',
     vendor_id: '',
     unit_id: '',
     status: 1
@@ -62,6 +63,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         item_name: '',
         item_code: '',
         default_gst: '',
+        default_price: '0.00',
         vendor_id: '',
         unit_id: '',
         status: 1
@@ -107,6 +109,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
           item_name: iData.item_name || '',
           item_code: iData.item_code || '',
           default_gst: iData.default_gst || '',
+          default_price: iData.default_price || '0.00',
           vendor_id: iData.default_vendor_id || '',
           unit_id: iData.unit_id || '',
           status: parseInt(iData.status) === 1 ? 1 : 0
@@ -143,8 +146,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === "1") {
-        toast.success(response.Message || 'Category Added Successfully');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Category Added Successfully');
         
         const newCatId = String(response.master_category_id);
         const newCatName = response.master_category_name || addCatData.category;
@@ -158,8 +161,10 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         
         setShowAddCatModal(false);
         setAddCatData({ category: '', description: '' });
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Failed to add category');
       } else {
-        toast.error(response.Message || 'Failed to add category');
+        toast.error(response?.Message || response?.message || 'Failed to add category');
       }
     } catch (e) {
       console.error(e);
@@ -189,8 +194,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === "1") {
-        toast.success(response.Message || 'Unit Added Successfully');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Unit Added Successfully');
         const newUnitId = String(response.id);
         
         setUnits(prev => [...prev, {
@@ -203,8 +208,10 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         
         setShowAddUnitModal(false);
         setAddUnitData({ unit: '', abv: '' });
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Failed to add unit');
       } else {
-        toast.error(response.Message || 'Failed to add unit');
+        toast.error(response?.Message || response?.message || 'Failed to add unit');
       }
     } catch (e) {
       console.error(e);
@@ -237,8 +244,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === "1") {
-        toast.success(response.Message || 'Vendor Added Successfully');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Vendor Added Successfully');
         
         const newVendorId = String(response.id);
         const newVendorName = response.vendor_name || addVendorData.vendor_name;
@@ -252,8 +259,10 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         
         setShowAddVendorModal(false);
         setAddVendorData({ vendor_name: '', vendor_mobile: '', vendor_address: '', vendor_gst: '', vendor_email: '' });
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Failed to add vendor');
       } else {
-        toast.error(response.Message || 'Failed to add vendor');
+        toast.error(response?.Message || response?.message || 'Failed to add vendor');
       }
     } catch (e) {
       console.error(e);
@@ -264,7 +273,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
   };
 
   const handleUpdateItem = async () => {
-    if (!formData.item_code.trim() || !formData.item_name.trim() || !formData.category_id || formData.default_gst === '' || !formData.unit_id) {
+    if (!formData.item_code.trim() || !formData.item_name.trim() || !formData.category_id || formData.default_gst === '' || !formData.unit_id || formData.default_price === '' || formData.default_price === null) {
       toast.error('Please fill in all mandatory fields.');
       return;
     }
@@ -281,6 +290,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       payload.append('item_name', formData.item_name);
       payload.append('item_code', formData.item_code);
       payload.append('gst_value', String(formData.default_gst));
+      payload.append('default_price', formData.default_price || '0.00');
       payload.append('unit_id', formData.unit_id);
       
       if (formData.vendor_id) {
@@ -295,12 +305,14 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === "1") {
-        toast.success(response.Message || 'Item Updated');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Item Updated');
         onClose();
         if (onSuccess) onSuccess();
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Failed to update item');
       } else {
-        toast.error(response.Message || 'Failed to update item');
+        toast.error(response?.Message || response?.message || 'Failed to update item');
       }
     } catch (e) {
       console.error(e);
@@ -459,6 +471,21 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                     placeholder="18.00"
                   />
                 </div>
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Price <span className="text-red-400">*</span></label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={formData.default_price}
+                    onChange={(e) => setFormData({ ...formData, default_price: e.target.value })}
+                    className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              {/* Row 5 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Status</label>
                    <div className="flex items-center h-[40px]">

@@ -372,13 +372,20 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Basic project info saved successfully.');
         setProjectId(data.project_id);
         setProjectName(data.project_name || projectName);
         setProjectCode(data.project_code || projectCode);
         setStep(2);
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        const errorMsg = data.Message || data.message || 'Failed to save basic project info.';
+        setSaveError(errorMsg);
+        toast.error(errorMsg);
       } else {
-        setSaveError(data.Message || 'Failed to save basic project info.');
+        const errorMsg = data?.Message || data?.message || 'Unexpected response from server.';
+        setSaveError(errorMsg);
+        toast.error(errorMsg);
       }
     } catch (e: any) {
       setSaveError(e.message || 'Network validation error.');
@@ -445,12 +452,14 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
-        toast.success(data.Message || 'Project details saved efficiently.');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Project details saved efficiently.');
         if (onSuccess) onSuccess();
         onClose();
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to save advanced project details.');
       } else {
-        toast.error(data.Message || 'Failed to save advanced project details.');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server.');
       }
     } catch (e: any) {
       toast.error(e.message || 'Network executing error occurred.');

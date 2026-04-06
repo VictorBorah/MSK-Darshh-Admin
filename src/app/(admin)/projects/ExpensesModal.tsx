@@ -138,11 +138,13 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
-        toast.success(data.Message || 'Expenses Config saved');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Expenses Config saved');
         onConfirm(finalTotal, jsonString, availableHeads);
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to save expenses configuration');
       } else {
-        toast.error(data.Message || 'Failed to save expenses configuration');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server');
       }
     } catch (e: any) {
       toast.error('Network connectivity error. Unable to perform HTTP POST.');
@@ -172,8 +174,8 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
       const arr = JSON.parse(await res.text());
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === '1') {
-        toast.success(data.Message || 'Head Added successfully!');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Head Added successfully!');
         
         let newHeadId = data.head_id;
         
@@ -188,8 +190,10 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
 
         setNewHeadName('');
         setIsAddModalOpen(false);
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to add Head.');
       } else {
-        toast.error(data.Message || 'Failed to add Head.');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server');
       }
     } catch (e: any) {
       toast.error('Network connectivity error.');

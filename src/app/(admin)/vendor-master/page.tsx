@@ -276,13 +276,15 @@ export default function VendorMasterPage() {
       try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
       const data = Array.isArray(arr) ? arr[0] : arr;
 
-      if (data && String(data.Status) === "1") {
-        toast.success(data.Message || 'Vendor info updated');
+      if (data && (String(data.Status) === "1" || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Vendor info updated');
         setSelectedVendorIds([]);
         setConfirmDialog(null);
         fetchVendors();
+      } else if (data && (String(data.Status) === "0" || data.Status === 0)) {
+        toast.error(data.Message || data.message || 'Failed to update vendor status');
       } else {
-        throw new Error(data?.Message || 'Failed to update vendor status');
+        toast.error(data?.Message || data?.message || 'Unexpected response from server');
       }
     } catch (e: any) {
       console.error(e);

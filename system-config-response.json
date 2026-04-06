@@ -19,11 +19,15 @@
         "items_data": [
             {
                 "id": "255",
-                "item_name": "2 Pin Top"
+                "item_name": "2 Pin Top",
+                "default_price": "30.00",
+                "default_gst": "18.00"
             },
             {
                 "id": "256",
-                "item_name": "A1 Ghost Buster"
+                "item_name": "A1 Ghost Buster",
+                "default_price": "0.00",
+                "default_gst": "18.00"
             }
         ],
         "projects_data": [

@@ -242,8 +242,8 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === '1') {
-        toast.success(response.Message || 'Item Added Successfully');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Item Added Successfully');
         if (response.items_data) {
           setCfgData((prev: any) => ({ ...prev, items_data: response.items_data }));
         }
@@ -262,8 +262,10 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
         }
         setShowAddItemModal(false);
         setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: localStorage.getItem('sys_default_gst') || '18.00', unit_id: '' });
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Oops, something went wrong!');
       } else {
-        toast.error('Oops, something went wrong!');
+        toast.error(response?.Message || response?.message || 'Oops, something went wrong!');
       }
     } catch (e) {
       console.error(e);
@@ -295,8 +297,8 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === '1') {
-        toast.success(response.Message || 'Head Added Successfully');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Head Added Successfully');
         if (response.heads_Arr) {
           setCfgData((prev: any) => ({ ...prev, budget_heads_array: response.heads_Arr }));
         }
@@ -306,8 +308,10 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
         setShowAddHeadModal(false);
         setAddHeadName('');
         setAddHeadGst(localStorage.getItem('sys_default_gst') || '18.00');
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Oops, something went wrong!');
       } else {
-        toast.error(response.Message || 'Oops, something went wrong!');
+        toast.error(response?.Message || response?.message || 'Oops, something went wrong!');
       }
     } catch (e) {
       console.error(e);
@@ -354,12 +358,14 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === '1') {
-        toast.success(response.Message || 'Budget Config Updated');
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || 'Budget Config Updated');
         setHasUnsavedChanges(false);
         fetchData(); 
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Failed to update Budget Config');
       } else {
-        toast.error(response.Message || 'Failed to update Budget Config');
+        toast.error(response?.Message || response?.message || 'Failed to update Budget Config');
       }
     } catch (e) {
       console.error(e);

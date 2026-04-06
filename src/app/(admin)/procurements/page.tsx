@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2 } from 'lucide-react';
+import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const SearchableSelectPlaceholder = ({ 
@@ -96,12 +96,16 @@ export default function ProcurementsPage() {
   const [demandStatusOptions, setDemandStatusOptions] = useState<any[]>([]);
 
   const todayStr = new Date().toISOString().split('T')[0];
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  const thirtyDaysAgoStr = thirtyDaysAgo.toISOString().split('T')[0];
 
   // Procurements Form & Data state
   const [procurementsList, setProcurementsList] = useState<any[]>([]);
   const [procPage, setProcPage] = useState(1);
   const [procTotalPages, setProcTotalPages] = useState(1);
-  const [procDate, setProcDate] = useState(todayStr);
+  const [procDateFrom, setProcDateFrom] = useState(thirtyDaysAgoStr);
+  const [procDateTo, setProcDateTo] = useState(todayStr);
   const [procStatus, setProcStatus] = useState('');
   const [procProject, setProcProject] = useState('');
   const [procVendor, setProcVendor] = useState('');
@@ -110,7 +114,8 @@ export default function ProcurementsPage() {
   const [demandsList, setDemandsList] = useState<any[]>([]);
   const [demPage, setDemPage] = useState(1);
   const [demTotalPages, setDemTotalPages] = useState(1);
-  const [demDate, setDemDate] = useState(todayStr);
+  const [demDateFrom, setDemDateFrom] = useState(thirtyDaysAgoStr);
+  const [demDateTo, setDemDateTo] = useState(todayStr);
   const [demStatus, setDemStatus] = useState('');
   const [demProject, setDemProject] = useState('');
   const [demItem, setDemItem] = useState('');
@@ -141,7 +146,14 @@ export default function ProcurementsPage() {
     params.set('pagenum', String(procPage));
     if (procProject) params.set('project_id', procProject);
     if (procStatus) params.set('status', procStatus);
-    if (procDate) params.set('purchase_date', procDate);
+    if (procDateFrom) {
+      const [yyyy, mm, dd] = procDateFrom.split('-');
+      params.set('purchase_date_from', `${dd}-${mm}-${yyyy}`);
+    }
+    if (procDateTo) {
+      const [yyyy, mm, dd] = procDateTo.split('-');
+      params.set('purchase_date_to', `${dd}-${mm}-${yyyy}`);
+    }
     if (procVendor) params.set('vendor_id', procVendor);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchprocurements?${params.toString()}`, {
@@ -168,7 +180,14 @@ export default function ProcurementsPage() {
     params.set('pagenum', String(demPage));
     if (demProject) params.set('project_id', demProject);
     if (demStatus) params.set('status', demStatus);
-    if (demDate) params.set('demand_date', demDate);
+    if (demDateFrom) {
+      const [yyyy, mm, dd] = demDateFrom.split('-');
+      params.set('demand_date_from', `${dd}-${mm}-${yyyy}`);
+    }
+    if (demDateTo) {
+      const [yyyy, mm, dd] = demDateTo.split('-');
+      params.set('demand_date_to', `${dd}-${mm}-${yyyy}`);
+    }
     if (demItem) params.set('item_id', demItem);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemands?${params.toString()}`, {
@@ -217,7 +236,7 @@ export default function ProcurementsPage() {
     } finally {
       setIsInitialLoading(false);
     }
-  }, [procPage, procProject, procStatus, procDate, procVendor, demPage, demProject, demStatus, demDate, demItem]);
+  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, demPage, demProject, demStatus, demDateFrom, demDateTo, demItem]);
 
   useEffect(() => {
     fetchAllData();
@@ -231,9 +250,12 @@ export default function ProcurementsPage() {
       }`}>
         <div className="bg-[#293653] p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-             <h2 className="text-lg font-medium text-white tracking-wide">Latest Procurements</h2>
-             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-sm transition-colors gap-1.5 shadow-sm">
-               <Plus className="w-4 h-4" /> New Procurement
+             <h2 className="text-lg font-medium text-white tracking-wide flex items-center gap-2">
+               <ShoppingCart className="w-5 h-5 text-blue-400" />
+               Latest Procurements
+             </h2>
+             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
+               <Plus className="w-3.5 h-3.5" /> New Procurement
              </button>
              <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded text-[12px] font-bold flex items-center gap-1.5">
                Purchased Today: <IndianRupee className="w-3.5 h-3.5" /> 124560.00
@@ -256,15 +278,27 @@ export default function ProcurementsPage() {
 
         <div className="p-4 bg-[#1b202c]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 max-w-2xl">
-            <div className="flex items-center justify-between gap-3">
-              <label className="text-[13px] font-medium text-white whitespace-nowrap">Select Date</label>
-              <input 
-                 type="date" 
-                 max={todayStr}
-                 value={procDate}
-                 onChange={(e) => setProcDate(e.target.value)}
-                 className="w-40 bg-[#8ba0ba] border-none rounded py-1px px-2 text-[13px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-              />
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[13px] font-medium text-white whitespace-nowrap">Dates</label>
+              <div className="flex items-center gap-1.5 flex-1 justify-end">
+                <input 
+                   type="date" 
+                   max={todayStr}
+                   value={procDateFrom}
+                   onChange={(e) => setProcDateFrom(e.target.value)}
+                   title="From Date"
+                   className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                />
+                <span className="text-gray-400 text-xs">to</span>
+                <input 
+                   type="date" 
+                   max={todayStr}
+                   value={procDateTo}
+                   onChange={(e) => setProcDateTo(e.target.value)}
+                   title="To Date"
+                   className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                />
+              </div>
             </div>
             <SearchableSelectPlaceholder label="Select Status" options={procStatusOptions} value={procStatus} onChange={setProcStatus} />
             <SearchableSelectPlaceholder label="Select Project" options={projectsOptions} value={procProject} onChange={setProcProject} />
@@ -335,9 +369,12 @@ export default function ProcurementsPage() {
       }`}>
         <div className="bg-[#293653] p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
-             <h2 className="text-lg font-medium text-white tracking-wide">Latest Demands</h2>
-             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-sm transition-colors gap-1.5 shadow-sm">
-               <Plus className="w-4 h-4" /> New Demand
+             <h2 className="text-lg font-medium text-white tracking-wide flex items-center gap-2">
+               <ClipboardList className="w-5 h-5 text-orange-400" />
+               Latest Demands
+             </h2>
+             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
+               <Plus className="w-3.5 h-3.5" /> New Demand
              </button>
              <div className="px-3 py-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded text-[12px] font-bold flex items-center gap-1.5">
                Demands Today: 45
@@ -360,15 +397,27 @@ export default function ProcurementsPage() {
 
         <div className="p-4 bg-[#1b202c]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 max-w-2xl">
-            <div className="flex items-center justify-between gap-3">
-              <label className="text-[13px] font-medium text-white whitespace-nowrap">Select Date</label>
-              <input 
-                 type="date" 
-                 max={todayStr}
-                 value={demDate}
-                 onChange={(e) => setDemDate(e.target.value)}
-                 className="w-40 bg-[#8ba0ba] border-none rounded py-1px px-2 text-[13px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-              />
+            <div className="flex items-center justify-between gap-2">
+              <label className="text-[13px] font-medium text-white whitespace-nowrap">Dates</label>
+              <div className="flex items-center gap-1.5 flex-1 justify-end">
+                <input 
+                   type="date" 
+                   max={todayStr}
+                   value={demDateFrom}
+                   onChange={(e) => setDemDateFrom(e.target.value)}
+                   title="From Date"
+                   className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                />
+                <span className="text-gray-400 text-xs">to</span>
+                <input 
+                   type="date" 
+                   max={todayStr}
+                   value={demDateTo}
+                   onChange={(e) => setDemDateTo(e.target.value)}
+                   title="To Date"
+                   className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                />
+              </div>
             </div>
             <SearchableSelectPlaceholder label="Select Status" options={demandStatusOptions} value={demStatus} onChange={setDemStatus} />
             <SearchableSelectPlaceholder label="Select Project" options={projectsOptions} value={demProject} onChange={setDemProject} />

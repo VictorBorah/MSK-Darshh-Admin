@@ -9,6 +9,7 @@
             "category_id": "1",
             "category_name": "Cement & Concrete",
             "default_gst": "0.00",
+            "default_price": "0.00",
             "default_vendor_id": "",
             "default_vendor_name": "",
             "unit_id": "5",

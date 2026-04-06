@@ -241,12 +241,14 @@ export default function MasterItemsPage() {
       try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
       const data = Array.isArray(arr) ? arr[0] : arr;
       
-      if (data && String(data.Status) === '1' && data.item_data) {
+      if (data && (String(data.Status) === '1' || data.Status === 1) && data.item_data) {
         setItems([data.item_data]);
         setTotalPages(1);
-        toast.success(data.Message || 'Item details fetched');
+        toast.success(data.Message || data.message || 'Item details fetched');
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        throw new Error(data.Message || data.message || 'Failed to fetch item details');
       } else {
-        throw new Error(data?.Message || 'Failed to fetch item details');
+        throw new Error(data?.Message || data?.message || 'Failed to fetch item details');
       }
     } catch (e: any) {
       console.error(e);
@@ -384,13 +386,15 @@ export default function MasterItemsPage() {
       try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
       const data = Array.isArray(arr) ? arr[0] : arr;
       
-      if (data && String(data.Status) === "1") {
-        toast.success(data.Message || 'Successfully updated items');
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || data.message || 'Successfully updated items');
         setSelectedItemsIds([]);
         setConfirmDialog(null);
         fetchItems();
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+         throw new Error(data.Message || data.message || 'Failed to update items');
       } else {
-         throw new Error(data?.Message || 'Failed to update items');
+         throw new Error(data?.Message || data?.message || 'Failed to update items');
       }
     } catch (e: any) {
       console.error(e);

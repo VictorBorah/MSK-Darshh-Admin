@@ -89,12 +89,14 @@ export default function EditCategoryModal({ isOpen, onClose, categoryId, onSucce
       const data = await res.json();
       const response = Array.isArray(data) ? data[0] : data;
 
-      if (String(response.Status) === "1" || response.Status === 1) {
-        toast.success(response.Message || (categoryId ? 'Category Updated' : 'Category Added'));
+      if (response && (String(response.Status) === '1' || response.Status === 1)) {
+        toast.success(response.Message || response.message || (categoryId ? 'Category Updated' : 'Category Added'));
         if (onSuccess) onSuccess();
         onClose();
+      } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
+        toast.error(response.Message || response.message || 'Action failed');
       } else {
-        toast.error(response.Message || 'Action failed');
+        toast.error(response?.Message || response?.message || 'Oops, something went wrong!');
       }
     } catch (error) {
       console.error(error);
