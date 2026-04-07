@@ -10,6 +10,10 @@
             {
                 "id": "2",
                 "stage": "Foundation Initiation"
+            },
+            {
+                "id": "3",
+                "stage": "Foundation Construction"
             }
         ],
         "clients": [
@@ -26,22 +30,16 @@
         ],
         "vendors": [
             {
+                "id": "6",
+                "vendor_name": "Balaji Traders",
+                "vendor_mobile": "4578203214",
+                "vendor_gst": "18ABCDE1234F1Z5"
+            },
+            {
                 "id": "3",
                 "vendor_name": "Borah Electricals",
                 "vendor_mobile": "0987456321",
                 "vendor_gst": "18AABCU9603R1ZM "
-            },
-            {
-                "id": "2",
-                "vendor_name": "Laxmi Hardware",
-                "vendor_mobile": "1234567890",
-                "vendor_gst": "18AACCB4412L1Z9"
-            },
-            {
-                "id": "1",
-                "vendor_name": "Maa Durga Hardware",
-                "vendor_mobile": "7845124270",
-                "vendor_gst": "18AACCB6672L1Z9"
             }
         ],
         "districts": [
@@ -144,12 +142,16 @@
         },
         "items_data": [
             {
-                "id": "25",
-                "item_name": "AAC Block 600x200x100"
+                "id": "255",
+                "item_name": "2 Pin Top",
+                "default_price": "30.00",
+                "default_gst": "18.00"
             },
             {
-                "id": "26",
-                "item_name": "AAC Block 600x200x150"
+                "id": "256",
+                "item_name": "A1 Ghost Buster",
+                "default_price": "0.00",
+                "default_gst": "18.00"
             }
         ],
         "units_data": [
@@ -157,33 +159,41 @@
                 "id": "1",
                 "unit": "Gram",
                 "abbv": "GM",
+                "is_material": "1",
                 "active": "1"
             },
             {
                 "id": "2",
                 "unit": "Kilogram",
                 "abbv": "KG",
+                "is_material": "1",
                 "active": "1"
             }
         ],
         "item_categories_data": [
             {
                 "master_category_id": "2",
-                "master_category_name": "Aggregates"
+                "master_category_name": "Aggregates",
+                "is_material": "1"
             },
             {
                 "master_category_id": "21",
-                "master_category_name": "Bill Payments"
+                "master_category_name": "Bill Payments",
+                "is_material": "0"
             }
         ],
         "budget_heads_array": [
             {
                 "id": "1",
-                "head": "Labour Payment"
+                "head": "Labour Payment",
+                "default_gst": "0.00",
+                "has_vendor": "0"
             },
             {
                 "id": "2",
-                "head": "Materials Payment"
+                "head": "Material Purchase",
+                "default_gst": "0.00",
+                "has_vendor": "1"
             }
         ],
         "app_settings": {

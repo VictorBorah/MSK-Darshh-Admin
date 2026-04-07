@@ -27,7 +27,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
     default_price: '0.00',
     vendor_id: '',
     unit_id: '',
-    status: 1
+    status: 1,
+    is_material: 1
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -66,7 +67,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         default_price: '0.00',
         vendor_id: '',
         unit_id: '',
-        status: 1
+        status: 1,
+        is_material: 1
       });
     }
   }, [isOpen, itemId]);
@@ -112,7 +114,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
           default_price: iData.default_price || '0.00',
           vendor_id: iData.default_vendor_id || '',
           unit_id: iData.unit_id || '',
-          status: parseInt(iData.status) === 1 ? 1 : 0
+          status: parseInt(iData.status) === 1 ? 1 : 0,
+          is_material: iData.is_material !== undefined ? parseInt(iData.is_material) : 1
         });
       } else {
         toast.error('Failed to load item details.');
@@ -273,7 +276,12 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
   };
 
   const handleUpdateItem = async () => {
-    if (!formData.item_code.trim() || !formData.item_name.trim() || !formData.category_id || formData.default_gst === '' || !formData.unit_id || formData.default_price === '' || formData.default_price === null) {
+    if (!formData.item_code.trim() || !formData.item_name.trim() || !formData.category_id || !formData.unit_id || formData.default_price === '' || formData.default_price === null) {
+      toast.error('Please fill in all mandatory fields.');
+      return;
+    }
+    
+    if (formData.is_material === 1 && formData.default_gst === '') {
       toast.error('Please fill in all mandatory fields.');
       return;
     }
@@ -289,12 +297,15 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       payload.append('category', formData.category_id);
       payload.append('item_name', formData.item_name);
       payload.append('item_code', formData.item_code);
-      payload.append('gst_value', String(formData.default_gst));
       payload.append('default_price', formData.default_price || '0.00');
       payload.append('unit_id', formData.unit_id);
+      payload.append('is_material', String(formData.is_material));
       
-      if (formData.vendor_id) {
-        payload.append('vendor_id', formData.vendor_id);
+      if (formData.is_material === 1) {
+        payload.append('gst_value', String(formData.default_gst));
+        if (formData.vendor_id) {
+          payload.append('vendor_id', formData.vendor_id);
+        }
       }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/patchItem`, {
@@ -362,7 +373,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                   </div>
                   <Select
                     value={categories.find(c => String(c.master_category_id) === String(formData.category_id)) ? { value: String(formData.category_id), label: categories.find(c => String(c.master_category_id) === String(formData.category_id))?.master_category_name } : null}
-                    options={categories.map((c: any) => ({ value: String(c.master_category_id), label: c.master_category_name }))}
+                    options={categories.filter((c: any) => String(c.is_material) === String(formData.is_material)).map((c: any) => ({ value: String(c.master_category_id), label: c.master_category_name }))}
                     onChange={(val: any) => setFormData({ ...formData, category_id: val ? val.value : '' })}
                     placeholder="Select category..."
                     styles={{
@@ -389,8 +400,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
               </div>
 
               {/* Row 2 */}
-              <div className="grid grid-cols-1 gap-5">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+                <div className="md:col-span-8">
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
                   <input
                     type="text"
@@ -400,37 +411,52 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                     placeholder="E.g. Steel Fe500"
                   />
                 </div>
+                <div className="md:col-span-4 flex items-center h-[40px] mb-[2px]">
+                  <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={formData.is_material === 1}
+                      onChange={(e) => setFormData({ ...formData, is_material: e.target.checked ? 1 : 0 })}
+                      className="w-4 h-4 rounded border-gray-600 bg-[#1e293b] text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
+                    />
+                    <span className="text-[13px] text-[#ccd6f6] font-medium group-hover:text-white transition-colors">
+                      Is construction material
+                    </span>
+                  </label>
+                </div>
               </div>
 
               {/* Row 3 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[13px] text-[#ccd6f6] font-medium block">Default Vendor</label>
-                    <button 
-                      onClick={(e) => { e.preventDefault(); setShowAddVendorModal(true); }}
-                      className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline bg-transparent border-none outline-none"
-                    >
-                      + Add New Vendor
-                    </button>
+                {formData.is_material === 1 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="text-[13px] text-[#ccd6f6] font-medium block">Default Vendor</label>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); setShowAddVendorModal(true); }}
+                        className="text-[11px] text-blue-400 hover:text-blue-300 font-semibold hover:underline bg-transparent border-none outline-none"
+                      >
+                        + Add New Vendor
+                      </button>
+                    </div>
+                    <Select
+                      value={vendors.find(v => String(v.id) === String(formData.vendor_id)) ? { value: String(formData.vendor_id), label: vendors.find(v => String(v.id) === String(formData.vendor_id))?.vendor_name } : null}
+                      options={vendors.map((v: any) => ({ value: String(v.id), label: String(v.vendor_name) }))}
+                      onChange={(val: any) => setFormData({ ...formData, vendor_id: val ? val.value : '' })}
+                      placeholder="Select default vendor..."
+                      isClearable
+                      styles={{
+                        control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                        menuPortal: base => ({ ...base, zIndex: 99999 }),
+                        menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                        option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                        singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                        input: base => ({ ...base, color: '#e2e8f0' })
+                      }}
+                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    />
                   </div>
-                  <Select
-                    value={vendors.find(v => String(v.id) === String(formData.vendor_id)) ? { value: String(formData.vendor_id), label: vendors.find(v => String(v.id) === String(formData.vendor_id))?.vendor_name } : null}
-                    options={vendors.map((v: any) => ({ value: String(v.id), label: String(v.vendor_name) }))}
-                    onChange={(val: any) => setFormData({ ...formData, vendor_id: val ? val.value : '' })}
-                    placeholder="Select default vendor..."
-                    isClearable
-                    styles={{
-                      control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
-                      menuPortal: base => ({ ...base, zIndex: 99999 }),
-                      menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
-                      option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
-                      singleValue: base => ({ ...base, color: '#e2e8f0' }),
-                      input: base => ({ ...base, color: '#e2e8f0' })
-                    }}
-                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                  />
-                </div>
+                )}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-[13px] text-[#ccd6f6] font-medium block">Unit <span className="text-red-400">*</span></label>
@@ -443,7 +469,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                   </div>
                   <Select
                     value={units.find(u => String(u.id) === String(formData.unit_id)) ? { value: String(formData.unit_id), label: units.find(u => String(u.id) === String(formData.unit_id))?.unit } : null}
-                    options={units.map((u: any) => ({ value: String(u.id), label: String(u.unit) }))}
+                    options={units.filter(u => String(u.is_material) === String(formData.is_material)).map((u: any) => ({ value: String(u.id), label: String(u.unit) }))}
                     onChange={(val: any) => setFormData({ ...formData, unit_id: val ? val.value : '' })}
                     placeholder="Select unit..."
                     styles={{
@@ -457,32 +483,47 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                     menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                   />
                 </div>
+                {formData.is_material === 0 && (
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Amount <span className="text-red-400">*</span></label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.default_price}
+                      onChange={(e) => setFormData({ ...formData, default_price: e.target.value })}
+                      className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Row 4 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    value={formData.default_gst}
-                    onChange={(e) => setFormData({ ...formData, default_gst: e.target.value })}
-                    className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                    placeholder="18.00"
-                  />
+              {formData.is_material === 1 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
+                    <input
+                      type="number"
+                      value={formData.default_gst}
+                      onChange={(e) => setFormData({ ...formData, default_gst: e.target.value })}
+                      className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                      placeholder="18.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Price <span className="text-red-400">*</span></label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.default_price}
+                      onChange={(e) => setFormData({ ...formData, default_price: e.target.value })}
+                      className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                      placeholder="0.00"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Price <span className="text-red-400">*</span></label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formData.default_price}
-                    onChange={(e) => setFormData({ ...formData, default_price: e.target.value })}
-                    className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                    placeholder="0.00"
-                  />
-                </div>
-              </div>
+              )}
 
               {/* Row 5 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

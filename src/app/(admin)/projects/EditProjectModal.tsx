@@ -262,6 +262,7 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
   const [omId, setOmId] = useState<string[]>([]);
   const [managerId, setManagerId] = useState<string[]>([]);
   const [masonId, setMasonId] = useState<string[]>([]);
+  const [vendorId, setVendorId] = useState<string[]>([]);
 
   const [allocatedBudget, setAllocatedBudget] = useState('');
   const [budgetTrigger, setBudgetTrigger] = useState('');
@@ -346,6 +347,26 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
         setPmId(mapHrIds(pd.procurement_managers_data, cData.hr_array?.procurement_managers));
         setOmId(mapHrIds(pd.operation_managers_data || pd.operation_data, cData.hr_array?.operation_managers));
         setMasonId(mapHrIds(pd.masons_data, cData.hr_array?.masons));
+        
+        let vIds: string[] = [];
+        let rawVendors = pd.vendors_data || [];
+        if (typeof rawVendors === 'string') rawVendors = rawVendors.split(',');
+        if (Array.isArray(rawVendors)) {
+           vIds = rawVendors.map((v: any) => {
+              if (typeof v === 'string') {
+                 const cleanV = v.trim().toLowerCase();
+                 const vById = cData.vendors?.find((cv: any) => String(cv.id).trim() === v.trim());
+                 if (vById) return String(vById.id);
+                 const vByName = cData.vendors?.find((cv: any) => cv.vendor_name?.trim().toLowerCase() === cleanV);
+                 if (vByName) return String(vByName.id);
+                 return v.trim(); // Fallback to the raw string if not found in dictionary
+              } else if (typeof v === 'object' && v) {
+                 return String(v.id || v.vendor_id || v.vendor_name || '');
+              }
+              return '';
+           }).filter(Boolean);
+        }
+        setVendorId(vIds);
 
       } else {
         throw new Error(pData?.Message || 'Failed to load specific project data.');
@@ -395,10 +416,11 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
       formData.append('se_csv', engineerId.join(','));
       formData.append('ss_csv', supervisorId.join(','));
       
-      if (pmId.length > 0) formData.append('pm_csv', pmId.join(','));
-      if (contractorId.length > 0) formData.append('sc_csv', contractorId.join(','));
-      if (omId.length > 0) formData.append('om_csv', omId.join(','));
-      if (masonId.length > 0) formData.append('masons_csv', masonId.join(','));
+      formData.append('pm_csv', pmId.join(','));
+      formData.append('sc_csv', contractorId.join(','));
+      formData.append('om_csv', omId.join(','));
+      formData.append('masons_csv', masonId.join(','));
+      formData.append('vendors_csv', vendorId.join(','));
 
       formData.append('budget_amount', allocatedBudget);
       formData.append('trigger_amount', budgetTrigger || '0');
@@ -451,6 +473,13 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
   const omOptions = configData?.hr_array?.operation_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const managerOptions = configData?.hr_array?.managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const masonOptions = configData?.hr_array?.masons?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
+  
+  const vendorOptions = configData?.vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name })) || [];
+  vendorId.forEach(id => {
+    if (!vendorOptions.find((o: any) => o.value === id)) {
+      vendorOptions.push({ value: id, label: id }); // Fallback UI option for missing configs
+    }
+  });
 
   return (
     <>
@@ -680,6 +709,20 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
                         value={masonOptions.filter((o: any) => masonId.includes(o.value))}
                         onChange={(v: any) => setMasonId(v ? v.map((item: any) => item.value) : [])}
                         placeholder="Select masons..."
+                        isClearable
+                      />
+                    </FormRow>
+
+                    <FormRow label="Select Vendors" helpText="Assign Vendors for this project">
+                      <Select
+                        isMulti
+                        options={vendorOptions}
+                        styles={customSelectStyles}
+                        className="w-full text-[13px]"
+                        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                        value={vendorOptions.filter((o: any) => vendorId.includes(o.value))}
+                        onChange={(v: any) => setVendorId(v ? v.map((item: any) => item.value) : [])}
+                        placeholder="Select vendors..."
                         isClearable
                       />
                     </FormRow>

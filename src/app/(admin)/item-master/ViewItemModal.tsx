@@ -112,6 +112,12 @@ export default function ViewItemModal({ isOpen, onClose, itemId }: ViewItemModal
                 <span className="text-gray-200 font-medium">{itemData.unit_name || '-'}</span>
               </div>
               <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Construction Material</span>
+                <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded self-start ${String(itemData.is_material) === "1" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" : "bg-gray-500/10 text-gray-400 border border-gray-500/20"}`}>
+                  {String(itemData.is_material) === "1" ? 'Yes' : 'No'}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</span>
                 <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded self-start ${String(itemData.status) === "1" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
                   {String(itemData.status) === "1" ? 'Active' : 'Disabled'}

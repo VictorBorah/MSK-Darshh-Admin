@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList } from 'lucide-react';
 import toast from 'react-hot-toast';
+import MakeDemandModal from './MakeDemandModal';
 
 const SearchableSelectPlaceholder = ({ 
   label, 
@@ -84,6 +85,7 @@ const SearchableSelectPlaceholder = ({
 
 export default function ProcurementsPage() {
   const [maximizedColumn, setMaximizedColumn] = useState<'procurements' | 'demands' | null>(null);
+  const [showMakeDemandModal, setShowMakeDemandModal] = useState(false);
 
   // Loading State for preloader
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -373,7 +375,7 @@ export default function ProcurementsPage() {
                <ClipboardList className="w-5 h-5 text-orange-400" />
                Latest Demands
              </h2>
-             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
+             <button onClick={() => setShowMakeDemandModal(true)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
                <Plus className="w-3.5 h-3.5" /> New Demand
              </button>
              <div className="px-3 py-1.5 bg-orange-500/20 text-orange-400 border border-orange-500/30 rounded text-[12px] font-bold flex items-center gap-1.5">
@@ -498,6 +500,12 @@ export default function ProcurementsPage() {
          {(!maximizedColumn || maximizedColumn === 'procurements') && renderProcurementsPanel()}
          {(!maximizedColumn || maximizedColumn === 'demands') && renderDemandsPanel()}
        </div>
+
+       <MakeDemandModal 
+         isOpen={showMakeDemandModal}
+         onClose={() => setShowMakeDemandModal(false)}
+         projects={projectsOptions}
+       />
     </div>
   );
 }

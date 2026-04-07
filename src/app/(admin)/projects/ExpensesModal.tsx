@@ -32,6 +32,7 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newHeadName, setNewHeadName] = useState('');
+  const [addHeadHasVendor, setAddHeadHasVendor] = useState(false);
   const [isAddingHead, setIsAddingHead] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [defaultGst, setDefaultGst] = useState('');
@@ -164,6 +165,7 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
       const formData = new FormData();
       formData.append('head_name', newHeadName);
       formData.append('default_gst', defaultGst);
+      formData.append('has_vendor', addHeadHasVendor ? '1' : '0');
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveHead`, {
         method: 'POST',
@@ -189,6 +191,7 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
         setExpenseItems(prev => [...prev, newHead]);
 
         setNewHeadName('');
+        setAddHeadHasVendor(false);
         setIsAddModalOpen(false);
       } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
         toast.error(data.Message || data.message || 'Failed to add Head.');
@@ -334,8 +337,20 @@ export default function ExpensesModal({ projectId, configHeads, initialExpensesJ
                 className="w-[100px] bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-8 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
               />
             </div>
+            <div className="mb-5 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="expenseHasVendorCheck"
+                checked={addHeadHasVendor}
+                onChange={(e) => setAddHeadHasVendor(e.target.checked)}
+                className="w-4 h-4 text-blue-600 bg-[#eee0e0] border-none rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+              />
+              <label htmlFor="expenseHasVendorCheck" className="text-[12px] text-gray-300 font-medium cursor-pointer">
+                Has Vendor
+              </label>
+            </div>
             <div className="flex justify-end gap-2 text-sm">
-              <button type="button" disabled={isAddingHead} onClick={() => setIsAddModalOpen(false)} className="px-4 py-1.5 text-gray-300 hover:text-white transition-colors bg-transparent border-none outline-none">Cancel</button>
+              <button type="button" disabled={isAddingHead} onClick={() => { setIsAddModalOpen(false); setAddHeadHasVendor(false); setNewHeadName(''); }} className="px-4 py-1.5 text-gray-300 hover:text-white transition-colors bg-transparent border-none outline-none">Cancel</button>
               <button type="button" disabled={isAddingHead} onClick={handleAddHead} className="px-4 py-1.5 bg-blue-600 text-white rounded-md hover:bg-blue-500 min-w-[90px] flex items-center justify-center transition-colors outline-none border-none shadow-sm">
                 {isAddingHead ? <Loader2 className="w-4 h-4 animate-spin text-blue-200" /> : 'Add Head'}
               </button>

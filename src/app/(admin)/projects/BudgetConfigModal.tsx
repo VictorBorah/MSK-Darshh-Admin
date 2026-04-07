@@ -18,6 +18,8 @@ interface SelectedItem {
   amount: string;
   head_id: string;
   head_name: string;
+  vendor_id?: string;
+  vendor_name?: string;
 }
 
 export default function BudgetConfigModal({ isOpen, onClose, projectId, projectName }: BudgetConfigModalProps) {
@@ -37,13 +39,14 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
 
   // Add New Item Modal States
   const [showAddItemModal, setShowAddItemModal] = useState(false);
-  const [addItemData, setAddItemData] = useState({ category_id: '', item_name: '', item_code: '', default_gst: '', unit_id: '' });
+  const [addItemData, setAddItemData] = useState({ category_id: '', item_name: '', item_code: '', default_gst: '', unit_id: '', is_material: 1, vendor_id: '', default_price: '0.00' });
   const [isAddingItem, setIsAddingItem] = useState(false);
 
   // Add New Head Modal States
   const [showAddHeadModal, setShowAddHeadModal] = useState(false);
   const [addHeadName, setAddHeadName] = useState('');
   const [addHeadGst, setAddHeadGst] = useState('');
+  const [addHeadHasVendor, setAddHeadHasVendor] = useState(false);
   const [isAddingHead, setIsAddingHead] = useState(false);
 
   useEffect(() => {
@@ -63,10 +66,11 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       setIsSavingConfig(false);
 
       const defaultGstValue = localStorage.getItem('sys_default_gst') || '18.00';
-      setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: defaultGstValue, unit_id: '' });
+      setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: defaultGstValue, unit_id: '', is_material: 1, vendor_id: '', default_price: '0.00' });
       setShowAddHeadModal(false);
       setAddHeadName('');
       setAddHeadGst(defaultGstValue);
+      setAddHeadHasVendor(false);
     }
   }, [isOpen, projectId]);
 
@@ -141,13 +145,16 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
           const mappedItems = response.items_config.map((cfgItem: any) => {
             const matchedItem = cfgData?.items_data?.find((i: any) => String(i.id) === String(cfgItem.item_id));
             const matchedHead = cfgData?.budget_heads_array?.find((h: any) => String(h.id) === String(cfgItem.head_id));
+            const matchedVendor = cfgData?.vendors?.find((v: any) => String(v.id) === String(cfgItem.vendor_id));
             
             return {
               item_id: String(cfgItem.item_id),
               item_name: matchedItem ? matchedItem.item_name : `Unknown Item ${cfgItem.item_id}`,
               amount: String(cfgItem.amount),
               head_id: String(cfgItem.head_id),
-              head_name: matchedHead ? matchedHead.head : `Unknown Head ${cfgItem.head_id}`
+              head_name: matchedHead ? matchedHead.head : `Unknown Head ${cfgItem.head_id}`,
+              vendor_id: cfgItem.vendor_id ? String(cfgItem.vendor_id) : undefined,
+              vendor_name: matchedVendor ? matchedVendor.vendor_name : undefined
             };
           });
           setSelectedItemsList(mappedItems);
@@ -199,9 +206,31 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
   };
 
   const handleRowHeadChange = (itemId: string, selectedOption: any) => {
+    const headObj = cfgData?.budget_heads_array?.find((h: any) => String(h.id) === String(selectedOption.value));
+    const requiresVendor = headObj && (String(headObj.has_vendor) === '1');
+
     setSelectedItemsList(prev => prev.map(item => {
       if (item.item_id === itemId) {
-        return { ...item, head_id: selectedOption.value, head_name: selectedOption.label };
+        return { 
+          ...item, 
+          head_id: selectedOption.value, 
+          head_name: selectedOption.label,
+          ...(requiresVendor ? {} : { vendor_id: undefined, vendor_name: undefined })
+        };
+      }
+      return item;
+    }));
+    markUnsaved();
+  };
+
+  const handleRowVendorChange = (itemId: string, selectedOption: any) => {
+    setSelectedItemsList(prev => prev.map(item => {
+      if (item.item_id === itemId) {
+        return { 
+          ...item, 
+          vendor_id: selectedOption ? selectedOption.value : undefined, 
+          vendor_name: selectedOption ? selectedOption.label : undefined
+        };
       }
       return item;
     }));
@@ -222,6 +251,10 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       toast.error('Please fill in all mandatory fields.');
       return;
     }
+    if (addItemData.is_material === 1 && !addItemData.default_gst) {
+      toast.error('Please fill in all mandatory fields.');
+      return;
+    }
     setIsAddingItem(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
@@ -229,8 +262,16 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       formData.append('category_id', addItemData.category_id);
       formData.append('item_name', addItemData.item_name);
       formData.append('item_code', addItemData.item_code);
-      formData.append('default_gst', addItemData.default_gst);
+      formData.append('default_price', addItemData.default_price || '0.00');
       formData.append('unit_id', addItemData.unit_id);
+      formData.append('is_material', String(addItemData.is_material));
+      
+      if (addItemData.is_material === 1) {
+        formData.append('default_gst', addItemData.default_gst);
+        if (addItemData.vendor_id) {
+          formData.append('vendor_id', addItemData.vendor_id);
+        }
+      }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveItem`, {
         method: 'POST',
@@ -261,7 +302,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
           markUnsaved();
         }
         setShowAddItemModal(false);
-        setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: localStorage.getItem('sys_default_gst') || '18.00', unit_id: '' });
+        setAddItemData({ category_id: '', item_name: '', item_code: '', default_gst: localStorage.getItem('sys_default_gst') || '18.00', unit_id: '', is_material: 1, vendor_id: '', default_price: '0.00' });
       } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
         toast.error(response.Message || response.message || 'Oops, something went wrong!');
       } else {
@@ -286,6 +327,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
       const formData = new FormData();
       formData.append('head_name', addHeadName);
       formData.append('default_gst', addHeadGst);
+      formData.append('has_vendor', addHeadHasVendor ? '1' : '0');
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveHead`, {
         method: 'POST',
@@ -308,6 +350,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
         setShowAddHeadModal(false);
         setAddHeadName('');
         setAddHeadGst(localStorage.getItem('sys_default_gst') || '18.00');
+        setAddHeadHasVendor(false);
       } else if (response && (String(response.Status) === '0' || response.Status === 0)) {
         toast.error(response.Message || response.message || 'Oops, something went wrong!');
       } else {
@@ -327,7 +370,13 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
   const budgetHeads = cfgData?.budget_heads_array || [];
   const itemsData = cfgData?.items_data || [];
 
-  const isConfigValid = selectedItemsList.length > 0 && selectedItemsList.every(item => item.amount.trim() !== '' && parseFloat(item.amount) >= 0 && item.head_id);
+  const isConfigValid = selectedItemsList.length > 0 && selectedItemsList.every(item => {
+     const headObj = cfgData?.budget_heads_array?.find((h: any) => String(h.id) === String(item.head_id));
+     const requiresVendor = headObj && String(headObj.has_vendor) === '1';
+     const isAmountValid = item.amount.trim() !== '' && parseFloat(item.amount) >= 0;
+     const isVendorValid = requiresVendor ? !!item.vendor_id : true;
+     return isAmountValid && item.head_id && isVendorValid;
+  });
   const isSaveEnabled = isConfigValid && hasUnsavedChanges;
 
   const handleSaveConfig = async () => {
@@ -337,13 +386,19 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
       
-      const configArray = selectedItemsList.map(item => ({
-        project_id: projectId,
-        stage_id: activeStageId,
-        item_id: item.item_id,
-        head_id: item.head_id,
-        amount: item.amount
-      }));
+      const configArray = selectedItemsList.map(item => {
+        const payload: any = {
+          project_id: projectId,
+          stage_id: activeStageId,
+          item_id: item.item_id,
+          head_id: item.head_id,
+          amount: item.amount
+        };
+        if (item.vendor_id) {
+           payload.vendor_id = item.vendor_id;
+        }
+        return payload;
+      });
       
       const formData = new FormData();
       formData.append('config_json', JSON.stringify(configArray));
@@ -527,12 +582,41 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                         </div>
                       )}
 
-                      {selectedItemsList.map((item) => (
-                        <div key={item.item_id} className="flex items-center justify-between gap-3 bg-[#1e293b] p-3 rounded-md border border-gray-700 hover:border-gray-600 transition-colors shadow-sm">
+                      {selectedItemsList.map((item) => {
+                        const headObj = cfgData?.budget_heads_array?.find((h: any) => String(h.id) === String(item.head_id));
+                        const showVendorSelect = headObj && (String(headObj.has_vendor) === '1');
+                        
+                        return (
+                        <div key={item.item_id} className="flex items-center justify-between gap-3 bg-[#1e293b] p-3 rounded-md border border-gray-700 hover:border-gray-600 transition-colors shadow-sm overflow-visible">
                           <div className="flex flex-col flex-1 min-w-[150px] pr-2">
                             <span className="text-[#e2e8f0] font-medium text-[13px] truncate" title={item.item_name}>{item.item_name}</span>
                             <span className="text-gray-500 text-[10px] font-bold">NODE {item.item_id}</span>
                           </div>
+
+                          {showVendorSelect && (
+                            <div className="w-[180px] shrink-0">
+                              <Select
+                                options={(cfgData?.vendors || []).map((v: any) => ({ value: String(v.id), label: v.vendor_name }))}
+                                value={item.vendor_id ? { value: item.vendor_id, label: item.vendor_name } : null}
+                                onChange={(val: any) => handleRowVendorChange(item.item_id, val)}
+                                placeholder="Select Vendor..."
+                                isClearable
+                                styles={{
+                                  control: (base, state) => ({ ...base, backgroundColor: '#11141e', borderColor: state.isFocused ? '#f59e0b' : '#7c2d12', minHeight: '32px', height: '32px', boxShadow: 'none', alignItems: 'center' }),
+                                  menuPortal: base => ({ ...base, zIndex: 9999 }),
+                                  menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                                  option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#f59e0b' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer', padding: '6px 10px', fontSize: '12px' }),
+                                  singleValue: base => ({ ...base, color: '#fcd34d', fontSize: '12px', margin: '0' }),
+                                  input: base => ({ ...base, color: '#e2e8f0', margin: '0', padding: '0' }),
+                                  valueContainer: base => ({ ...base, padding: '0 8px', display: 'flex', alignItems: 'center', height: '100%' }),
+                                  indicatorsContainer: base => ({ ...base, height: '32px', alignItems: 'center' }),
+                                  dropdownIndicator: base => ({ ...base, padding: '4px' }),
+                                  clearIndicator: base => ({ ...base, padding: '4px' })
+                                }}
+                                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                              />
+                            </div>
+                          )}
 
                           <div className="w-[180px] shrink-0">
                             <Select
@@ -574,7 +658,7 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                             </button>
                           </div>
                         </div>
-                      ))}
+                      )})}
                     </div>
 
                     <div className="mt-4 bg-[#161a25] border border-gray-700/50 rounded-xl p-4 flex justify-between items-center shadow-[0_0_15px_rgba(0,0,0,0.5)] shrink-0">
@@ -654,71 +738,148 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-5 bg-[#161a25]">
-              <div>
-                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Category <span className="text-red-400">*</span></label>
-                <Select
-                  options={(cfgData?.item_categories_data || []).map((c: any) => ({ value: String(c.master_category_id), label: c.master_category_name }))}
-                  onChange={(val: any) => setAddItemData({ ...addItemData, category_id: val ? val.value : '' })}
-                  placeholder="Select master category..."
-                  styles={{
-                    control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
-                    menuPortal: base => ({ ...base, zIndex: 99999 }),
-                    menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
-                    option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
-                    singleValue: base => ({ ...base, color: '#e2e8f0' }),
-                    input: base => ({ ...base, color: '#e2e8f0' })
-                  }}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
+            <div className="p-6 flex flex-col gap-5 bg-[#161a25] max-h-[75vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700">
+              {/* Row 1 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Category <span className="text-red-400">*</span></label>
+                  <Select
+                    options={(cfgData?.item_categories_data || []).filter((c: any) => String(c.is_material) === String(addItemData.is_material)).map((c: any) => ({ value: String(c.master_category_id), label: c.master_category_name }))}
+                    onChange={(val: any) => setAddItemData({ ...addItemData, category_id: val ? val.value : '' })}
+                    value={cfgData?.item_categories_data?.find((c: any) => String(c.master_category_id) === addItemData.category_id) ? { value: addItemData.category_id, label: cfgData?.item_categories_data?.find((c: any) => String(c.master_category_id) === addItemData.category_id)?.master_category_name } : null}
+                    placeholder="Select master category..."
+                    styles={{
+                      control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                      menuPortal: base => ({ ...base, zIndex: 99999 }),
+                      menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                      option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                      singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                      input: base => ({ ...base, color: '#e2e8f0' })
+                    }}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Code <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    value={addItemData.item_code}
+                    onChange={(e) => setAddItemData({ ...addItemData, item_code: e.target.value })}
+                    className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                    placeholder="E.g. ST-500"
+                  />
+                </div>
               </div>
-              <div>
-                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
-                <input
-                  type="text"
-                  value={addItemData.item_name}
-                  onChange={(e) => setAddItemData({ ...addItemData, item_name: e.target.value })}
-                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                  placeholder="E.g. Steel Fe500"
-                />
+
+              {/* Row 2 */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
+                <div className="md:col-span-8">
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
+                  <input
+                    type="text"
+                    value={addItemData.item_name}
+                    onChange={(e) => setAddItemData({ ...addItemData, item_name: e.target.value })}
+                    className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                    placeholder="E.g. Steel Fe500"
+                  />
+                </div>
+                <div className="md:col-span-4 flex items-center h-[40px] mb-[2px]">
+                  <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                    <input
+                      type="checkbox"
+                      checked={addItemData.is_material === 1}
+                      onChange={(e) => setAddItemData({ ...addItemData, is_material: e.target.checked ? 1 : 0 })}
+                      className="w-4 h-4 rounded border-gray-600 bg-[#1e293b] text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
+                    />
+                    <span className="text-[13px] text-[#ccd6f6] font-medium group-hover:text-white transition-colors">
+                      Is construction material
+                    </span>
+                  </label>
+                </div>
               </div>
-              <div>
-                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Code <span className="text-red-400">*</span></label>
-                <input
-                  type="text"
-                  value={addItemData.item_code}
-                  onChange={(e) => setAddItemData({ ...addItemData, item_code: e.target.value })}
-                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                  placeholder="E.g. ST-500"
-                />
+
+              {/* Row 3 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {addItemData.is_material === 1 && (
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Vendor</label>
+                    <Select
+                      options={(cfgData?.vendors || []).map((v: any) => ({ value: String(v.id), label: String(v.vendor_name) }))}
+                      value={cfgData?.vendors?.find((v: any) => String(v.id) === addItemData.vendor_id) ? { value: addItemData.vendor_id, label: cfgData?.vendors?.find((v: any) => String(v.id) === addItemData.vendor_id)?.vendor_name } : null}
+                      onChange={(val: any) => setAddItemData({ ...addItemData, vendor_id: val ? val.value : '' })}
+                      placeholder="Select default vendor..."
+                      isClearable
+                      styles={{
+                        control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                        menuPortal: base => ({ ...base, zIndex: 99999 }),
+                        menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                        option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                        singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                        input: base => ({ ...base, color: '#e2e8f0' })
+                      }}
+                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    />
+                  </div>
+                )}
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Unit <span className="text-red-400">*</span></label>
+                  <Select
+                    options={(cfgData?.units_data || []).filter((u: any) => String(u.is_material) === String(addItemData.is_material)).map((u: any) => ({ value: String(u.id), label: String(u.unit) }))}
+                    value={cfgData?.units_data?.find((u: any) => String(u.id) === addItemData.unit_id) ? { value: addItemData.unit_id, label: cfgData?.units_data?.find((u: any) => String(u.id) === addItemData.unit_id)?.unit } : null}
+                    onChange={(val: any) => setAddItemData({ ...addItemData, unit_id: val ? val.value : '' })}
+                    placeholder="Select unit..."
+                    styles={{
+                      control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                      menuPortal: base => ({ ...base, zIndex: 99999 }),
+                      menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                      option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                      singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                      input: base => ({ ...base, color: '#e2e8f0' })
+                    }}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+                {addItemData.is_material === 0 && (
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Amount</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={addItemData.default_price}
+                      onChange={(e) => setAddItemData({ ...addItemData, default_price: e.target.value })}
+                      className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                      placeholder="0.00"
+                    />
+                  </div>
+                )}
               </div>
-              <div>
-                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
-                <input
-                  type="number"
-                  value={addItemData.default_gst}
-                  onChange={(e) => setAddItemData({ ...addItemData, default_gst: e.target.value })}
-                  className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
-                  placeholder="18.00"
-                />
-              </div>
-              <div>
-                <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Unit <span className="text-red-400">*</span></label>
-                <Select
-                  options={(cfgData?.units_data || []).map((u: any) => ({ value: String(u.id), label: String(u.unit) }))}
-                  onChange={(val: any) => setAddItemData({ ...addItemData, unit_id: val ? val.value : '' })}
-                  placeholder="Select unit..."
-                  styles={{
-                    control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
-                    menuPortal: base => ({ ...base, zIndex: 99999 }),
-                    menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
-                    option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
-                    singleValue: base => ({ ...base, color: '#e2e8f0' }),
-                    input: base => ({ ...base, color: '#e2e8f0' })
-                  }}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
-              </div>
+
+              {/* Row 4 */}
+              {addItemData.is_material === 1 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
+                    <input
+                      type="number"
+                      value={addItemData.default_gst}
+                      onChange={(e) => setAddItemData({ ...addItemData, default_gst: e.target.value })}
+                      className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                      placeholder="18.00"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default Price</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={addItemData.default_price}
+                      onChange={(e) => setAddItemData({ ...addItemData, default_price: e.target.value })}
+                      className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
             <div className="px-5 py-4 border-t border-gray-700/50 bg-[#1e2436] flex justify-end gap-3">
               <button
@@ -774,6 +935,18 @@ export default function BudgetConfigModal({ isOpen, onClose, projectId, projectN
                   className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-10 px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
                   placeholder="18.00"
                 />
+              </div>
+              <div className="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id="hasVendorCheck"
+                  checked={addHeadHasVendor}
+                  onChange={(e) => setAddHeadHasVendor(e.target.checked)}
+                  className="w-4 h-4 text-blue-600 bg-[#1e293b] border-gray-700 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+                />
+                <label htmlFor="hasVendorCheck" className="text-[13px] text-[#ccd6f6] font-medium cursor-pointer">
+                  Has Vendor
+                </label>
               </div>
             </div>
             <div className="px-5 py-4 border-t border-gray-700/50 bg-[#1e2436] flex justify-end gap-3">

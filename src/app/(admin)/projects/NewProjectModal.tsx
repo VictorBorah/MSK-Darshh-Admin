@@ -278,6 +278,7 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
   const [omId, setOmId] = useState<string[]>([]);
   const [managerId, setManagerId] = useState<string[]>([]);
   const [masonId, setMasonId] = useState<string[]>([]);
+  const [vendorId, setVendorId] = useState<string[]>([]);
 
   // Column 3
   const [allocatedBudget, setAllocatedBudget] = useState('');
@@ -312,6 +313,7 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
       setOmId([]);
       setManagerId([]);
       setMasonId([]);
+      setVendorId([]);
       setAllocatedBudget('');
       setBudgetTrigger('');
       setGeofenceData('');
@@ -437,6 +439,7 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
       if (contractorId.length > 0) formData.append('sc_csv', contractorId.join(','));
       if (omId.length > 0) formData.append('om_csv', omId.join(','));
       if (masonId.length > 0) formData.append('masons_csv', masonId.join(','));
+      if (vendorId.length > 0) formData.append('vendors_csv', vendorId.join(','));
 
       formData.append('budget_amount', allocatedBudget);
       formData.append('trigger_amount', budgetTrigger);
@@ -490,6 +493,7 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
   const omOptions = configData?.hr_array?.operation_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const managerOptions = configData?.hr_array?.managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const masonOptions = configData?.hr_array?.masons?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
+  const vendorOptions = configData?.vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name })) || [];
 
   return (
     <>
@@ -767,6 +771,20 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
                             value={masonOptions.filter((o: any) => masonId.includes(o.value))}
                             onChange={(v: any) => setMasonId(v ? v.map((item: any) => item.value) : [])}
                             placeholder="Select masons..."
+                            isClearable
+                          />
+                        </FormRow>
+
+                        <FormRow label="Select Vendors" helpText="Assign Vendors for this project">
+                          <Select
+                            isMulti
+                            options={vendorOptions}
+                            styles={customSelectStyles}
+                            className="w-full text-[13px]"
+                            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                            value={vendorOptions.filter((o: any) => vendorId.includes(o.value))}
+                            onChange={(v: any) => setVendorId(v ? v.map((item: any) => item.value) : [])}
+                            placeholder="Select vendors..."
                             isClearable
                           />
                         </FormRow>

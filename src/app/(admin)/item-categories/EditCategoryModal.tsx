@@ -13,6 +13,7 @@ export default function EditCategoryModal({ isOpen, onClose, categoryId, onSucce
   const [categoryName, setCategoryName] = useState('');
   const [description, setDescription] = useState('');
   const [statusToggle, setStatusToggle] = useState(true);
+  const [isMaterial, setIsMaterial] = useState(1);
   const [isSaving, setIsSaving] = useState(false);
   const [isFetching, setIsFetching] = useState(false);
 
@@ -23,6 +24,7 @@ export default function EditCategoryModal({ isOpen, onClose, categoryId, onSucce
         setCategoryName('');
         setDescription('');
         setStatusToggle(true);
+        setIsMaterial(1);
       } else {
         const fetchCategory = async () => {
           setIsFetching(true);
@@ -40,6 +42,7 @@ export default function EditCategoryModal({ isOpen, onClose, categoryId, onSucce
                setCategoryName(response.category_data.master_category_name || '');
                setDescription(response.category_data.description || '');
                setStatusToggle(String(response.category_data.status) === "1");
+               setIsMaterial(response.category_data.is_material !== undefined ? parseInt(response.category_data.is_material) : 1);
             } else {
                toast.error(response.Message || 'Failed to fetch category details');
             }
@@ -72,10 +75,12 @@ export default function EditCategoryModal({ isOpen, onClose, categoryId, onSucce
         payload.append('ids_csv', categoryId);
         payload.append('status', statusToggle ? '1' : '0');
         payload.append('category_name', categoryName);
+        payload.append('is_material', String(isMaterial));
         if (description) payload.append('description', description);
         endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/patchItemCategory`;
       } else {
         payload.append('category', categoryName);
+        payload.append('is_material', String(isMaterial));
         if (description) payload.append('description', description);
         endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/saveItemCategory`;
       }
@@ -140,6 +145,21 @@ export default function EditCategoryModal({ isOpen, onClose, categoryId, onSucce
                 className="w-full bg-[#11141e] border border-gray-700 rounded-md px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 disabled={isSaving || isFetching}
               />
+            </div>
+            
+            <div className="flex items-center">
+              <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={isMaterial === 1}
+                  onChange={(e) => setIsMaterial(e.target.checked ? 1 : 0)}
+                  className="w-4 h-4 rounded border-gray-600 bg-[#11141e] text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
+                  disabled={isSaving || isFetching}
+                />
+                <span className="text-[13px] font-medium text-gray-400 group-hover:text-white transition-colors">
+                  Is construction material
+                </span>
+              </label>
             </div>
 
             <div>

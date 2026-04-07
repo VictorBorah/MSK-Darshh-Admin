@@ -85,6 +85,12 @@ export default function ViewCategoryModal({ isOpen, onClose, categoryId }: ViewC
                    </div>
                 </div>
                 <div>
+                   <label className="block text-[11px] font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Construction Material</label>
+                   <div className="text-[14px] text-gray-300 bg-[#11141e] px-4 py-2.5 rounded-md border border-gray-700/50 inline-block min-w-[80px] text-center font-semibold">
+                      {String(categoryData.is_material) === "1" ? 'Yes' : 'No'}
+                   </div>
+                </div>
+                <div>
                    <label className="block text-[11px] font-bold text-gray-500 mb-1.5 uppercase tracking-wider">Status</label>
                    <div className="bg-[#11141e] px-4 py-2.5 rounded-md border border-gray-700/50 inline-block">
                       {String(categoryData.status) === "1" ? (
