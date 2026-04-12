@@ -96,6 +96,7 @@ export default function ProcurementsPage() {
   const [itemsOptions, setItemsOptions] = useState<any[]>([]);
   const [procStatusOptions, setProcStatusOptions] = useState<any[]>([]);
   const [demandStatusOptions, setDemandStatusOptions] = useState<any[]>([]);
+  const [priorityOptions, setPriorityOptions] = useState<any[]>([]);
 
   const todayStr = new Date().toISOString().split('T')[0];
   const thirtyDaysAgo = new Date();
@@ -137,6 +138,7 @@ export default function ProcurementsPage() {
       setItemsOptions(configData.items_data || []);
       setProcStatusOptions(configData.procurement_status_options || []);
       setDemandStatusOptions(configData.demands_status_options || []);
+      setPriorityOptions(configData.priority_data || []);
       return { success: true, message: configData.Message };
     } else {
       return { success: false, message: configData.Message || 'System config error' };
@@ -265,6 +267,18 @@ export default function ProcurementsPage() {
           </div>
           <div className="flex items-center gap-2">
             <button 
+               onClick={async () => {
+                 const token = localStorage.getItem('at_ki8Xq1iV');
+                 if (!token) return;
+                 const toastId = toast.loading('Refreshing procurements...');
+                 try {
+                   const res = await fetchProcurementsData(token);
+                   if (res.success) toast.success(res.message || 'Procurements refreshed', { id: toastId });
+                   else toast.error(res.message || 'Error refreshing procurements', { id: toastId });
+                 } catch (err: any) {
+                   toast.error(err.message, { id: toastId });
+                 }
+               }}
                className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
             >
                <RefreshCcw className="w-5 h-5" />
@@ -384,6 +398,18 @@ export default function ProcurementsPage() {
           </div>
           <div className="flex items-center gap-2">
             <button 
+               onClick={async () => {
+                 const token = localStorage.getItem('at_ki8Xq1iV');
+                 if (!token) return;
+                 const toastId = toast.loading('Refreshing demands...');
+                 try {
+                   const res = await fetchDemandsData(token);
+                   if (res.success) toast.success(res.message || 'Demands refreshed', { id: toastId });
+                   else toast.error(res.message || 'Error refreshing demands', { id: toastId });
+                 } catch (err: any) {
+                   toast.error(err.message, { id: toastId });
+                 }
+               }}
                className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
             >
                <RefreshCcw className="w-5 h-5" />
@@ -505,6 +531,15 @@ export default function ProcurementsPage() {
          isOpen={showMakeDemandModal}
          onClose={() => setShowMakeDemandModal(false)}
          projects={projectsOptions}
+         priorities={priorityOptions}
+         onSuccess={() => {
+           const token = localStorage.getItem('at_ki8Xq1iV');
+           if (token) {
+             // You can use fetchAllData() or just fetchDemandsData. 
+             // We'll call fetchDemandsData to specifically reload the demands table.
+             fetchDemandsData(token);
+           }
+         }}
        />
     </div>
   );

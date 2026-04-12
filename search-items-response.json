@@ -1,0 +1,64 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "enforce_project": false,
+        "items_data": [
+            {
+                "item_id": "14",
+                "item_code": "CRSD",
+                "item_name": "Coarse Sand",
+                "category_id": "2",
+                "category_name": "Aggregates",
+                "default_gst": "0.00",
+                "default_vendor_id": null,
+                "default_vendor_name": false,
+                "unit_id": "10",
+                "unit_name": "Cubic Meter",
+                "status": "1"
+            },
+            {
+                "item_id": "13",
+                "item_code": "FNSD",
+                "item_name": "Fine Sand",
+                "category_id": "2",
+                "category_name": "Aggregates",
+                "default_gst": "0.00",
+                "default_vendor_id": "5",
+                "default_vendor_name": "Ganpati  Traders",
+                "unit_id": "10",
+                "unit_name": "Cubic Meter",
+                "status": "1"
+            },
+            {
+                "item_id": "12",
+                "item_code": "MSND",
+                "item_name": "M Sand",
+                "category_id": "2",
+                "category_name": "Aggregates",
+                "default_gst": "0.00",
+                "default_vendor_id": null,
+                "default_vendor_name": false,
+                "unit_id": "10",
+                "unit_name": "Cubic Meter",
+                "status": "1"
+            },
+            {
+                "item_id": "11",
+                "item_code": "RVSD",
+                "item_name": "River Sand",
+                "category_id": "2",
+                "category_name": "Aggregates",
+                "default_gst": "0.00",
+                "default_vendor_id": null,
+                "default_vendor_name": false,
+                "unit_id": "10",
+                "unit_name": "Cubic Meter",
+                "status": "1"
+            }
+        ],
+        "total_rows": "4",
+        "pagination_size": "10",
+        "Message": "Fetched latest item list"
+    }
+]
