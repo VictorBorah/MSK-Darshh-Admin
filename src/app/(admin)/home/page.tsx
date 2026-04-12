@@ -1,4 +1,4 @@
-import { CheckSquare, Square, CheckCircle } from 'lucide-react';
+import { CheckSquare, Square, CheckCircle, AlertTriangle } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -12,15 +12,18 @@ export default function Home() {
         <p className="text-[#ccd6f6] text-[15px] leading-relaxed max-w-4xl">
           An enterprise-grade, centralized cloud infrastructure explicitly engineered to orchestrate scaling site operations, real-time financial allocations, and comprehensive workforce logistics across distributed projects.
         </p>
-        <div className="mt-5 bg-emerald-950/30 border border-emerald-500/30 rounded-md p-4 flex items-center gap-3 w-fit">
-          <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+        <div className="mt-5 bg-red-950/30 border border-red-500/30 rounded-md p-4 flex items-start gap-4 w-fit">
+          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
           <div className="flex flex-col">
-            <span className="text-white font-bold text-[14px]">
-              Current Status: <span className="font-medium text-emerald-300">Project progress is on-time</span>
-            </span>
-            <span className="text-white font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-emerald-300 font-semibold">Procurements Section</span>
-            </span>
+             <span className="text-white font-bold text-[14px]">
+              Current Status: <span className="font-medium text-red-400">Project progress is late by 5 Days</span>
+             </span>
+             <span className="text-white font-medium text-[13px] mt-1">
+              Currently Working on: <span className="text-red-400 font-semibold">Procurements Section</span>
+             </span>
+             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
+               Status Updated on: 12/04/2026 5:00 PM by Dr. Einstein
+             </p>
           </div>
         </div>
       </div>
@@ -45,35 +48,35 @@ export default function Home() {
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>02 April - 04 April 2026: Design and build the Procurements Section </span>
+              <span>02 April - 15 April 2026: Design and build the Procurements Section </span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>04 April - 07 April 2026: Design and build the Payments Section </span>
+              <span>15 April - 20 April 2026: Design and build the Payments Section </span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>07 April - 10 April 2026: Design and build the Site Supervisor App</span>
+              <span>20 April - 25 April 2026: Design and build the Site Supervisor App</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>10 April - 12 April 2026: Design and build the Other Staff App</span>
+              <span>25 April - 28 April 2026: Design and build the Other Staff App</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>12 April - 17 April 2026: Design and build the Admin Dashboard & Settings Page</span>
+              <span>28 April - 30 April 2026: Design and build the Admin Dashboard & Settings Page</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>17 April - 22 April 2026: Design and build the Admin Projects Management</span>
+              <span>30 April - 05 May 2026: Design and build the Admin Projects Management</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>22 April - 27 April 2026: Design and build the Admin Reports Management</span>
+              <span>05 May - 10 May 2026: Design and build the Admin Reports Management</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>27 April - 30 April 2026: Make system ready for production deployment</span>
+              <span>10 May - 15 May 2026: Make system ready for production deployment</span>
             </li>
           </ul>
         </div>
