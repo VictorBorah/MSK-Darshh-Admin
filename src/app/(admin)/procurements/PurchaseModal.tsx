@@ -138,6 +138,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
     const newItem = {
       id: Math.random().toString(36).substr(2, 9),
+      project_id: selectedProject,
       item_id: item.item_id,
       item_name: item.item_name,
       unit_name: item.unit_name || '',
@@ -227,7 +228,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                     menuPortal: base => ({ ...base, zIndex: 99999 }),
                     menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
                     option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
-                    singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' })
+                    singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                    input: base => ({ ...base, color: '#fff' })
                   }}
                   menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 />
@@ -317,7 +319,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                               menuPortal: base => ({ ...base, zIndex: 99999 }),
                               menu: base => ({ ...base, backgroundColor: '#191e2b', border: '1px solid #4b5563', borderRadius: '4px' }),
                               option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px' }),
-                              singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' })
+                              singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                              input: base => ({ ...base, color: '#fff' })
                             }}
                             menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                           />
