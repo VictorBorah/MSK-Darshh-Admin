@@ -19,3 +19,16 @@ body {
   color: var(--foreground);
 }
 
+/* Ensure mouse pointer finger for all hyperlinks, buttons, and action icons */
+button:not(:disabled), 
+a:not([disabled]), 
+[role="button"]:not([disabled]) {
+  cursor: pointer;
+}
+
+/* Ensure disabled buttons do not show pointer */
+button:disabled, 
+a[disabled], 
+[role="button"][disabled] {
+  cursor: default;
+}

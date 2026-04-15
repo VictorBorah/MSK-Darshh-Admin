@@ -2,18 +2,22 @@
     {
         "Error": false,
         "Status": "1",
+        "w_suffix": "WHERE cKey = 1      ",
         "demands_data": [
             {
-                "demand_id": "1",
-                "item_id": "1",
-                "item_name": "Ordinary Portland Cement OPC 43",
-                "quantity": "12",
+                "demand_id": "12",
+                "demand_no": "6FAE38E",
+                "item_id": "14",
+                "itemCount": "1",
+                "item_name": "Coarse Sand",
+                "auto_title": "Demand for 1 Cubic Meter(s) of sand",
+                "quantity": "1",
                 "recieved_quantity": "0.00",
-                "quantity_txt": "12 Bag",
-                "recieved_quantity_txt": "0.00 Bag",
-                "project_id": "1",
-                "project_name": "TEST PROJECT",
-                "demand_date": "01-04-2026",
+                "quantity_txt": "1 Cubic Meter",
+                "recieved_quantity_txt": "0.00 Cubic Meter",
+                "project_id": "4",
+                "project_name": "TEST 1234",
+                "demand_date": "12-04-2026",
                 "priority_id": "1",
                 "priority_txt": "High",
                 "procurement_status_id": "6",
@@ -24,7 +28,34 @@
                 "gps_photo_file": "<File String Placeholder>",
                 "exif_match_success": "No",
                 "geofence_check_pass": "No",
-                "description": "This is a test",
+                "description": "Demand for 1 Cubic Meter(s) of sand",
+                "status": "1"
+            },
+            {
+                "demand_id": "9",
+                "demand_no": "9776BAA",
+                "item_id": "70",
+                "itemCount": "3",
+                "item_name": "Iron Nail 2 inch + 2 more",
+                "auto_title": "",
+                "quantity": "5",
+                "recieved_quantity": "0.00",
+                "quantity_txt": "5 Kilogram",
+                "recieved_quantity_txt": "0.00 Kilogram",
+                "project_id": "13",
+                "project_name": "HTX Heights",
+                "demand_date": "12-04-2026",
+                "priority_id": "3",
+                "priority_txt": "Low",
+                "procurement_status_id": "6",
+                "procurement_txt": "Raised",
+                "is_fulfilled": "No",
+                "delivery_confirmed": "No",
+                "delivery_date": "",
+                "gps_photo_file": "<File String Placeholder>",
+                "exif_match_success": "No",
+                "geofence_check_pass": "No",
+                "description": "",
                 "status": "1"
             }
         ],
@@ -32,5 +63,4 @@
         "pagination_size": "10",
         "Message": "Demands List Fetched"
     }
-]
 ]

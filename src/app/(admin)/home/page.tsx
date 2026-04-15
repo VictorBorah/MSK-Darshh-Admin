@@ -12,8 +12,8 @@ export default function Home() {
         <p className="text-[#ccd6f6] text-[15px] leading-relaxed max-w-4xl">
           An enterprise-grade, centralized cloud infrastructure explicitly engineered to orchestrate scaling site operations, real-time financial allocations, and comprehensive workforce logistics across distributed projects.
         </p>
-        <div className="mt-5 bg-red-950/30 border border-red-500/30 rounded-md p-4 flex items-start gap-4 w-fit">
-          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+        <div className="mt-5 bg-red-950/30 border border-red-500/30 rounded-md p-4 flex items-center gap-4 w-fit">
+          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <div className="flex flex-col">
              <span className="text-white font-bold text-[14px]">
               Current Status: <span className="font-medium text-red-400">Project progress is late by 5 Days</span>

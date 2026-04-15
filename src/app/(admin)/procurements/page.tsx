@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MakeDemandModal from './MakeDemandModal';
+import DemandDetailModal from './DemandDetailModal';
+import PurchaseModal from './PurchaseModal';
 
 const SearchableSelectPlaceholder = ({ 
   label, 
@@ -86,6 +88,8 @@ const SearchableSelectPlaceholder = ({
 export default function ProcurementsPage() {
   const [maximizedColumn, setMaximizedColumn] = useState<'procurements' | 'demands' | null>(null);
   const [showMakeDemandModal, setShowMakeDemandModal] = useState(false);
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+  const [selectedDemandNo, setSelectedDemandNo] = useState<string | null>(null);
 
   // Loading State for preloader
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -258,7 +262,7 @@ export default function ProcurementsPage() {
                <ShoppingCart className="w-5 h-5 text-blue-400" />
                Latest Procurements
              </h2>
-             <button className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
+             <button onClick={() => setShowPurchaseModal(true)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
                <Plus className="w-3.5 h-3.5" /> New Procurement
              </button>
              <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded text-[12px] font-bold flex items-center gap-1.5">
@@ -326,7 +330,7 @@ export default function ProcurementsPage() {
           <table className="w-full text-[12px] text-left">
              <thead className="text-[12px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
                <tr>
-                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">ID</th>
+                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
                  <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
                  <th className="px-4 py-3 border-r border-[#bac4cf]">PROJECT</th>
                  <th className="px-4 py-3 border-r border-[#bac4cf]">STATUS</th>
@@ -335,9 +339,9 @@ export default function ProcurementsPage() {
                </tr>
              </thead>
              <tbody className="divide-y divide-gray-700">
-               {procurementsList.map((row) => (
+               {procurementsList.map((row, idx) => (
                  <tr key={row.id} className="hover:bg-white/5 transition-colors">
-                   <td className="px-4 py-3 text-white text-center font-medium">{row.id}</td>
+                   <td className="px-4 py-3 text-white text-center font-medium">{(procPage - 1) * 10 + idx + 1}</td>
                    <td className="px-4 py-3 text-white">{row.purchase_date || '-'}</td>
                    <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
                    <td className="px-4 py-3 text-white">{row.procurement_txt || '-'}</td>
@@ -457,7 +461,7 @@ export default function ProcurementsPage() {
           <table className="w-full text-[12px] text-left">
              <thead className="text-[12px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
                <tr>
-                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">ID</th>
+                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
                  <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
                  <th className="px-4 py-3 border-r border-[#bac4cf]">PROJECT</th>
                  <th className="px-4 py-3 border-r border-[#bac4cf]">ITEM</th>
@@ -467,9 +471,9 @@ export default function ProcurementsPage() {
                </tr>
              </thead>
              <tbody className="divide-y divide-gray-700">
-               {demandsList.map((row) => (
+               {demandsList.map((row, idx) => (
                  <tr key={row.demand_id || row.id} className="hover:bg-white/5 transition-colors">
-                   <td className="px-4 py-3 text-white text-center font-medium">{row.demand_id || row.id}</td>
+                   <td className="px-4 py-3 text-white text-center font-medium">{(demPage - 1) * 10 + idx + 1}</td>
                    <td className="px-4 py-3 text-white">{row.demand_date || '-'}</td>
                    <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
                    <td className="px-4 py-3 text-white">{row.item_name || '-'}</td>
@@ -480,7 +484,10 @@ export default function ProcurementsPage() {
                       </span>
                    </td>
                    <td className="px-4 py-3 text-center">
-                     <button className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors">
+                     <button 
+                       onClick={() => setSelectedDemandNo(String(row.demand_no))}
+                       className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                     >
                        <Settings className="w-4 h-4" />
                      </button>
                    </td>
@@ -540,6 +547,21 @@ export default function ProcurementsPage() {
              fetchDemandsData(token);
            }
          }}
+       />
+
+       <DemandDetailModal 
+         isOpen={selectedDemandNo !== null}
+         onClose={() => setSelectedDemandNo(null)}
+         demandNo={selectedDemandNo}
+         priorities={priorityOptions}
+       />
+       
+       <PurchaseModal 
+         isOpen={showPurchaseModal}
+         onClose={() => setShowPurchaseModal(false)}
+         projects={projectsOptions}
+         vendors={vendorsOptions}
+         demands={demandsList}
        />
     </div>
   );

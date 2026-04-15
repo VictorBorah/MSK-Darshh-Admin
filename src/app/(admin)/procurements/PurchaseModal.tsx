@@ -1,0 +1,424 @@
+import { useState, useEffect, useRef } from 'react';
+import { Search, Loader2, X, Trash2, XCircle, IndianRupee, Maximize2, Minimize2, Settings } from 'lucide-react';
+import toast from 'react-hot-toast';
+import Select from 'react-select';
+import WarningAlertModal from '../../../components/WarningAlertModal';
+import TaxationDetailsModal from './TaxationDetailsModal';
+
+interface PurchaseModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  projects: any[];
+  vendors: any[];
+  demands: any[];
+  onSuccess?: () => void;
+}
+
+export default function PurchaseModal({ isOpen, onClose, projects, vendors, demands, onSuccess }: PurchaseModalProps) {
+  const [selectedProject, setSelectedProject] = useState('');
+  const [itemSearch, setItemSearch] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  
+  const [showWarning, setShowWarning] = useState(false);
+  const [tableItems, setTableItems] = useState<any[]>([]);
+
+  const [showTaxationModal, setShowTaxationModal] = useState(false);
+  const [taxationItem, setTaxationItem] = useState<any>(null);
+
+  const lastSearchedQuery = useRef('');
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedProject('');
+      setItemSearch('');
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      setTableItems([]);
+      lastSearchedQuery.current = '';
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowSearchDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!selectedProject) {
+      setShowWarning(true);
+      return;
+    }
+    setItemSearch(e.target.value);
+  };
+
+  useEffect(() => {
+    if (itemSearch.length === 0) {
+      if (lastSearchedQuery.current !== '') {
+         lastSearchedQuery.current = '';
+         setSearchResults([]);
+         setShowSearchDropdown(false);
+      }
+      return;
+    }
+
+    if (!selectedProject) return;
+
+    if (itemSearch.length < 4) {
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      return;
+    }
+
+    if (itemSearch === lastSearchedQuery.current) return; 
+
+    const performSearch = async () => {
+       if (abortControllerRef.current) abortControllerRef.current.abort();
+       
+       const controller = new AbortController();
+       abortControllerRef.current = controller;
+       
+       setIsSearching(true);
+       
+       try {
+         const token = localStorage.getItem('at_ki8Xq1iV');
+         const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/searchItem?query_str=${encodeURIComponent(itemSearch)}&project_id=${selectedProject}`;
+         
+         const res = await fetch(endpoint, {
+           method: 'GET',
+           headers: { 'Authorization': `Bearer ${token}` },
+           signal: controller.signal
+         });
+         
+         const rawText = await res.text();
+         let arr;
+         try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
+         const data = Array.isArray(arr) ? arr[0] : arr;
+         
+         if (data && String(data.Status) === '1' && data.items_data) {
+           setSearchResults(data.items_data);
+           setShowSearchDropdown(true);
+           lastSearchedQuery.current = itemSearch;
+         } else {
+           setSearchResults([]);
+           setShowSearchDropdown(true);
+           lastSearchedQuery.current = itemSearch;
+         }
+       } catch (error: any) {
+         if (error.name !== 'AbortError') {
+           setSearchResults([]);
+         }
+       } finally {
+         setIsSearching(false);
+       }
+    };
+
+    const timer = setTimeout(() => {
+      performSearch();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [itemSearch, selectedProject]);
+
+  const handleSelectItem = (item: any) => {
+    // Prevent duplicate entries conditionally based on item_id
+    if (tableItems.find(t => t.item_id === item.item_id)) {
+      toast.error('Item already added');
+      return;
+    }
+
+    const newItem = {
+      id: Math.random().toString(36).substr(2, 9),
+      item_id: item.item_id,
+      item_name: item.item_name,
+      unit_name: item.unit_name || '',
+      vendor_id: item.default_vendor_id || '',
+      qnty: 1,
+      price: item.default_price || 0
+    };
+
+    setTableItems([...tableItems, newItem]);
+    setItemSearch('');
+    setSearchResults([]);
+    setShowSearchDropdown(false);
+    lastSearchedQuery.current = '';
+  };
+
+  const updateTableItem = (id: string, field: string, value: any) => {
+    setTableItems(prev => prev.map(item => {
+      if (item.id === id) {
+        return { ...item, [field]: value };
+      }
+      return item;
+    }));
+  };
+
+  const removeTableItem = (id: string) => {
+    setTableItems(prev => prev.filter(item => item.id !== id));
+  };
+
+  const grandTotal = tableItems.reduce((acc, row) => acc + (parseFloat(row.qnty || 0) * parseFloat(row.price || 0)), 0);
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <WarningAlertModal 
+        isOpen={showWarning}
+        onClose={() => setShowWarning(false)}
+        title="Project Required"
+        content="Please select a Project before searching for an item."
+      />
+      
+      <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
+        <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${
+          isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'
+        }`}>
+          
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <span className="text-blue-400">New Procurement</span>
+            </h2>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setIsMaximized(!isMaximized)} 
+                className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1.5 hover:bg-white/10 rounded"
+                title={isMaximized ? "Restore Size" : "Maximize"}
+              >
+                {isMaximized ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+              </button>
+              <button 
+                onClick={onClose} 
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" 
+                title="Close"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 bg-[#11141e] flex flex-col gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              
+              {/* Select Project */}
+              <div className="flex flex-col gap-2">
+                <label className="text-[13px] font-medium text-gray-300">Select Project <span className="text-red-400">*</span></label>
+                <Select
+                  options={projects?.map((p: any) => ({ value: String(p.id), label: p.project_name || p.name })) || []}
+                  value={projects?.find(p => String(p.id) === selectedProject) ? { value: selectedProject, label: projects.find((p: any) => String(p.id) === selectedProject)?.project_name || projects.find((p: any) => String(p.id) === selectedProject)?.name } : null}
+                  onChange={(val: any) => {
+                    setSelectedProject(val ? val.value : '');
+                    if (itemSearch) setItemSearch('');
+                    setTableItems([]);
+                  }}
+                  placeholder="Select Project..."
+                  styles={{
+                    control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
+                    menuPortal: base => ({ ...base, zIndex: 99999 }),
+                    menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
+                    option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
+                    singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' })
+                  }}
+                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                />
+              </div>
+
+              {/* Search Item */}
+              <div className="flex flex-col gap-2" ref={searchContainerRef}>
+                <label className="text-[13px] font-medium text-gray-300">Search Item <span className="text-red-400">*</span></label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={itemSearch}
+                    onChange={handleSearchChange}
+                    placeholder="Type Item Name here..."
+                    className="w-full bg-[#161a25] border border-gray-600 rounded pl-9 pr-8 py-2 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500"
+                  />
+                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
+                  
+                  <div className="absolute right-2 top-2.5 flex items-center gap-2">
+                    {isSearching && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+                    {itemSearch && (
+                      <button onClick={() => { setItemSearch(''); setSearchResults([]); setShowSearchDropdown(false); }} className="text-gray-400 hover:text-white transition-colors" title="Clear Search">
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  {showSearchDropdown && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-[#191e2b] border border-gray-700 rounded shadow-2xl z-[150] max-h-[300px] overflow-y-auto">
+                      {searchResults.length === 0 ? (
+                        <div className="px-4 py-3 text-[13px] text-gray-400 text-center italic">No items found</div>
+                      ) : (
+                        <ul className="py-1">
+                          {searchResults.map((result: any) => (
+                            <li 
+                              key={result.item_id} 
+                              onClick={() => handleSelectItem(result)}
+                              className="px-4 py-2 hover:bg-[#11141e] cursor-pointer text-[13px] text-gray-300 border-b border-gray-700/50 last:border-0 transition-colors flex justify-between items-center"
+                            >
+                              <div className="flex flex-col">
+                                <span className="font-medium text-white">{result.item_name}</span>
+                                <span className="text-[11px] text-gray-500">{result.category_name} &bull; {result.unit_name}</span>
+                              </div>
+                              {result.default_vendor_name && <span className="text-[11px] px-2 py-0.5 bg-gray-800 rounded text-gray-400 border border-gray-700">{result.default_vendor_name}</span>}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <span className="text-[11px] text-gray-400 italic mt-0.5">Min. 4 characters</span>
+              </div>
+            </div>
+
+            {/* Table Area */}
+            <div className="flex-1 bg-[#161a25] border border-gray-700 rounded-lg overflow-hidden flex flex-col">
+              <div className="overflow-x-auto">
+                <table className="w-full text-[13px] text-left">
+                  <thead className="bg-[#1b202c] text-gray-400 border-b border-gray-700">
+                    <tr>
+                      <th className="px-4 py-3 font-semibold w-12 text-center uppercase tracking-wider">SL</th>
+                      <th className="px-4 py-3 font-semibold uppercase tracking-wider">Item Details</th>
+                      <th className="px-4 py-3 font-semibold uppercase tracking-wider min-w-[200px]">Vendor</th>
+                      <th className="px-4 py-3 font-semibold uppercase tracking-wider w-32 border-l border-gray-700/50">Qnty</th>
+                      <th className="px-4 py-3 font-semibold uppercase tracking-wider w-32 border-l border-gray-700/50">Unit Price</th>
+                      <th className="px-4 py-3 font-semibold uppercase tracking-wider w-32 border-l border-gray-700/50">Amount</th>
+                      <th className="px-4 py-3 font-semibold w-16 text-center uppercase tracking-wider">Rem.</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-700/50">
+                    {tableItems.map((row, idx) => (
+                      <tr key={row.id} className="hover:bg-white/5 transition-colors group">
+                        <td className="px-4 py-3 text-center text-gray-500 font-medium">{idx + 1}</td>
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-white">{row.item_name}</div>
+                          <div className="text-[11px] text-gray-500 mt-0.5">{row.unit_name}</div>
+                        </td>
+                        <td className="px-4 py-2">
+                          <Select
+                            options={vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name || v.name })) || []}
+                            value={vendors?.find(v => String(v.id) === String(row.vendor_id)) ? { value: String(row.vendor_id), label: vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.vendor_name || vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.name } : null}
+                            onChange={(val: any) => updateTableItem(row.id, 'vendor_id', val ? val.value : '')}
+                            placeholder="Select vendor..."
+                            styles={{
+                              control: (base) => ({ ...base, backgroundColor: '#191e2b', borderColor: '#374151', minHeight: '32px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
+                              menuPortal: base => ({ ...base, zIndex: 99999 }),
+                              menu: base => ({ ...base, backgroundColor: '#191e2b', border: '1px solid #4b5563', borderRadius: '4px' }),
+                              option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px' }),
+                              singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' })
+                            }}
+                            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                          />
+                        </td>
+                        <td className="px-4 py-2 border-l border-gray-700/50">
+                          <input 
+                            type="number"
+                            min="0"
+                            value={row.qnty}
+                            onChange={(e) => updateTableItem(row.id, 'qnty', e.target.value)}
+                            className="w-full bg-[#191e2b] border border-gray-600 rounded px-2 py-1.5 text-white text-center focus:outline-none focus:border-blue-500 transition-colors"
+                          />
+                        </td>
+                        <td className="px-4 py-2 border-l border-gray-700/50">
+                          <div className="relative">
+                            <IndianRupee className="w-3.5 h-3.5 text-gray-500 absolute left-2 top-2" />
+                            <input 
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              value={row.price}
+                              onChange={(e) => updateTableItem(row.id, 'price', e.target.value)}
+                              className="w-full bg-[#191e2b] border border-gray-600 rounded pl-7 pr-2 py-1.5 text-white focus:outline-none focus:border-blue-500 transition-colors"
+                            />
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 border-l border-gray-700/50 font-medium text-emerald-400">
+                          <div className="flex items-center gap-1">
+                            <IndianRupee className="w-3.5 h-3.5" />
+                            {(parseFloat(row.qnty || 0) * parseFloat(row.price || 0)).toFixed(2)}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                             <button 
+                               onClick={() => {
+                                  setTaxationItem(row);
+                                  setShowTaxationModal(true);
+                               }} 
+                               className="text-gray-400 hover:text-blue-400 p-1.5 hover:bg-white/10 rounded transition-colors" 
+                               title="Taxation Configuration"
+                             >
+                                <Settings className="w-[18px] h-[18px]" />
+                             </button>
+                             <button onClick={() => removeTableItem(row.id)} className="text-gray-500 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded transition-colors" title="Remove Item">
+                               <Trash2 className="w-[18px] h-[18px]" />
+                             </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {tableItems.length === 0 && (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-16 text-center">
+                          <div className="flex flex-col items-center justify-center gap-2 text-gray-500">
+                            <Search className="w-8 h-8 opacity-20" />
+                            <p>Search and select items to add to the procurement list.</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Footer */}
+          <div className="px-6 py-4 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-between items-center">
+             <div className="flex items-center gap-4">
+                 <div className="text-[13px] text-gray-400">
+                     Total Items: <span className="text-white font-medium ml-1">{tableItems.length}</span>
+                 </div>
+                 <div className="text-[16px] font-bold text-white flex items-center gap-2 bg-[#161a25] px-4 py-1.5 rounded-lg border border-gray-700 shadow-inner">
+                     Grand Total:
+                     <span className="text-emerald-400 flex items-center">
+                         <IndianRupee className="w-4 h-4 ml-2 mr-0.5" /> {grandTotal.toFixed(2)}
+                     </span>
+                 </div>
+             </div>
+             <div className="flex gap-3">
+                 <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm">
+                   Close
+                 </button>
+                 <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2">
+                   Save Procurement
+                 </button>
+             </div>
+          </div>
+          
+        </div>
+      </div>
+
+      <TaxationDetailsModal
+         isOpen={showTaxationModal}
+         onClose={() => setShowTaxationModal(false)}
+         item={taxationItem}
+         vendors={vendors}
+         demands={demands}
+      />
+    </>
+  );
+}

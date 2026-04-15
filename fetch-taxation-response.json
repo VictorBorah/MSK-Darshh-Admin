@@ -1,0 +1,17 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "qnty": "10",
+        "unit_price": "250.00",
+        "gst_rate": "18.00%",
+        "sgst_rate": "9",
+        "cgst_rate": "9",
+        "sgst_amount": "190.6776",
+        "cgst_amount": "190.6776",
+        "base_price": "2118.64",
+        "gst_amount": "381.36",
+        "final_amount": "2500",
+        "Message": "System ready to proceed"
+    }
+]

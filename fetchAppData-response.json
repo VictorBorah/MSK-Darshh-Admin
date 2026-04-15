@@ -15,7 +15,32 @@
                 "menu_type": "1",
                 "menu_item": "Projects",
                 "slug": "projects"
-            }
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Staff",
+                "slug": "staff"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Procurements",
+                "slug": "procurements"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Payments",
+                "slug": "payments"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Supply Ledger",
+                "slug": "supply-ledger"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Stock Inventory",
+                "slug": "stock-inventory"
+            },
             {
                 "menu_type": "2",
                 "menu_item": "Item Categories",
@@ -25,6 +50,16 @@
                 "menu_type": "2",
                 "menu_item": "Item Master",
                 "slug": "item-master"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Vendor Master",
+                "slug": "vendor-master"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Settings",
+                "slug": "system-settings"
             }
         ],
         "User_Data": [
@@ -83,6 +118,9 @@
             "frontendVersion": "1.01",
             "bucketHost": "digital-ocean-cloud",
             "default_gst": "18.00",
+            "default_sgst_rate": "9",
+            "default_cgst_rate": "9",
+            "gst_inclusive": "0",
             "s3BucketBasePath": "https://sirish-core-2024.blr1.digitaloceanspaces.com",
             "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "doca",
