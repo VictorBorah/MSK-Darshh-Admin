@@ -1,15 +1,18 @@
 import { X, TriangleAlert } from 'lucide-react';
 import React from 'react';
 
+import { Loader2 } from 'lucide-react';
+
 interface WarningAlertModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   content: string;
   onConfirm?: () => void;
+  isLoading?: boolean;
 }
 
-export default function WarningAlertModal({ isOpen, onClose, title, content, onConfirm }: WarningAlertModalProps) {
+export default function WarningAlertModal({ isOpen, onClose, title, content, onConfirm, isLoading }: WarningAlertModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -50,8 +53,10 @@ export default function WarningAlertModal({ isOpen, onClose, title, content, onC
               </button>
               <button
                 onClick={onConfirm}
-                className="px-6 py-2 text-[13px] font-bold text-white bg-orange-600 hover:bg-orange-700 rounded transition-colors shadow-sm min-w-[100px]"
+                disabled={isLoading}
+                className="px-6 py-2 text-[13px] font-bold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-70 disabled:cursor-not-allowed rounded transition-colors shadow-sm min-w-[100px] flex items-center justify-center gap-2"
               >
+                {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Yes
               </button>
             </>

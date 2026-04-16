@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimize2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimize2, HelpCircle, Trash2 } from 'lucide-react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
+import WarningAlertModal from '@/components/WarningAlertModal';
 
 interface TaxationDetailsModalProps {
   isOpen: boolean;
@@ -33,18 +34,27 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
 
   const [hasGstInvoice, setHasGstInvoice] = useState(false);
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
+  const [invoiceNumber, setInvoiceNumber] = useState('');
+
+  const [isUploading, setIsUploading] = useState(false);
+  const [showDeleteInvoiceWarning, setShowDeleteInvoiceWarning] = useState(false);
+  const [isDeletingInvoice, setIsDeletingInvoice] = useState(false);
+
+  const [uploadedInvoiceFilename, setUploadedInvoiceFilename] = useState('');
+  const [uploadedInvoiceUrl, setUploadedInvoiceUrl] = useState('');
   const [isGstInclusive, setIsGstInclusive] = useState(false);
   const [showMathModal, setShowMathModal] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
 
   // Track if manually edited
   const [isManuallyEdited, setIsManuallyEdited] = useState(false);
+  const skipNextFetchRef = useRef(false);
 
   useEffect(() => {
     if (isOpen && item) {
       setBuyingVendor(item.vendor_id || '');
-      setUnitPrice('');
-      setGstRate('');
+      setUnitPrice(item.price ? String(item.price) : '');
+      setGstRate(item.gst_rate ? String(item.gst_rate) : '');
       setQuantity(item.qnty || '1');
       setConnectDemand('');
       setDemandDetails([]);
@@ -54,6 +64,12 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setTaxData(null);
       setHasGstInvoice(false);
       setInvoiceFile(null);
+      setInvoiceNumber('');
+      setIsUploading(false);
+      setUploadedInvoiceFilename('');
+      setUploadedInvoiceUrl('');
+      setShowDeleteInvoiceWarning(false);
+      setIsDeletingInvoice(false);
       setIsGstInclusive(false);
       setShowMathModal(false);
       setIsManuallyEdited(false);
@@ -77,8 +93,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       const defaultGst = appDataRaw?.System_Data?.default_gst || '';
       const gstInc = appDataRaw?.System_Data?.gst_inclusive || '0';
       setAppData({ default_gst: defaultGst, gst_inclusive: gstInc });
-      setIsGstInclusive(gstInc === '1');
-      setGstRate(defaultGst);
+      setIsGstInclusive(item.tax_inc !== undefined ? item.tax_inc === '1' : gstInc === '1');
+      setGstRate(item.gst_rate || defaultGst);
 
       const fetchDemandsPromise = item.project_id ? (async () => {
         try {
@@ -105,7 +121,15 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       })() : Promise.resolve();
 
       await Promise.all([
-        fetchTaxation(item.vendor_id || '', item.item_id, item.qnty || '1', gstInc, '', ''),
+        fetchTaxation(
+          item.vendor_id || '',
+          item.item_id,
+          item.qnty || '1',
+          item.tax_inc !== undefined ? String(item.tax_inc) : gstInc,
+          item.price ? String(item.price) : '',
+          item.gst_rate || '',
+          true
+        ),
         fetchDemandsPromise
       ]);
 
@@ -116,7 +140,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
     }
   };
 
-  const fetchTaxation = async (vendorId: string, itemId: string, qnty: string | number, taxInc: string, uprice: string, grate: string) => {
+  const fetchTaxation = async (vendorId: string, itemId: string, qnty: string | number, taxInc: string, uprice: string, grate: string, isInitialCall: boolean = false) => {
     setIsTaxLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
@@ -137,10 +161,18 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       const data = Array.isArray(arr) ? arr[0] : arr;
 
       if (String(data.Status) === '1') {
+        const newUp = data.unit_price ? String(data.unit_price).replace(/[^0-9.]/g, '') : '';
+        const newGst = data.gst_rate ? String(data.gst_rate).replace(/[^0-9.]/g, '') : '';
+        const newQnty = data.qnty ? String(data.qnty).replace(/[^0-9.]/g, '') : '';
+
+        if (!isInitialCall && (newUp !== unitPrice || newGst !== gstRate || newQnty !== quantity)) {
+          skipNextFetchRef.current = true;
+        }
+
         setTaxData(data);
-        if (data.unit_price) setUnitPrice(String(data.unit_price).replace(/[^0-9.]/g, ''));
-        if (data.gst_rate) setGstRate(String(data.gst_rate).replace(/[^0-9.]/g, ''));
-        if (data.qnty) setQuantity(String(data.qnty).replace(/[^0-9.]/g, ''));
+        if (data.unit_price) setUnitPrice(newUp);
+        if (data.gst_rate) setGstRate(newGst);
+        if (data.qnty) setQuantity(newQnty);
         toast.success(data.Message || 'Taxation details updated');
       } else {
         toast.error(data.Message || 'Failed to update taxation details');
@@ -155,8 +187,13 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   useEffect(() => {
     if (!isOpen || isLoading || !isManuallyEdited) return;
 
+    if (skipNextFetchRef.current) {
+      skipNextFetchRef.current = false;
+      return;
+    }
+
     const timer = setTimeout(() => {
-      fetchTaxation(buyingVendor, item?.item_id, quantity, isGstInclusive ? '1' : '0', unitPrice, gstRate);
+      fetchTaxation(buyingVendor, item?.item_id, quantity, isGstInclusive ? '1' : '0', unitPrice, gstRate, false);
     }, 600);
     return () => clearTimeout(timer);
   }, [unitPrice, gstRate, quantity, buyingVendor, isManuallyEdited, isGstInclusive]);
@@ -195,7 +232,81 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
     fetchDemand();
   }, [connectDemand]);
 
-  const isApplyDisabled = hasGstInvoice && !invoiceFile;
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setInvoiceFile(file);
+    setIsUploading(true);
+    
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const formData = new FormData();
+      formData.append('my_file', file);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}files/uploadFile`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch(x){}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+      
+      if (data && String(data.Status) === '1') {
+        toast.success(data.Message || 'File uploaded successfully');
+        setUploadedInvoiceFilename(data.file_name);
+        setUploadedInvoiceUrl(data.presigned_url);
+      } else {
+        toast.error(data?.Message || 'Failed to upload file');
+        setInvoiceFile(null);
+      }
+    } catch (err) {
+      console.error("Upload error", err);
+      toast.error('An error occurred during file upload');
+      setInvoiceFile(null);
+    } finally {
+      setIsUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleFileDelete = async () => {
+    if (!uploadedInvoiceFilename) return;
+    setIsDeletingInvoice(true);
+    
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const formData = new FormData();
+      formData.append('filename', uploadedInvoiceFilename);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}files/deleteFile`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch(x){}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+      
+      if (data && String(data.Status) === '1') {
+        toast.success(data.Message || 'File Deleted');
+        setInvoiceFile(null);
+        setUploadedInvoiceFilename('');
+        setUploadedInvoiceUrl('');
+        setShowDeleteInvoiceWarning(false);
+      } else {
+        toast.error(data?.Message || 'Failed to delete file');
+      }
+    } catch (err) {
+      console.error("Delete error", err);
+      toast.error('An error occurred during file deletion');
+    } finally {
+      setIsDeletingInvoice(false);
+    }
+  };
+
+  const isApplyDisabled = hasGstInvoice && !uploadedInvoiceFilename;
 
   if (!isOpen) return null;
 
@@ -241,6 +352,11 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
               {/* Top Setup */}
               <div className="bg-[#1b202c] p-5 border border-gray-700 rounded-lg shadow-inner">
                 <div className="flex flex-col gap-4">
+                  <div className="bg-[#11141e] border border-gray-700/50 rounded-md px-3 py-2.5 flex flex-col gap-0.5 shadow-sm">
+                    <span className="text-[11px] text-blue-400 uppercase tracking-wide font-bold">Target Item</span>
+                    <span className="text-[13px] text-white font-medium line-clamp-1">{item?.item_name || 'Selected Item'}</span>
+                  </div>
+
                   <div className="flex flex-col gap-2">
                     <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Buying From Vendor</label>
                     <Select
@@ -278,7 +394,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                             <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" stroke="currentColor" />
                           </svg>
                         </div>
-                        <span className="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors">GST Invoice</span>
+                        <span className="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors flex items-center gap-1.5" title="Upload a scanned copy of the Tax Invoice provided by the vendor">
+                          Upload GST Invoice
+                          <HelpCircle className="w-3.5 h-3.5 text-gray-500 hover:text-white transition-colors cursor-help" />
+                        </span>
                       </label>
 
                       <label className="flex items-center gap-3 cursor-pointer group">
@@ -296,24 +415,58 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                             <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" stroke="currentColor" />
                           </svg>
                         </div>
-                        <span className="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors">GST Inclusive</span>
+                        <span className="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors flex items-center gap-1.5" title="Check this if the Unit Price already has GST included">
+                          GST Inclusive
+                          <HelpCircle className="w-3.5 h-3.5 text-gray-500 hover:text-white transition-colors cursor-help" />
+                        </span>
                       </label>
                     </div>
 
                     {hasGstInvoice && (
                       <div className="flex flex-col gap-2 mt-1 animate-in fade-in slide-in-from-top-2 duration-200 bg-[#11141e] p-3 rounded-md border border-gray-700/50">
-                        <label className="text-[12px] font-medium text-gray-400">Click here to upload GST invoice</label>
+                        <label className="text-[12px] text-gray-400 font-medium flex items-center gap-1.5" title="Invoice number of Tax Invoice provided by vendor">
+                          Invoice Number
+                          <HelpCircle className="w-3.5 h-3.5 text-gray-500 hover:text-white transition-colors cursor-help" />
+                        </label>
                         <input
-                          type="file"
-                          onChange={(e) => setInvoiceFile(e.target.files?.[0] || null)}
-                          className="block w-full text-[12px] text-gray-400
-                                               file:mr-4 file:py-2 file:px-4 
-                                               file:rounded-md file:border-0 
-                                               file:text-[12px] file:font-semibold 
-                                               file:bg-gray-700 file:text-white 
-                                               hover:file:bg-gray-600
-                                               cursor-pointer"
+                          type="text"
+                          value={invoiceNumber}
+                          onChange={(e) => setInvoiceNumber(e.target.value)}
+                          placeholder="Inv. Number..."
+                          className="w-full bg-[#1b202c] border border-gray-600 rounded-md px-3 py-1.5 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors mb-2"
                         />
+                        <label className="text-[12px] font-medium text-gray-400">Click here to upload GST invoice</label>
+                        {!uploadedInvoiceFilename ? (
+                          <div className="relative">
+                            <input
+                              type="file"
+                              accept="image/*,application/pdf"
+                              onChange={handleFileUpload}
+                              disabled={isUploading}
+                              className={`block w-full text-[12px] text-gray-400
+                                           file:mr-4 file:py-2 file:px-4 
+                                           file:rounded-md file:border-0 
+                                           file:text-[12px] file:font-semibold 
+                                           file:bg-gray-700 file:text-white 
+                                           cursor-pointer ${isUploading ? 'opacity-50' : 'hover:file:bg-gray-600'}`}
+                            />
+                            {isUploading && <Loader2 className="w-5 h-5 text-blue-500 animate-spin absolute right-2 top-0.5" />}
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between bg-[#1f2937] border border-gray-600 rounded-md p-2 animate-in fade-in">
+                            <a href={uploadedInvoiceUrl} target="_blank" rel="noreferrer" className="text-[12px] text-blue-400 hover:text-blue-300 font-medium truncate border-b border-transparent hover:border-blue-400/50 pb-0.5">
+                              Click here to download and preview file
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => setShowDeleteInvoiceWarning(true)}
+                              className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors shrink-0"
+                              title="Remove File"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -370,7 +523,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] text-gray-400 font-medium tracking-wide">SGST</label>
+                    <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
+                      SGST
+                      <HelpCircle className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-help" />
+                    </label>
                     <div className="relative">
                       <IndianRupee className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
                       <input
@@ -382,7 +538,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] text-gray-400 font-medium tracking-wide">CGST</label>
+                    <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
+                      CGST
+                      <HelpCircle className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-help" />
+                    </label>
                     <div className="relative">
                       <IndianRupee className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
                       <input
@@ -395,7 +554,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] text-gray-400 font-medium tracking-wide">Total price exc. GST</label>
+                    <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
+                      Total price exc. GST
+                      <HelpCircle className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-help" />
+                    </label>
                     <div className="relative">
                       <IndianRupee className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
                       <input
@@ -407,7 +569,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] text-gray-400 font-medium tracking-wide">Total GST amount</label>
+                    <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
+                      Total GST amount
+                      <HelpCircle className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-help" />
+                    </label>
                     <div className="relative">
                       <IndianRupee className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
                       <input
@@ -419,7 +584,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     </div>
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <label className="text-[12px] text-gray-400 font-medium tracking-wide">Total Price including GST</label>
+                    <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
+                      Total Price including GST
+                      <HelpCircle className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-help" />
+                    </label>
                     <div className="relative">
                       <IndianRupee className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
                       <input
@@ -475,7 +643,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
               {demandDetails.length > 0 ? (
                 <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 h-full">
                   <h3 className="text-[13px] font-semibold text-white border-b border-gray-700/50 pb-2 flex items-center gap-2 shrink-0">
-                    <LinkIcon className="w-4 h-4 text-blue-400" /> Select a Demand
+                    <LinkIcon className="w-4 h-4 text-blue-400" /> Select an item
                   </h3>
                   <div className="bg-[#1b202c] border border-gray-700 rounded-lg overflow-hidden flex flex-col flex-1 max-h-[100%] min-h-[300px]">
                     <div className="overflow-y-auto flex-1">
@@ -509,8 +677,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                                 <div className="text-[11px] text-gray-500 mt-0.5">#{dRow.demand_no} &bull; {dRow.demand_date}</div>
                                 <div className="mt-1.5">
                                   <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${String(dRow.priority_id) === '1' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                      String(dRow.priority_id) === '2' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
-                                        'bg-green-500/10 text-green-500 border-green-500/20'
+                                    String(dRow.priority_id) === '2' ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' :
+                                      'bg-green-500/10 text-green-500 border-green-500/20'
                                     }`}>
                                     {dRow.priority_txt || 'Low'}
                                   </span>
@@ -548,7 +716,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
             disabled={isApplyDisabled}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white rounded font-medium text-[13px] transition-colors shadow-sm"
           >
-            Confirm Tax Config
+            Apply Tax Config
           </button>
         </div>
 
@@ -592,14 +760,14 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                   </span>
                 </div>
                 <div className="flex justify-between items-center border-t border-gray-800 pt-3 mt-1">
-                  <span className="text-[12px] text-gray-400 font-bold uppercase tracking-wider">Total GST Matrix</span>
+                  <span className="text-[12px] text-gray-400 font-bold uppercase tracking-wider">Total GST Amount</span>
                   <span className="text-[14px] text-orange-400 font-bold flex items-center">
                     <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
                     {taxData?.gst_amount || '0.00'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center bg-[#1b202c] p-3 rounded border border-gray-700/50 mt-1">
-                  <span className="text-[12px] text-emerald-500/80 font-bold uppercase tracking-wide">Final Landed Amount</span>
+                  <span className="text-[12px] text-emerald-500/80 font-bold uppercase tracking-wide">Gross Amount</span>
                   <span className="text-[16px] text-emerald-400 font-black flex items-center">
                     <IndianRupee className="w-4 h-4 mr-0.5" />
                     {taxData?.final_amount || '0.00'}
@@ -610,6 +778,14 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
           </div>
         )}
 
+        <WarningAlertModal 
+          isOpen={showDeleteInvoiceWarning}
+          onClose={() => setShowDeleteInvoiceWarning(false)}
+          title="Remove File?"
+          content="Are you sure you want to delete this uploaded invoice file? This action cannot be undone."
+          onConfirm={handleFileDelete}
+          isLoading={isDeletingInvoice}
+        />
       </div>
     </div>
   );

@@ -23,11 +23,15 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   const [isMaximized, setIsMaximized] = useState(false);
   
   const [showWarning, setShowWarning] = useState(false);
+  const [showProjectChangeWarning, setShowProjectChangeWarning] = useState(false);
+  const [pendingProjectChange, setPendingProjectChange] = useState<string | null>(null);
   const [tableItems, setTableItems] = useState<any[]>([]);
 
   const [showTaxationModal, setShowTaxationModal] = useState(false);
   const [taxationItem, setTaxationItem] = useState<any>(null);
+  const [defaultGstInclusive, setDefaultGstInclusive] = useState('0');
 
+  const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const lastSearchedQuery = useRef('');
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
@@ -40,8 +44,63 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       setShowSearchDropdown(false);
       setTableItems([]);
       lastSearchedQuery.current = '';
+    } else {
+      const fetchAppConfig = async () => {
+        try {
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          const appRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const appText = await appRes.text();
+          const appArr = JSON.parse(appText);
+          const appDataRaw = Array.isArray(appArr) ? appArr[0] : appArr;
+          const gstInc = appDataRaw?.System_Data?.gst_inclusive || '0';
+          setDefaultGstInclusive(String(gstInc));
+        } catch (e) {
+          console.error("Failed to fetch app config", e);
+        }
+      };
+      fetchAppConfig();
     }
   }, [isOpen]);
+
+  const fetchTaxForRow = async (rowId: string, rowData: any, gstInc: string) => {
+    setTableItems(prev => prev.map(r => r.id === rowId ? { ...r, isFetchingTax: true } : r));
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const params = new URLSearchParams();
+      if (rowData.vendor_id) params.set('vendor_id', rowData.vendor_id);
+      if (rowData.item_id) params.set('item_id', rowData.item_id);
+      if (rowData.qnty) params.set('qnty', String(rowData.qnty));
+      params.set('tax_inc', gstInc);
+      if (rowData.price) params.set('unit_price', String(rowData.price));
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchItemTaxation?${params.toString()}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch(e){}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && String(data.Status) === '1') {
+        setTableItems(prev => prev.map(r => {
+          if (r.id === rowId) {
+            return {
+              ...r,
+              price: data.unit_price ? String(data.unit_price).replace(/[^0-9.]/g, '') : r.price,
+              amount: data.final_amount ? String(data.final_amount).replace(/[^0-9.]/g, '') : r.amount,
+              isFetchingTax: false
+            };
+          }
+          return r;
+        }));
+      } else {
+        setTableItems(prev => prev.map(r => r.id === rowId ? { ...r, isFetchingTax: false } : r));
+      }
+    } catch (e) {
+      setTableItems(prev => prev.map(r => r.id === rowId ? { ...r, isFetchingTax: false } : r));
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -144,14 +203,38 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       unit_name: item.unit_name || '',
       vendor_id: item.default_vendor_id || '',
       qnty: 1,
-      price: item.default_price || 0
+      price: item.default_price || 0,
+      amount: item.default_price || 0,
+      isFetchingTax: true
     };
 
-    setTableItems([...tableItems, newItem]);
+    setTableItems(prev => [...prev, newItem]);
     setItemSearch('');
     setSearchResults([]);
     setShowSearchDropdown(false);
     lastSearchedQuery.current = '';
+
+    fetchTaxForRow(newItem.id, newItem, defaultGstInclusive);
+  };
+
+  const handleFieldChange = (id: string, field: string, value: any) => {
+    setTableItems(prev => {
+      const newItems = prev.map(item => {
+        if (item.id === id) {
+          return { ...item, [field]: value };
+        }
+        return item;
+      });
+
+      const updatedRow = newItems.find(item => item.id === id);
+      if (updatedRow) {
+        if (timersRef.current[id]) clearTimeout(timersRef.current[id]);
+        timersRef.current[id] = setTimeout(() => {
+          fetchTaxForRow(id, updatedRow, defaultGstInclusive);
+        }, 600);
+      }
+      return newItems;
+    });
   };
 
   const updateTableItem = (id: string, field: string, value: any) => {
@@ -167,7 +250,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
     setTableItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const grandTotal = tableItems.reduce((acc, row) => acc + (parseFloat(row.qnty || 0) * parseFloat(row.price || 0)), 0);
+  const grandTotal = tableItems.reduce((acc, row) => acc + (parseFloat(row.amount || 0)), 0);
 
   if (!isOpen) return null;
 
@@ -178,6 +261,23 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         onClose={() => setShowWarning(false)}
         title="Project Required"
         content="Please select a Project before searching for an item."
+      />
+
+      <WarningAlertModal 
+        isOpen={showProjectChangeWarning}
+        onClose={() => {
+          setShowProjectChangeWarning(false);
+          setPendingProjectChange(null);
+        }}
+        title="Change Project?"
+        content="Changing the project will remove all the selected items. Continue?"
+        onConfirm={() => {
+           setSelectedProject(pendingProjectChange || '');
+           if (itemSearch) setItemSearch('');
+           setTableItems([]);
+           setShowProjectChangeWarning(false);
+           setPendingProjectChange(null);
+        }}
       />
       
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
@@ -218,9 +318,15 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                   options={projects?.map((p: any) => ({ value: String(p.id), label: p.project_name || p.name })) || []}
                   value={projects?.find(p => String(p.id) === selectedProject) ? { value: selectedProject, label: projects.find((p: any) => String(p.id) === selectedProject)?.project_name || projects.find((p: any) => String(p.id) === selectedProject)?.name } : null}
                   onChange={(val: any) => {
-                    setSelectedProject(val ? val.value : '');
-                    if (itemSearch) setItemSearch('');
-                    setTableItems([]);
+                    const nextVal = val ? val.value : '';
+                    if (tableItems.length > 0) {
+                      setPendingProjectChange(nextVal);
+                      setShowProjectChangeWarning(true);
+                    } else {
+                      setSelectedProject(nextVal);
+                      if (itemSearch) setItemSearch('');
+                      setTableItems([]);
+                    }
                   }}
                   placeholder="Select Project..."
                   styles={{
@@ -312,7 +418,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                           <Select
                             options={vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name || v.name })) || []}
                             value={vendors?.find(v => String(v.id) === String(row.vendor_id)) ? { value: String(row.vendor_id), label: vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.vendor_name || vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.name } : null}
-                            onChange={(val: any) => updateTableItem(row.id, 'vendor_id', val ? val.value : '')}
+                            onChange={(val: any) => handleFieldChange(row.id, 'vendor_id', val ? val.value : '')}
                             placeholder="Select vendor..."
                             styles={{
                               control: (base) => ({ ...base, backgroundColor: '#191e2b', borderColor: '#374151', minHeight: '32px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
@@ -330,7 +436,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                             type="number"
                             min="0"
                             value={row.qnty}
-                            onChange={(e) => updateTableItem(row.id, 'qnty', e.target.value)}
+                            onChange={(e) => handleFieldChange(row.id, 'qnty', e.target.value)}
                             className="w-full bg-[#191e2b] border border-gray-600 rounded px-2 py-1.5 text-white text-center focus:outline-none focus:border-blue-500 transition-colors"
                           />
                         </td>
@@ -342,15 +448,20 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                               min="0"
                               step="0.01"
                               value={row.price}
-                              onChange={(e) => updateTableItem(row.id, 'price', e.target.value)}
+                              onChange={(e) => handleFieldChange(row.id, 'price', e.target.value)}
                               className="w-full bg-[#191e2b] border border-gray-600 rounded pl-7 pr-2 py-1.5 text-white focus:outline-none focus:border-blue-500 transition-colors"
                             />
                           </div>
                         </td>
-                        <td className="px-4 py-3 border-l border-gray-700/50 font-medium text-emerald-400">
+                        <td className="px-4 py-3 border-l border-gray-700/50 font-medium text-emerald-400 relative">
+                          {row.isFetchingTax && (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#161a25]/60 backdrop-blur-[1px]">
+                              <Loader2 className="w-4 h-4 text-emerald-400 animate-spin" />
+                            </div>
+                          )}
                           <div className="flex items-center gap-1">
                             <IndianRupee className="w-3.5 h-3.5" />
-                            {(parseFloat(row.qnty || 0) * parseFloat(row.price || 0)).toFixed(2)}
+                            {parseFloat(row.amount || 0).toFixed(2)}
                           </div>
                         </td>
                         <td className="px-4 py-3 text-center">
