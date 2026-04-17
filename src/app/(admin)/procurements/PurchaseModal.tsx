@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Select from 'react-select';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 import TaxationDetailsModal from './TaxationDetailsModal';
+import SaveProcurementModal from './SaveProcurementModal';
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -30,6 +31,9 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   const [showTaxationModal, setShowTaxationModal] = useState(false);
   const [taxationItem, setTaxationItem] = useState<any>(null);
   const [defaultGstInclusive, setDefaultGstInclusive] = useState('0');
+
+  const [showSaveModal, setShowSaveModal] = useState(false);
+  const [isSavingProcurement, setIsSavingProcurement] = useState(false);
 
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const lastSearchedQuery = useRef('');
@@ -72,8 +76,9 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       if (rowData.vendor_id) params.set('vendor_id', rowData.vendor_id);
       if (rowData.item_id) params.set('item_id', rowData.item_id);
       if (rowData.qnty) params.set('qnty', String(rowData.qnty));
-      params.set('tax_inc', gstInc);
+      params.set('tax_inc', rowData.tax_inc !== undefined ? String(rowData.tax_inc) : gstInc);
       if (rowData.price) params.set('unit_price', String(rowData.price));
+      if (rowData.gst_rate) params.set('gst_rate', String(rowData.gst_rate));
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchItemTaxation?${params.toString()}`, {
         headers: { 'Authorization': `Bearer ${token}` }
@@ -89,6 +94,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
               ...r,
               price: data.unit_price ? String(data.unit_price).replace(/[^0-9.]/g, '') : r.price,
               amount: data.final_amount ? String(data.final_amount).replace(/[^0-9.]/g, '') : r.amount,
+              gst_rate: data.gst_rate !== undefined ? String(data.gst_rate).replace(/[^0-9.]/g, '') : r.gst_rate,
+              taxData: data,
               isFetchingTax: false
             };
           }
@@ -517,7 +524,16 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                  <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm">
                    Close
                  </button>
-                 <button className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2">
+                 <button 
+                   onClick={() => {
+                     if (tableItems.length === 0) {
+                       toast.error('Please add at least one item before saving.');
+                       return;
+                     }
+                     setShowSaveModal(true);
+                   }}
+                   className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
+                 >
                    Save Procurement
                  </button>
              </div>
@@ -532,6 +548,84 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
          item={taxationItem}
          vendors={vendors}
          demands={demands}
+         onApply={(updatedData) => {
+            if (taxationItem) {
+               setTableItems(prev => prev.map(r => r.id === taxationItem.id ? { ...r, ...updatedData } : r));
+            }
+         }}
+      />
+
+      <SaveProcurementModal
+        isOpen={showSaveModal}
+        onClose={() => setShowSaveModal(false)}
+        isSaving={isSavingProcurement}
+        onConfirm={async (saveData) => {
+          setIsSavingProcurement(true);
+          const toastId = toast.loading('Saving procurement...');
+          try {
+             // Build JSON
+             const item_data = tableItems.map(row => {
+               const taxInfo = row.taxData || {};
+               return {
+                 item_id: String(row.item_id),
+                 vendor_id: String(row.vendor_id),
+                 demand_id: String(row.demand_id || ""),
+                 qnty: String(row.qnty),
+                 gst_rate: String(row.gst_rate || taxInfo.gst_rate || "0"),
+                 gst_amount: String(taxInfo.gst_amount || "0"),
+                 sgst_amount: String(taxInfo.sgst_amount || "0"),
+                 cgst_amount: String(taxInfo.cgst_amount || "0"),
+                 unit_price: String(row.price || "0"),
+                 total_price_inc_gst: String(taxInfo.final_amount || row.amount || "0"),
+                 total_price_exc_gst: String(taxInfo.base_price || "0"),
+                 tax_inc: String(row.tax_inc !== undefined ? row.tax_inc : defaultGstInclusive),
+                 invoice_uploaded: row.has_gst_invoice === '1' ? "1" : "0",
+                 invoice_file_string: row.invoice_file || "",
+                 tax_inv_no: row.invoice_number || ""
+               };
+             });
+             
+             const purchaseJsonObj = { item_data };
+             
+             // Construct FormData
+             const formData = new FormData();
+             formData.append('project_id', selectedProject);
+             formData.append('purchase_json', JSON.stringify(purchaseJsonObj));
+             formData.append('purchase_status', saveData.status);
+             
+             if (saveData.has_gst_invoice === '1') {
+                formData.append('has_tax_invoice', '1');
+                if (saveData.invoice_file) formData.append('tax_invoice_file_name', saveData.invoice_file);
+                if (saveData.invoice_number) formData.append('tax_invoice_no', saveData.invoice_number);
+             } else {
+                formData.append('has_tax_invoice', '0');
+             }
+
+             const token = localStorage.getItem('at_ki8Xq1iV');
+             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/savePurchase`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+             });
+             
+             const text = await res.text();
+             let arr; try { arr = JSON.parse(text); } catch(x){}
+             const respData = arr && Array.isArray(arr) ? arr[0] : arr;
+             
+             if (respData && String(respData.Status) === '1') {
+                toast.success(respData.Message || 'Procurement Done', { id: toastId });
+                setShowSaveModal(false);
+                onSuccess?.();
+                onClose();
+             } else {
+                toast.error(respData?.Message || 'Failed to save procurement', { id: toastId });
+             }
+          } catch(err: any) {
+            toast.error(err.message || 'Error occurred while saving', { id: toastId });
+          } finally {
+            setIsSavingProcurement(false);
+          }
+        }}
       />
     </>
   );

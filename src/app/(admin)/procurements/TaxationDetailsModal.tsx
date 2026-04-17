@@ -10,9 +10,10 @@ interface TaxationDetailsModalProps {
   item: any;
   vendors: any[];
   demands: any[];
+  onApply: (data: any) => void;
 }
 
-export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, demands }: TaxationDetailsModalProps) {
+export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, demands, onApply }: TaxationDetailsModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isTaxLoading, setIsTaxLoading] = useState(false);
 
@@ -56,18 +57,18 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setUnitPrice(item.price ? String(item.price) : '');
       setGstRate(item.gst_rate ? String(item.gst_rate) : '');
       setQuantity(item.qnty || '1');
-      setConnectDemand('');
+      setConnectDemand(item.demand_id || '');
       setDemandDetails([]);
-      setSelectedDemandId(null);
+      setSelectedDemandId(item.demand_id || null);
       setProjectDemands([]);
       setHasDemandsData(true);
-      setTaxData(null);
-      setHasGstInvoice(false);
+      setTaxData(item.taxData || null);
+      setHasGstInvoice(item.has_gst_invoice === '1');
       setInvoiceFile(null);
-      setInvoiceNumber('');
+      setInvoiceNumber(item.invoice_number || '');
       setIsUploading(false);
-      setUploadedInvoiceFilename('');
-      setUploadedInvoiceUrl('');
+      setUploadedInvoiceFilename(item.invoice_file || '');
+      setUploadedInvoiceUrl(item.invoice_url || '');
       setShowDeleteInvoiceWarning(false);
       setIsDeletingInvoice(false);
       setIsGstInclusive(false);
@@ -498,7 +499,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     <input
                       type="number"
                       min="1"
-                      step="0.01"
+                      step="1"
                       value={quantity}
                       onChange={(e) => {
                         setQuantity(e.target.value);
@@ -713,6 +714,23 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
             Close
           </button>
           <button
+            onClick={() => {
+              onApply({
+                vendor_id: buyingVendor,
+                qnty: quantity,
+                price: unitPrice,
+                gst_rate: gstRate,
+                tax_inc: isGstInclusive ? '1' : '0',
+                demand_id: selectedDemandId,
+                has_gst_invoice: hasGstInvoice ? '1' : '0',
+                invoice_number: invoiceNumber,
+                invoice_file: uploadedInvoiceFilename,
+                invoice_url: uploadedInvoiceUrl,
+                amount: taxData?.final_amount ? String(taxData.final_amount).replace(/[^0-9.]/g, '') : item?.amount,
+                taxData: taxData
+              });
+              onClose();
+            }}
             disabled={isApplyDisabled}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white rounded font-medium text-[13px] transition-colors shadow-sm"
           >
