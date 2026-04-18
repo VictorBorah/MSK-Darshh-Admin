@@ -620,9 +620,21 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     </div>
                   ) : (
                     <Select
-                      options={projectDemands?.map((d: any) => ({ value: String(d.demand_no), label: `[#${d.demand_no}] ${d.demand_title || d.item_name || 'Demand'}` })) || []}
-                      value={projectDemands?.find(d => String(d.demand_no) === connectDemand) ? { value: connectDemand, label: `[#${connectDemand}] ${projectDemands.find((d: any) => String(d.demand_no) === connectDemand)?.demand_title || projectDemands.find((d: any) => String(d.demand_no) === connectDemand)?.item_name || 'Demand'}` } : null}
+                      options={projectDemands?.map((d: any) => ({ 
+                        value: String(d.demand_no), 
+                        label: `[#${d.demand_no}] ${d.demand_title || d.item_name || 'Demand'}`,
+                        is_connected: String(d.is_connected)
+                      })) || []}
+                      value={projectDemands?.find(d => String(d.demand_no) === connectDemand) ? { 
+                        value: connectDemand, 
+                        label: `[#${connectDemand}] ${projectDemands.find((d: any) => String(d.demand_no) === connectDemand)?.demand_title || projectDemands.find((d: any) => String(d.demand_no) === connectDemand)?.item_name || 'Demand'}`,
+                        is_connected: String(projectDemands.find((d: any) => String(d.demand_no) === connectDemand)?.is_connected)
+                      } : null}
                       onChange={(val: any) => {
+                        if (val && val.is_connected === '1') {
+                          toast.error('This demand is already connected to a different purchase.');
+                          return;
+                        }
                         setConnectDemand(val ? val.value : '');
                       }}
                       placeholder="Select Demand to Merge..."
@@ -631,7 +643,13 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                         control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
                         menuPortal: base => ({ ...base, zIndex: 99999 }),
                         menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
-                        option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
+                        option: (base, state: any) => ({ 
+                          ...base, 
+                          backgroundColor: state.isFocused && state.data.is_connected !== '1' ? '#1f2937' : 'transparent', 
+                          color: state.data.is_connected === '1' ? '#4b5563' : '#fff', 
+                          fontSize: '13px', 
+                          cursor: state.data.is_connected === '1' ? 'not-allowed' : 'pointer' 
+                        }),
                         singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
                         input: base => ({ ...base, color: '#fff' })
                       }}

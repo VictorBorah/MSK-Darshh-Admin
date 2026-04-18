@@ -6,6 +6,7 @@ import toast from 'react-hot-toast';
 import MakeDemandModal from './MakeDemandModal';
 import DemandDetailModal from './DemandDetailModal';
 import PurchaseModal from './PurchaseModal';
+import ViewPurchaseModal from './ViewPurchaseModal';
 
 const SearchableSelectPlaceholder = ({ 
   label, 
@@ -90,6 +91,7 @@ export default function ProcurementsPage() {
   const [showMakeDemandModal, setShowMakeDemandModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [selectedDemandNo, setSelectedDemandNo] = useState<string | null>(null);
+  const [viewProcurementId, setViewProcurementId] = useState<string | null>(null);
 
   // Loading State for preloader
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -357,7 +359,10 @@ export default function ProcurementsPage() {
                      </button>
                    </td>
                    <td className="px-4 py-3 text-center">
-                     <button className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors">
+                     <button 
+                       onClick={() => setViewProcurementId(String(row.id))}
+                       className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                     >
                        <Settings className="w-4 h-4" />
                      </button>
                    </td>
@@ -576,6 +581,13 @@ export default function ProcurementsPage() {
            const token = localStorage.getItem('at_ki8Xq1iV');
            if (token) fetchProcurementsData(token);
          }}
+       />
+
+       <ViewPurchaseModal
+         isOpen={!!viewProcurementId}
+         procurementId={viewProcurementId}
+         onClose={() => setViewProcurementId(null)}
+         vendors={vendorsOptions}
        />
     </div>
   );

@@ -15,15 +15,15 @@ export default function Home() {
         <div className="mt-5 bg-red-950/30 border border-red-500/30 rounded-md p-4 flex items-center gap-4 w-fit">
           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <div className="flex flex-col">
-             <span className="text-white font-bold text-[14px]">
+            <span className="text-white font-bold text-[14px]">
               Current Status: <span className="font-medium text-red-400">Project progress is late by 5 Days</span>
-             </span>
-             <span className="text-white font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-red-400 font-semibold">Procurements Section</span>
-             </span>
-             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-               Status Updated on: 12/04/2026 5:00 PM by Dr. Einstein
-             </p>
+            </span>
+            <span className="text-white font-medium text-[13px] mt-1">
+              Currently Working on: <span className="text-red-400 font-semibold">Payments Section</span>
+            </span>
+            <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
+              Status Updated on: 18/04/2026 07:50 PM by Dr. Einstein
+            </p>
           </div>
         </div>
       </div>
@@ -47,8 +47,8 @@ export default function Home() {
               <span className="text-gray-400 line-through">29 March - 02 April 2026: Design and build the Master Entries Management</span>
             </li>
             <li className="flex items-start gap-3">
-              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>02 April - 15 April 2026: Design and build the Procurements Section </span>
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">02 April - 15 April 2026: Design and build the Procurements Section </span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
