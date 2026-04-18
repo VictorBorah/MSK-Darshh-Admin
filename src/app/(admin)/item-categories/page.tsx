@@ -122,7 +122,7 @@ export default function ItemCategoriesPage() {
       return;
     }
 
-    if (searchQuery.length < 4) {
+    if (searchQuery.length < 3) {
       setSearchResults([]);
       setShowSearchDropdown(false);
       return;

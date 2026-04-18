@@ -139,7 +139,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
     if (!selectedProject) return;
 
-    if (itemSearch.length < 4) {
+    if (itemSearch.length < 3) {
       setSearchResults([]);
       setShowSearchDropdown(false);
       return;
@@ -394,7 +394,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                     </div>
                   )}
                 </div>
-                <span className="text-[11px] text-gray-400 italic mt-0.5">Min. 4 characters</span>
+                <span className="text-[11px] text-gray-400 italic mt-0.5">Min. 3 characters</span>
               </div>
             </div>
 

@@ -56,7 +56,7 @@ export default function VendorMasterPage() {
   }, []);
 
   useEffect(() => {
-    if (searchQuery.length < 4) {
+    if (searchQuery.length < 3) {
       setSearchResults([]);
       setShowSearchDropdown(false);
       return;
@@ -351,7 +351,7 @@ export default function VendorMasterPage() {
                 type="text"
                 placeholder="Search Vendors..."
                 value={searchQuery}
-                onFocus={() => { if (searchQuery.length >= 4 && searchResults.length > 0) setShowSearchDropdown(true); }}
+                onFocus={() => { if (searchQuery.length >= 3 && searchResults.length > 0) setShowSearchDropdown(true); }}
                 onChange={(e) => {
                   const val = e.target.value;
                   setSearchQuery(val);

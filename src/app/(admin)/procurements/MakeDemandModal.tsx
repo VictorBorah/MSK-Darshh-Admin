@@ -63,7 +63,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
 
     if (!selectedProject) return;
 
-    if (itemSearch.length < 4) {
+    if (itemSearch.length < 3) {
       setSearchResults([]);
       setShowSearchDropdown(false);
       return;
@@ -365,7 +365,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                      setWarningTitle("Project Selection Required");
                      setWarningContent("Please select a project before searching for an item.");
                      setShowWarning(true);
-                   } else if (itemSearch.length >= 4 && searchResults.length > 0) {
+                   } else if (itemSearch.length >= 3 && searchResults.length > 0) {
                      setShowSearchDropdown(true);
                    }
                  }}
@@ -380,7 +380,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                    <X className="w-4 h-4" />
                  </button>
                )}
-               <p className="text-[10px] text-gray-500/70 mt-1 ml-1 font-medium tracking-wide absolute top-full left-0">Min. 4 Characters</p>
+               <p className="text-[10px] text-gray-500/70 mt-1 ml-1 font-medium tracking-wide absolute top-full left-0">Min. 3 Characters</p>
                
                {showSearchDropdown && searchResults.length > 0 && (
                  <div className="absolute top-[38px] left-0 right-0 bg-[#cdd5df] border border-[#bac4cf] rounded-md shadow-2xl z-50 max-h-64 overflow-y-auto">
@@ -398,7 +398,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                    </ul>
                  </div>
                )}
-               {showSearchDropdown && itemSearch.length >= 4 && searchResults.length === 0 && !isSearching && (
+               {showSearchDropdown && itemSearch.length >= 3 && searchResults.length === 0 && !isSearching && (
                  <div className="absolute top-[38px] left-0 right-0 bg-[#cdd5df] border border-[#bac4cf] rounded-md shadow-xl z-50 p-3 text-center text-sm text-gray-600 font-medium">
                    No items found
                  </div>

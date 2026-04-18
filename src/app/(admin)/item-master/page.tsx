@@ -157,7 +157,7 @@ export default function MasterItemsPage() {
       return;
     }
 
-    if (searchQuery.length < 4) {
+    if (searchQuery.length < 3) {
       setSearchResults([]);
       setShowSearchDropdown(false);
       return;
@@ -464,7 +464,7 @@ export default function MasterItemsPage() {
                 type="text" 
                 placeholder="Search items..." 
                 value={searchQuery}
-                onFocus={() => { if (searchQuery.length >= 4 && searchResults.length > 0) setShowSearchDropdown(true); }}
+                onFocus={() => { if (searchQuery.length >= 3 && searchResults.length > 0) setShowSearchDropdown(true); }}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-9 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
               />
@@ -493,7 +493,7 @@ export default function MasterItemsPage() {
                 </ul>
               </div>
             )}
-            {showSearchDropdown && searchQuery.length >= 4 && searchResults.length === 0 && !isSearching && (
+            {showSearchDropdown && searchQuery.length >= 3 && searchResults.length === 0 && !isSearching && (
               <div className="absolute top-[38px] left-0 right-0 bg-[#1f2536] border border-gray-600 rounded-md shadow-xl z-50 p-3 text-center text-sm text-gray-400">
                 No items found
               </div>
