@@ -219,7 +219,12 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
         const data = Array.isArray(arr) ? arr[0] : arr;
 
         if (String(data.Status) === '1') {
-          setDemandDetails(data.demands_data || []);
+          const fetchedDemands = data.demands_data || [];
+          setDemandDetails(fetchedDemands);
+          const connected = fetchedDemands.find((d: any) => String(d.is_connected) === '1');
+          if (connected) {
+             setSelectedDemandId(String(connected.demand_id));
+          }
         } else {
           setDemandDetails([]);
         }
@@ -676,21 +681,28 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-700/50">
-                          {demandDetails.map((dRow) => (
-                            <tr
-                              key={dRow.demand_id}
-                              className={`hover:bg-white/5 transition-colors cursor-pointer ${selectedDemandId === String(dRow.demand_id) ? 'bg-blue-500/10' : ''}`}
-                              onClick={() => setSelectedDemandId(String(dRow.demand_id))}
-                            >
-                              <td className="px-4 py-3 text-center align-top mt-1">
-                                <input
-                                  type="radio"
-                                  name="demand_connect_radio"
-                                  checked={selectedDemandId === String(dRow.demand_id)}
-                                  readOnly
-                                  className="w-4 h-4 text-blue-500 bg-gray-800 border-gray-600 focus:ring-blue-500 focus:ring-offset-gray-900 cursor-pointer relative top-1"
-                                />
-                              </td>
+                          {demandDetails.map((dRow) => {
+                            const isUnavailable = String(dRow.connection_available) === '0';
+                            
+                            return (
+                              <tr
+                                key={dRow.demand_id}
+                                title={isUnavailable ? "Purchase already done for this demand" : undefined}
+                                className={`transition-colors ${isUnavailable ? 'opacity-60 cursor-not-allowed bg-gray-900/40' : 'hover:bg-white/5 cursor-pointer'} ${selectedDemandId === String(dRow.demand_id) ? 'bg-blue-500/10' : ''}`}
+                                onClick={() => {
+                                  if (!isUnavailable) setSelectedDemandId(String(dRow.demand_id));
+                                }}
+                              >
+                                <td className="px-4 py-3 text-center align-top mt-1">
+                                  <input
+                                    type="radio"
+                                    name="demand_connect_radio"
+                                    checked={selectedDemandId === String(dRow.demand_id)}
+                                    disabled={isUnavailable}
+                                    readOnly
+                                    className={`w-4 h-4 text-blue-500 bg-gray-800 border-gray-600 focus:ring-blue-500 focus:ring-offset-gray-900 relative top-1 ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                                  />
+                                </td>
                               <td className="px-4 py-3 align-top">
                                 <div className="font-medium text-white break-words">{dRow.project_name || 'N/A'}</div>
                                 <div className="text-[11px] text-gray-500 mt-0.5">#{dRow.demand_no} &bull; {dRow.demand_date}</div>
@@ -709,7 +721,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                               </td>
                               <td className="px-4 py-3 text-white font-medium align-top">{dRow.quantity_txt || dRow.quantity || '-'}</td>
                             </tr>
-                          ))}
+                          );
+                        })}
                         </tbody>
                       </table>
                     </div>

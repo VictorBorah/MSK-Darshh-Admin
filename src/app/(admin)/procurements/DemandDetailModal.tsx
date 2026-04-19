@@ -9,9 +9,10 @@ interface DemandDetailModalProps {
   onClose: () => void;
   demandNo: string | null;
   priorities: any[];
+  onSuccess?: () => void;
 }
 
-export default function DemandDetailModal({ isOpen, onClose, demandNo, priorities }: DemandDetailModalProps) {
+export default function DemandDetailModal({ isOpen, onClose, demandNo, priorities, onSuccess }: DemandDetailModalProps) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [demandsData, setDemandsData] = useState<any[]>([]);
@@ -182,6 +183,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
         toast.success(data.Message || 'Demand Updated', { id: toastId });
         setIsConfigureOpen(false);
         fetchDetails();
+        onSuccess?.();
       } else {
         toast.error(data.Message || 'Failed to update demand', { id: toastId });
       }
@@ -218,6 +220,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
       if (String(data.Status) === '1' || data.Status === 1) {
         toast.success(data.Message || "Demand Removed");
         fetchDetails();
+        onSuccess?.();
       } else {
         toast.error(data.Message || "Failed to remove demand");
       }

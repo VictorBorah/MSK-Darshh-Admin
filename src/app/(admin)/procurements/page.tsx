@@ -151,20 +151,20 @@ export default function ProcurementsPage() {
     }
   };
 
-  const fetchProcurementsData = async (token: string) => {
+  const fetchProcurementsData = async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo) => {
     const params = new URLSearchParams();
-    params.set('pagenum', String(procPage));
-    if (procProject) params.set('project_id', procProject);
-    if (procStatus) params.set('status', procStatus);
-    if (procDateFrom) {
-      const [yyyy, mm, dd] = procDateFrom.split('-');
+    params.set('pagenum', String(passedPage));
+    if (passedProj) params.set('project_id', passedProj);
+    if (passedStatus) params.set('status', passedStatus);
+    if (passedDateFrom) {
+      const [yyyy, mm, dd] = passedDateFrom.split('-');
       params.set('purchase_date_from', `${dd}-${mm}-${yyyy}`);
     }
-    if (procDateTo) {
-      const [yyyy, mm, dd] = procDateTo.split('-');
+    if (passedDateTo) {
+      const [yyyy, mm, dd] = passedDateTo.split('-');
       params.set('purchase_date_to', `${dd}-${mm}-${yyyy}`);
     }
-    if (procVendor) params.set('vendor_id', procVendor);
+    if (passedVendor) params.set('vendor_id', passedVendor);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchprocurements?${params.toString()}`, {
       method: 'GET',
@@ -185,20 +185,20 @@ export default function ProcurementsPage() {
     }
   };
 
-  const fetchDemandsData = async (token: string) => {
+  const fetchDemandsData = async (token: string, passedPage = demPage, passedProj = demProject, passedStatus = demStatus, passedItem = demItem, passedDateFrom = demDateFrom, passedDateTo = demDateTo) => {
     const params = new URLSearchParams();
-    params.set('pagenum', String(demPage));
-    if (demProject) params.set('project_id', demProject);
-    if (demStatus) params.set('status', demStatus);
-    if (demDateFrom) {
-      const [yyyy, mm, dd] = demDateFrom.split('-');
+    params.set('pagenum', String(passedPage));
+    if (passedProj) params.set('project_id', passedProj);
+    if (passedStatus) params.set('status', passedStatus);
+    if (passedDateFrom) {
+      const [yyyy, mm, dd] = passedDateFrom.split('-');
       params.set('demand_date_from', `${dd}-${mm}-${yyyy}`);
     }
-    if (demDateTo) {
-      const [yyyy, mm, dd] = demDateTo.split('-');
+    if (passedDateTo) {
+      const [yyyy, mm, dd] = passedDateTo.split('-');
       params.set('demand_date_to', `${dd}-${mm}-${yyyy}`);
     }
-    if (demItem) params.set('item_id', demItem);
+    if (passedItem) params.set('item_id', passedItem);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemands?${params.toString()}`, {
       method: 'GET',
@@ -219,38 +219,46 @@ export default function ProcurementsPage() {
     }
   };
 
-  const fetchAllData = useCallback(async () => {
-    setIsInitialLoading(true);
-    try {
-      const token = localStorage.getItem('at_ki8Xq1iV');
-      if (!token) return;
-
-      const [configResult, procResult, demResult] = await Promise.all([
-        fetchSystemConfig(token),
-        fetchProcurementsData(token),
-        fetchDemandsData(token)
-      ]);
-
-      // Handle Toasts for any failed Status=="0" requests
-      if (!configResult.success) toast.error(configResult.message);
-      if (!procResult.success) toast.error(procResult.message);
-      if (!demResult.success) toast.error(demResult.message);
-      
-      if (procResult.success && demResult.success && configResult.success) {
-         // Using the first request's message as general success
-         toast.success("Data fetched successfully");
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error.message || 'Error occurred while loading data');
-    } finally {
-      setIsInitialLoading(false);
-    }
-  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, demPage, demProject, demStatus, demDateFrom, demDateTo, demItem]);
-
+  // Initial Load Context
   useEffect(() => {
-    fetchAllData();
-  }, [fetchAllData]);
+    const loadInitialData = async () => {
+       const token = localStorage.getItem('at_ki8Xq1iV');
+       if (!token) return;
+       setIsInitialLoading(true);
+       try {
+         const [configResult, procResult, demResult] = await Promise.all([
+           fetchSystemConfig(token),
+           fetchProcurementsData(token, 1),
+           fetchDemandsData(token, 1)
+         ]);
+         if (!configResult.success) toast.error(configResult.message);
+         if (!procResult.success) toast.error(procResult.message);
+         if (!demResult.success) toast.error(demResult.message);
+       } catch (err: any) {
+         toast.error(err.message || 'Error occurred starting up dashboard');
+       } finally {
+         setIsInitialLoading(false);
+       }
+    };
+    loadInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Sync Independent Procurements Table
+  useEffect(() => {
+     if (isInitialLoading) return;
+     const token = localStorage.getItem('at_ki8Xq1iV');
+     if (token) fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo);
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor]);
+
+  // Sync Independent Demands Table
+  useEffect(() => {
+     if (isInitialLoading) return;
+     const token = localStorage.getItem('at_ki8Xq1iV');
+     if (token) fetchDemandsData(token, demPage, demProject, demStatus, demItem, demDateFrom, demDateTo);
+     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demPage, demProject, demStatus, demDateFrom, demDateTo, demItem]);
 
   const renderProcurementsPanel = () => {
     const isExpanded = maximizedColumn === 'procurements';
@@ -569,6 +577,12 @@ export default function ProcurementsPage() {
          onClose={() => setSelectedDemandNo(null)}
          demandNo={selectedDemandNo}
          priorities={priorityOptions}
+         onSuccess={() => {
+           const token = localStorage.getItem('at_ki8Xq1iV');
+           if (token) {
+             fetchDemandsData(token, demPage, demProject, demStatus, demItem, demDateFrom, demDateTo);
+           }
+         }}
        />
        
        <PurchaseModal 
