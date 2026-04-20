@@ -1,5 +1,6 @@
 import { X, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useModalEscape } from '@/hooks/useModalEscape';
 import toast from 'react-hot-toast';
 
 interface ViewVendorModalProps {
@@ -9,6 +10,7 @@ interface ViewVendorModalProps {
 }
 
 export default function ViewVendorModal({ isOpen, onClose, vendorId }: ViewVendorModalProps) {
+  useModalEscape(isOpen, onClose, 200);
   const [vendorData, setVendorData] = useState<any>(null);
   const [isFetching, setIsFetching] = useState(false);
 

@@ -2,6 +2,7 @@ import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2 } from 'lucid
 import { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
+import { useModalEscape } from '@/hooks/useModalEscape';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 
 interface MakeDemandModalProps {
@@ -40,6 +41,8 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
   const [configurePriority, setConfigurePriority] = useState('3');
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
 
+  const [showExitConfirm, setShowExitConfirm] = useState(false);
+  useModalEscape(isOpen, () => setShowExitConfirm(true), 200);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -278,6 +281,17 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
   const totalItems = itemsList.reduce((sum, item) => sum + (Number(item.qnty) || 0), 0);
 
   return (
+    <>
+      <WarningAlertModal 
+        isOpen={showExitConfirm}
+        onClose={() => setShowExitConfirm(false)}
+        title="Discard Demand Details?"
+        content="Are you sure you want to exit without saving? All progress will be lost."
+        onConfirm={() => {
+           setShowExitConfirm(false);
+           onClose();
+        }}
+      />
     <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-all`}>
       <div 
         className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${
@@ -598,5 +612,6 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
         )}
       </div>
     </div>
+    </>
   );
 }

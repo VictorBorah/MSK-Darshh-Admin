@@ -3,6 +3,7 @@ import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimiz
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '@/components/WarningAlertModal';
+import { useModalEscape } from '@/hooks/useModalEscape';
 
 interface TaxationDetailsModalProps {
   isOpen: boolean;
@@ -16,6 +17,9 @@ interface TaxationDetailsModalProps {
 export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, demands, onApply }: TaxationDetailsModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isTaxLoading, setIsTaxLoading] = useState(false);
+  const [showEscapeWarning, setShowEscapeWarning] = useState(false);
+
+  useModalEscape(isOpen, () => setShowEscapeWarning(true), 300);
 
   const [appData, setAppData] = useState({ default_gst: '', gst_inclusive: '' });
 
@@ -317,7 +321,18 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+    <>
+      <WarningAlertModal 
+        isOpen={showEscapeWarning}
+        onClose={() => setShowEscapeWarning(false)}
+        title="Discard Taxation Details?"
+        content="Are you sure you want to close without applying your taxation configuration changes?"
+        onConfirm={() => {
+           setShowEscapeWarning(false);
+           onClose();
+        }}
+      />
+      <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
       <div className={`bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full rounded-none' : 'w-[950px] max-w-[95vw] h-[85vh] max-h-[85vh] rounded-xl'}`}>
 
         {/* Loading Overlay */}
@@ -837,5 +852,6 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
         />
       </div>
     </div>
+    </>
   );
 }

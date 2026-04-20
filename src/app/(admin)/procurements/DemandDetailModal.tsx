@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import WarningAlertModal from '../../../components/WarningAlertModal';
+import { useModalEscape } from '@/hooks/useModalEscape';
 
 interface DemandDetailModalProps {
   isOpen: boolean;
@@ -13,6 +14,7 @@ interface DemandDetailModalProps {
 }
 
 export default function DemandDetailModal({ isOpen, onClose, demandNo, priorities, onSuccess }: DemandDetailModalProps) {
+  useModalEscape(isOpen, onClose, 200);
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [demandsData, setDemandsData] = useState<any[]>([]);

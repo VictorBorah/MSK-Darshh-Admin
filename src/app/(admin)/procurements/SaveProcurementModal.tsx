@@ -3,6 +3,7 @@ import { X, Loader2, CheckCircle2, HelpCircle, Trash2, AlertCircle } from 'lucid
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '../../../components/WarningAlertModal';
+import { useModalEscape } from '@/hooks/useModalEscape';
 
 interface SaveProcurementModalProps {
   isOpen: boolean;
@@ -24,6 +25,9 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
   
   const [showDeleteInvoiceWarning, setShowDeleteInvoiceWarning] = useState(false);
   const [isDeletingInvoice, setIsDeletingInvoice] = useState(false);
+  
+  const [showEscapeWarning, setShowEscapeWarning] = useState(false);
+  useModalEscape(isOpen, () => setShowEscapeWarning(true), 400);
 
   useEffect(() => {
     if (isOpen) {
@@ -146,6 +150,16 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
 
   return (
     <>
+      <WarningAlertModal 
+        isOpen={showEscapeWarning}
+        onClose={() => setShowEscapeWarning(false)}
+        title="Discard Procurement Settings?"
+        content="Are you sure you want to exit without finalizing? All progress will be lost."
+        onConfirm={() => {
+           setShowEscapeWarning(false);
+           onClose();
+        }}
+      />
       <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div className="bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col w-[550px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
           

@@ -1,0 +1,55 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "enforce_project": false,
+        "items_data": [
+            {
+                "item_id": "65",
+                "qnty": "10",
+                "item_code": "GI20",
+                "item_name": "GI Pipe 20mm",
+                "default_price": "92.00",
+                "category_id": "6",
+                "category_name": "Pipes",
+                "default_gst": "18.00",
+                "default_vendor_id": "",
+                "default_vendor_name": "Maa Durga Hardware",
+                "unit_id": "9",
+                "unit_name": "Pieces",
+                "status": "1"
+            },
+            {
+                "item_id": "124",
+                "qnty": "5",
+                "item_code": "ADJW",
+                "item_name": "Adjustable Wrench",
+                "default_price": "136.00",
+                "category_id": "13",
+                "category_name": "Tools",
+                "default_gst": "12.00",
+                "default_vendor_id": "",
+                "default_vendor_name": "Borah Electricals",
+                "unit_id": "9",
+                "unit_name": "Pieces",
+                "status": "1"
+            },
+            {
+                "item_id": "18",
+                "qnty": "1",
+                "item_code": "GRVL",
+                "item_name": "Gravel",
+                "default_price": "1800.00",
+                "category_id": "2",
+                "category_name": "Aggregates",
+                "default_gst": "18.00",
+                "default_vendor_id": "",
+                "default_vendor_name": "SK Traders",
+                "unit_id": "10",
+                "unit_name": "Cubic Meter",
+                "status": "1"
+            }
+        ],
+        "Message": "Fetched latest item list"
+    }
+]

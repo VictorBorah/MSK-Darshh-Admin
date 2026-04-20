@@ -1,10 +1,10 @@
-import { X, TriangleAlert } from 'lucide-react';
+import { X, CheckCircle2 } from 'lucide-react';
 import React from 'react';
 
 import { Loader2 } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
 
-interface WarningAlertModalProps {
+interface SuccessConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
@@ -13,7 +13,7 @@ interface WarningAlertModalProps {
   isLoading?: boolean;
 }
 
-export default function WarningAlertModal({ isOpen, onClose, title, content, onConfirm, isLoading }: WarningAlertModalProps) {
+export default function SuccessConfirmationModal({ isOpen, onClose, title, content, onConfirm, isLoading }: SuccessConfirmationModalProps) {
   useModalEscape(isOpen, onClose, 9999);
   
   if (!isOpen) return null;
@@ -21,13 +21,13 @@ export default function WarningAlertModal({ isOpen, onClose, title, content, onC
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div 
-        className="bg-[#1c2130] border border-orange-500/30 rounded-xl shadow-2xl flex flex-col overflow-hidden w-[400px] max-w-[95vw] shadow-orange-500/10"
+        className="bg-[#1c2130] border border-emerald-500/30 rounded-xl shadow-2xl flex flex-col overflow-hidden w-[400px] max-w-[95vw] shadow-emerald-500/10"
       >
         {/* Header */}
         <div className="px-4 py-3 border-b border-gray-700/50 flex justify-between items-center bg-[#232b3e]">
           <div className="flex items-center gap-2">
-             <TriangleAlert className="w-[18px] h-[18px] text-orange-400" />
-             <h2 className="text-[14px] text-orange-400 font-bold tracking-wide">{title}</h2>
+             <CheckCircle2 className="w-[18px] h-[18px] text-emerald-400" />
+             <h2 className="text-[14px] text-emerald-400 font-bold tracking-wide">{title}</h2>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1 hover:bg-white/10 rounded">
             <X className="w-4 h-4" />
@@ -36,8 +36,8 @@ export default function WarningAlertModal({ isOpen, onClose, title, content, onC
         
         {/* Body */}
         <div className="p-6 flex flex-col items-center text-center gap-3 bg-[#161a25]">
-          <div className="w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center mb-1 shadow-inner shadow-orange-500/5">
-             <TriangleAlert className="w-7 h-7 text-orange-400" />
+          <div className="w-14 h-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-1 shadow-inner shadow-emerald-500/5">
+             <CheckCircle2 className="w-7 h-7 text-emerald-400" />
           </div>
           <p className="text-[13px] text-[#ccd6f6] font-medium leading-relaxed px-2">
              {content}
@@ -57,7 +57,7 @@ export default function WarningAlertModal({ isOpen, onClose, title, content, onC
               <button
                 onClick={onConfirm}
                 disabled={isLoading}
-                className="px-6 py-2 text-[13px] font-bold text-white bg-orange-600 hover:bg-orange-700 disabled:opacity-70 disabled:cursor-not-allowed rounded transition-colors shadow-sm min-w-[100px] flex items-center justify-center gap-2"
+                className="px-6 py-2 text-[13px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 disabled:opacity-70 disabled:cursor-not-allowed rounded transition-colors shadow-sm min-w-[100px] flex items-center justify-center gap-2"
               >
                 {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                 Yes

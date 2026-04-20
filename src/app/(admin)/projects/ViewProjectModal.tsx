@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, Share2, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useModalEscape } from '@/hooks/useModalEscape';
 
 const FormRow = ({ label, children, alignTop }: { label: string, children: React.ReactNode, alignTop?: boolean }) => (
   <div className={`flex items-${alignTop ? 'start' : 'center'} justify-between gap-3 mb-3 relative`}>
@@ -40,6 +41,7 @@ interface ViewProjectModalProps {
 }
 
 export default function ViewProjectModal({ isOpen, onClose, projectId, projectName }: ViewProjectModalProps) {
+  useModalEscape(isOpen, onClose, 200);
   const [projectData, setProjectData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [errorError, setError] = useState('');

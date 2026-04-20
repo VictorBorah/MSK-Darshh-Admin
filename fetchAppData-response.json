@@ -120,8 +120,8 @@
             "default_gst": "18.00",
             "default_sgst_rate": "9",
             "default_cgst_rate": "9",
-            "gst_inclusive": "0",
-            "s3BucketBasePath": "https://sirish-core-2024.blr1.digitaloceanspaces.com",
+            "gst_inclusive": "1",
+            "s3BucketBasePath": "https://doca.blr1.digitaloceanspaces.com",
             "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "doca",
             "s3BucketKey": "DO00XLCD7FPRXXBX28HQ",
@@ -138,7 +138,8 @@
             "dpFileMaxSize": "2",
             "paginationRowNum": "2",
             "sendTicketmails": "0",
-            "sendEmail": "1"
+            "sendEmail": "1",
+            "showDemandsInAdmin": "1"
         },
         "Message": "App Data Fetched Successfully"
     }

@@ -5,6 +5,7 @@ import Select from 'react-select';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { X, Trash2, GripVertical, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useModalEscape } from '@/hooks/useModalEscape';
 
 interface Stage {
   id: string;
@@ -21,6 +22,7 @@ interface StagesModalProps {
 }
 
 export default function StagesModal({ projectId, configStages, initialStagesCsv, initialCurrentStage, onConfirm, onCancel }: StagesModalProps) {
+  useModalEscape(true, onCancel, 200);
   const [availableStages, setAvailableStages] = useState<Stage[]>(configStages || []);
   const [selectedStages, setSelectedStages] = useState<Stage[]>([]);
   const [currentStageId, setCurrentStageId] = useState<string>(initialCurrentStage || '');

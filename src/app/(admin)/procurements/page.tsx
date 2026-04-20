@@ -92,6 +92,7 @@ export default function ProcurementsPage() {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [selectedDemandNo, setSelectedDemandNo] = useState<string | null>(null);
   const [viewProcurementId, setViewProcurementId] = useState<string | null>(null);
+  const [showDemandsTab, setShowDemandsTab] = useState(true);
 
   // Loading State for preloader
   const [isInitialLoading, setIsInitialLoading] = useState(true);
@@ -219,6 +220,33 @@ export default function ProcurementsPage() {
     }
   };
 
+  // Fetch System Settings on Focus
+  useEffect(() => {
+    const checkShowDemands = async () => {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      if (!token) return;
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const arr = Array.isArray(data) ? data[0] : data;
+        if (arr && arr.System_Data && arr.System_Data.showDemandsInAdmin !== undefined) {
+          setShowDemandsTab(String(arr.System_Data.showDemandsInAdmin) === '1');
+        }
+      } catch (err) {
+        console.error('Failed to fetch AppData for demands tab:', err);
+      }
+    };
+
+    checkShowDemands();
+
+    const handleFocus = () => checkShowDemands();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, []);
+
   // Initial Load Context
   useEffect(() => {
     const loadInitialData = async () => {
@@ -264,7 +292,7 @@ export default function ProcurementsPage() {
     const isExpanded = maximizedColumn === 'procurements';
     return (
       <div className={`flex flex-col bg-[#232b3e] border border-gray-800 rounded shadow-lg overflow-hidden transition-all ${
-        isExpanded ? 'fixed inset-0 z-[100] m-4 md:m-8' : 'w-full lg:w-1/2'
+        isExpanded ? 'fixed inset-0 z-[100] m-4 md:m-8' : (showDemandsTab ? 'w-full lg:w-1/2' : 'w-full flex-1')
       }`}>
         <div className="bg-[#293653] p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -554,7 +582,7 @@ export default function ProcurementsPage() {
        )}
        <div className={`flex flex-col lg:flex-row items-stretch gap-6 h-[calc(100vh-140px)] ${maximizedColumn ? 'overflow-hidden' : ''}`}>
          {(!maximizedColumn || maximizedColumn === 'procurements') && renderProcurementsPanel()}
-         {(!maximizedColumn || maximizedColumn === 'demands') && renderDemandsPanel()}
+         {(!maximizedColumn || maximizedColumn === 'demands') && showDemandsTab && renderDemandsPanel()}
        </div>
 
        <MakeDemandModal 

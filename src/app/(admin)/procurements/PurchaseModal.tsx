@@ -3,8 +3,10 @@ import { Search, Loader2, X, Trash2, XCircle, IndianRupee, Maximize2, Minimize2,
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import WarningAlertModal from '../../../components/WarningAlertModal';
+import SuccessConfirmationModal from '../../../components/SuccessConfirmationModal';
 import TaxationDetailsModal from './TaxationDetailsModal';
 import SaveProcurementModal from './SaveProcurementModal';
+import { useModalEscape } from '@/hooks/useModalEscape';
 
 interface PurchaseModalProps {
   isOpen: boolean;
@@ -34,6 +36,14 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [isSavingProcurement, setIsSavingProcurement] = useState(false);
+
+  const [showDemandPrompt, setShowDemandPrompt] = useState(false);
+  const [isCheckingDemands, setIsCheckingDemands] = useState(false);
+  const [isFetchingDemands, setIsFetchingDemands] = useState(false);
+  
+  const [showEscapeWarning, setShowEscapeWarning] = useState(false);
+
+  useModalEscape(isOpen, () => setShowEscapeWarning(true), 200);
 
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const lastSearchedQuery = useRef('');
@@ -106,6 +116,79 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       }
     } catch (e) {
       setTableItems(prev => prev.map(r => r.id === rowId ? { ...r, isFetchingTax: false } : r));
+    }
+  };
+
+  const checkActiveDemands = async (projectId: string) => {
+    setIsCheckingDemands(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/getDemandInformation?project_id=${projectId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch(e){}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+      
+      if (data && String(data.Status) === '1') {
+        toast.success(data.Message || 'Demand check successful');
+        if (String(data.demands_exists) === '1') {
+          setShowDemandPrompt(true);
+        }
+      } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
+        toast.error(data.Message || 'Failed to check active demands');
+      }
+    } catch(e) {
+      toast.error('Failed to communicate with demand API');
+    } finally {
+      setIsCheckingDemands(false);
+    }
+  };
+
+  const handleLoadDemands = async () => {
+    setIsFetchingDemands(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemandItems?project_id=${selectedProject}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch(e){}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+      
+      if (data && String(data.Status) === '1' && data.items_data) {
+        toast.success(data.Message || 'Demands loaded!');
+        const addedDemandItems: any[] = [];
+        data.items_data.forEach((item: any) => {
+          if (!tableItems.find(t => String(t.item_id) === String(item.item_id)) && !addedDemandItems.find(t => String(t.item_id) === String(item.item_id))) {
+            const qty_val = parseFloat(item.qnty || '1');
+            const default_val = parseFloat(item.default_price || '0');
+            const newItem = {
+              id: Math.random().toString(36).substr(2, 9),
+              project_id: selectedProject,
+              item_id: item.item_id,
+              item_name: item.item_name,
+              unit_name: item.unit_name || '',
+              vendor_id: item.default_vendor_id || '',
+              qnty: qty_val,
+              price: item.default_price || 0,
+              amount: String(default_val * qty_val),
+              isFetchingTax: true
+            };
+            addedDemandItems.push(newItem);
+          }
+        });
+        
+        if (addedDemandItems.length > 0) {
+          setTableItems(prev => [...prev, ...addedDemandItems]);
+          addedDemandItems.forEach(item => {
+            fetchTaxForRow(item.id, item, defaultGstInclusive);
+          });
+        }
+      } else {
+        toast.error(data?.Message || 'Failed to fetch active demands');
+      }
+    } catch(e) {
+      toast.error('Failed to load demands');
+    } finally {
+      setIsFetchingDemands(false);
+      setShowDemandPrompt(false);
     }
   };
 
@@ -279,12 +362,35 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         title="Change Project?"
         content="Changing the project will remove all the selected items. Continue?"
         onConfirm={() => {
-           setSelectedProject(pendingProjectChange || '');
-           if (itemSearch) setItemSearch('');
-           setTableItems([]);
+           if (pendingProjectChange) {
+             setSelectedProject(pendingProjectChange);
+             if (itemSearch) setItemSearch('');
+             setTableItems([]);
+             checkActiveDemands(pendingProjectChange);
+           }
            setShowProjectChangeWarning(false);
            setPendingProjectChange(null);
         }}
+      />
+      
+      <WarningAlertModal 
+        isOpen={showEscapeWarning}
+        onClose={() => setShowEscapeWarning(false)}
+        title="Unsaved Changes"
+        content="Are you sure you want to close this form without saving?"
+        onConfirm={() => {
+           setShowEscapeWarning(false);
+           onClose();
+        }}
+      />
+
+      <SuccessConfirmationModal
+        isOpen={showDemandPrompt}
+        onClose={() => setShowDemandPrompt(false)}
+        onConfirm={handleLoadDemands}
+        isLoading={isFetchingDemands}
+        title="Active Demands Located"
+        content="Found active demands for this project. Load them automatically?"
       />
       
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
@@ -315,7 +421,13 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 bg-[#11141e] flex flex-col gap-6">
+          <div className="flex-1 overflow-y-auto p-6 bg-[#11141e] flex flex-col gap-6 relative">
+            {isCheckingDemands && (
+              <div className="absolute inset-0 z-[200] flex flex-col items-center justify-center bg-[#11141e]/80 backdrop-blur-sm rounded-lg m-2">
+                <Loader2 className="w-10 h-10 animate-spin text-blue-500 mb-4" />
+                <p className="text-gray-300 font-medium tracking-wide">Checking active demands...</p>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               
               {/* Select Project */}
@@ -333,6 +445,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                       setSelectedProject(nextVal);
                       if (itemSearch) setItemSearch('');
                       setTableItems([]);
+                      if (nextVal) checkActiveDemands(nextVal);
                     }
                   }}
                   placeholder="Select Project..."

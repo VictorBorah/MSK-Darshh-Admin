@@ -8,6 +8,8 @@ import {
 import Select from 'react-select';
 import { useJsApiLoader, GoogleMap, Marker, Autocomplete, Libraries } from '@react-google-maps/api';
 import dynamic from 'next/dynamic';
+import { useModalEscape } from '@/hooks/useModalEscape';
+import WarningAlertModal from '@/components/WarningAlertModal';
 
 const GeofenceMap = dynamic(() => import('./GeofenceMap'), { ssr: false, loading: () => <div className="text-white">Loading Map...</div> });
 const StagesModal = dynamic(() => import('./StagesModal'), { ssr: false, loading: () => <div className="text-white">Loading Stages...</div> });
@@ -248,6 +250,8 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
   const [configData, setConfigData] = useState<any>(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
   const [configError, setConfigError] = useState('');
+  
+  useModalEscape(isOpen, () => setShowExitConfirm(true), 200);
 
   // Wizard Stage Tracker (1 = Basic Info, 2 = Advanced Config)
   const [step, setStep] = useState(1);
@@ -497,6 +501,16 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
 
   return (
     <>
+      <WarningAlertModal 
+        isOpen={showExitConfirm}
+        onClose={() => setShowExitConfirm(false)}
+        title="Discard Project Details?"
+        content="Are you sure you want to exit without saving? All progress will be lost."
+        onConfirm={() => {
+           setShowExitConfirm(false);
+           onClose();
+        }}
+      />
       <div className="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center p-4 backdrop-blur-sm shadow-2xl transition-opacity animate-in fade-in duration-200">
 
         {/* Main Modal Shell (Adapts size based on step) */}
