@@ -156,7 +156,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         toast.success(data.Message || 'Demands loaded!');
         const addedDemandItems: any[] = [];
         data.items_data.forEach((item: any) => {
-          if (!tableItems.find(t => String(t.item_id) === String(item.item_id)) && !addedDemandItems.find(t => String(t.item_id) === String(item.item_id))) {
+          const isDuplicate = tableItems.some(t => String(t.item_id) === String(item.item_id) && String(t.demand_id || '') === String(item.demand_id || '')) || addedDemandItems.some(t => String(t.item_id) === String(item.item_id) && String(t.demand_id || '') === String(item.demand_id || ''));
+          if (!isDuplicate) {
             const qty_val = parseFloat(item.qnty || '1');
             const default_val = parseFloat(item.default_price || '0');
             const newItem = {
@@ -164,6 +165,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
               project_id: selectedProject,
               item_id: item.item_id,
               item_name: item.item_name,
+              demand_id: item.demand_id || '',
               unit_name: item.unit_name || '',
               vendor_id: item.default_vendor_id || '',
               qnty: qty_val,
