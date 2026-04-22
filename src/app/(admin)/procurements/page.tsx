@@ -292,7 +292,7 @@ export default function ProcurementsPage() {
     const isExpanded = maximizedColumn === 'procurements';
     return (
       <div className={`flex flex-col bg-[#232b3e] border border-gray-800 rounded shadow-lg overflow-hidden transition-all ${
-        isExpanded ? 'fixed inset-0 z-[100] m-4 md:m-8' : (showDemandsTab ? 'w-full lg:w-1/2' : 'w-full flex-1')
+        isExpanded ? 'fixed inset-0 z-[100] m-4 md:m-8' : (showDemandsTab ? 'w-full min-[1200px]:w-1/2 h-[600px] min-[1200px]:h-auto' : 'w-full flex-1')
       }`}>
         <div className="bg-[#293653] p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -436,7 +436,7 @@ export default function ProcurementsPage() {
     const isExpanded = maximizedColumn === 'demands';
     return (
       <div className={`flex flex-col bg-[#232b3e] border border-gray-800 rounded shadow-lg overflow-hidden transition-all ${
-        isExpanded ? 'fixed inset-0 z-[100] m-4 md:m-8' : 'w-full lg:w-1/2'
+        isExpanded ? 'fixed inset-0 z-[100] m-4 md:m-8' : 'w-full min-[1200px]:w-1/2 h-[600px] min-[1200px]:h-auto'
       }`}>
         <div className="bg-[#293653] p-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -580,7 +580,7 @@ export default function ProcurementsPage() {
            <p className="text-gray-300 font-medium tracking-wide">Loading Data...</p>
          </div>
        )}
-       <div className={`flex flex-col lg:flex-row items-stretch gap-6 h-[calc(100vh-140px)] ${maximizedColumn ? 'overflow-hidden' : ''}`}>
+       <div className={`flex flex-col min-[1200px]:flex-row items-stretch gap-6 ${(!showDemandsTab || maximizedColumn) ? 'h-[calc(100vh-140px)]' : 'h-auto min-[1200px]:h-[calc(100vh-140px)]'} ${maximizedColumn ? 'overflow-hidden' : ''}`}>
          {(!maximizedColumn || maximizedColumn === 'procurements') && renderProcurementsPanel()}
          {(!maximizedColumn || maximizedColumn === 'demands') && showDemandsTab && renderDemandsPanel()}
        </div>

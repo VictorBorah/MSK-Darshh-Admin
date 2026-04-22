@@ -1,0 +1,37 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "demands_data": [
+            {
+                "demand_id": "12",
+                "demand_no": "0E44903",
+                "item_id": "13",
+                "itemCount": "3",
+                "item_name": "Fine Sand + 2 more",
+                "auto_title": "",
+                "quantity": "1",
+                "recieved_quantity": "0.00",
+                "quantity_txt": "1 Cubic Meter",
+                "recieved_quantity_txt": "0.00 Cubic Meter",
+                "project_id": "5",
+                "project_name": "SAIKIA HUT",
+                "demand_date": "20-04-2026",
+                "priority_id": "3",
+                "priority_txt": "Low",
+                "procurement_status_id": "6",
+                "procurement_txt": "Raised",
+                "is_fulfilled": "No",
+                "is_connected": "0",
+                "delivery_confirmed": "No",
+                "delivery_date": "",
+                "gps_photo_file": "<File String Placeholder>",
+                "exif_match_success": "No",
+                "geofence_check_pass": "No",
+                "description": "",
+                "status": "1"
+            }
+        ],
+        "Message": "Demands List Fetched"
+    }
+]

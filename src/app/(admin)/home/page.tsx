@@ -16,13 +16,13 @@ export default function Home() {
           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <div className="flex flex-col">
             <span className="text-white font-bold text-[14px]">
-              Current Status: <span className="font-medium text-red-400">Project progress is late by 5 Days</span>
+              Current Status: <span className="font-medium text-red-400">Project progress is late by 2 Days</span>
             </span>
             <span className="text-white font-medium text-[13px] mt-1">
               Currently Working on: <span className="text-red-400 font-semibold">Payments Section</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 21/04/2026 06:35 PM by Dr. Einstein
+              Status Updated on: 22/04/2026 08:30 PM by Dr. Einstein
             </p>
           </div>
         </div>
