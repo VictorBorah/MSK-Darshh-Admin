@@ -22,7 +22,7 @@ export default function Home() {
               Currently Working on: <span className="text-red-400 font-semibold">Payments Section</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 22/04/2026 08:30 PM by Dr. Einstein
+              Status Updated on: 24/04/2026 10:00 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
         </div>
@@ -51,24 +51,28 @@ export default function Home() {
               <span className="text-gray-400 line-through">02 April - 15 April 2026: Design and build the Procurements Section </span>
             </li>
             <li className="flex items-start gap-3">
-              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>15 April - 20 April 2026: Design and build the Payments Section </span>
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">15 April - 20 April 2026: Design and build the Payments Section </span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>20 April - 25 April 2026: Design and build the Site Supervisor App</span>
+              <span>20 April - 25 April 2026: Run Units Tests for Payments Module, GST and TDS calculations </span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>25 April - 28 April 2026: Design and build the Other Staff App</span>
+              <span>26 April - 28 April 2026: Design and build the Site Supervisor App</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>28 April - 30 April 2026: Design and build the Admin Dashboard & Settings Page</span>
+              <span>28 April - 30 April 2026: Design and build the Other Staff App</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>30 April - 05 May 2026: Design and build the Admin Projects Management</span>
+              <span>30 April - 03 May 2026: Design and build the Admin Dashboard & Settings Page</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
+              <span>03 May - 05 May 2026: Design and build the Admin Projects Management</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
@@ -83,7 +87,7 @@ export default function Home() {
 
         <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-md p-4">
           <p className="text-emerald-400 font-medium text-[13px] flex items-center gap-2">
-            Target SLA: The Project infrastructure will hit finalized production deployment pipelines by 27 April 2026.
+            Target SLA: The Project infrastructure will hit finalized production deployment pipelines by 15th May 2026.
           </p>
         </div>
       </div>

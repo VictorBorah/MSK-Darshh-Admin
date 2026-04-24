@@ -7,44 +7,40 @@
                 "id": "6",
                 "vendor_name": "Balaji Traders",
                 "vendor_mobile": "4578203214",
-                "vendor_gst": "18ABCDE1234F1Z5"
+                "vendor_gst": "18ABCDE1234F1Z5",
+                "gst_seggregation": "0"
             },
             {
                 "id": "3",
                 "vendor_name": "Borah Electricals",
                 "vendor_mobile": "0987456321",
-                "vendor_gst": "18AABCU9603R1ZM "
-            },
-            {
-                "id": "5",
-                "vendor_name": "Ganpati  Traders",
-                "vendor_mobile": "5212031074",
-                "vendor_gst": "18AAACB1534F3Z3"
+                "vendor_gst": "18AABCU9603R1ZM ",
+                "gst_seggregation": "0"
             }
         ],
         "items_data": [
             {
                 "id": "255",
                 "item_name": "2 Pin Top",
-                "default_price": "30.00",
+                "default_price": "28.00",
                 "default_gst": "18.00"
             },
             {
                 "id": "256",
                 "item_name": "A1 Ghost Buster",
-                "default_price": "0.00",
+                "default_price": "81.00",
                 "default_gst": "18.00"
             }
         ],
         "projects_data": [
             {
                 "id": "1",
-                "project_name": "TEST PROJECT",
+                "project_name": "MIRA FLATS",
                 "project_code": "TST-001"
             },
             {
                 "id": "2",
-                "project_name": "TEST 123",
+                "project_name": "SINGH RESIDENCY",
                 "project_code": "TST213"
             }
         ],
@@ -53,6 +49,73 @@
             "default_gst": "18.00",
             "fileMaxSize": "2"
         },
+        "tds_options": [
+            {
+                "id": "1",
+                "tds_option": "1.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "2",
+                "tds_option": "2.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "3",
+                "tds_option": "5.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "4",
+                "tds_option": "10.00",
+                "is_default": "1",
+                "active": "1",
+                "cKey": "1"
+            }
+        ],
+        "payment_modes": [
+            {
+                "id": "1",
+                "mode": "Cash",
+                "txn_reference": null
+            },
+            {
+                "id": "2",
+                "mode": "UPI",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "3",
+                "mode": "IMPS",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "4",
+                "mode": "NEFT",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "5",
+                "mode": "RTGS",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "6",
+                "mode": "Demand Draft",
+                "txn_reference": "Draft Number"
+            },
+            {
+                "id": "7",
+                "mode": "Cheque",
+                "txn_reference": "Cheque Number"
+            }
+        ],
         "priority_data": [
             {
                 "id": "1",

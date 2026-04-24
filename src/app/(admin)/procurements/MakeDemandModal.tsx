@@ -488,7 +488,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
               </button>
               <button 
                 onClick={handleConfirmDemand}
-                disabled={isSaving}
+                disabled={isSaving || itemsList.length === 0 || itemsList.some(item => !item.qnty || Number(item.qnty) <= 0)}
                 className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-normal text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors shadow-sm min-w-[150px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}

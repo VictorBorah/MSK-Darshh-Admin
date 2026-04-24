@@ -11,6 +11,7 @@ import {
   Box, 
   ShoppingCart,
   TrendingUp,
+  IndianRupee,
   Files,
   Blocks,
   FileMinus,
@@ -31,7 +32,7 @@ export default function Sidebar() {
       case 'projects': return <Box className={className} />;
       case 'staff': return <Users className={className} />;
       case 'procurements': return <ShoppingCart className={className} />;
-      case 'payments': return <TrendingUp className={className} />;
+      case 'payments': return <IndianRupee className={className} />;
       case 'supply-ledger': return <Files className={className} />;
       case 'stock-inventory': return <Blocks className={className} />;
       case 'item-categories': return <FileMinus className={className} />;
