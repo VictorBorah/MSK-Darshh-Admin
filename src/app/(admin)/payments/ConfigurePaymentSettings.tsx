@@ -21,6 +21,7 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
 
   const [paymentModes, setPaymentModes] = useState<any[]>([]);
   const [tdsOptions, setTdsOptions] = useState<any[]>([]);
+  const [appSettings, setAppSettings] = useState<any>(null);
 
   const [paymentMode, setPaymentMode] = useState('');
   const [connectDemand, setConnectDemand] = useState('');
@@ -102,8 +103,11 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
       const configData = Array.isArray(configArr) ? configArr[0] : configArr;
 
       let fetchedTdsOptions: any[] = [];
+      let currentAppSettings: any = null;
       if (String(configData?.Status) === '1') {
         setPaymentModes(configData.payment_modes || []);
+        currentAppSettings = configData.app_settings;
+        setAppSettings(currentAppSettings);
         
         let loadedTdsOptions = configData.tds_options || [];
         fetchedTdsOptions = loadedTdsOptions;
@@ -133,9 +137,21 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
           try { dArr = JSON.parse(dText); } catch (e) { dArr = {}; }
           const dData = Array.isArray(dArr) ? dArr[0] : dArr;
 
-          if (String(dData.Status) === '1' && dData.demands_data && dData.demands_data.length > 0) {
-            setProjectDemands(dData.demands_data);
-            setHasDemandsData(true);
+          if (String(dData.Status) === '1' && String(dData.demands_exists) === '1') {
+            const actualRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemands?project_id=${item.project_id}&is_material=0`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const actualText = await actualRes.text();
+            let actualArr; try { actualArr = JSON.parse(actualText); } catch(e){}
+            const actualData = Array.isArray(actualArr) ? actualArr[0] : actualArr;
+
+            if (String(actualData?.Status) === '1' && actualData.demands_data && actualData.demands_data.length > 0) {
+              setProjectDemands(actualData.demands_data);
+              setHasDemandsData(true);
+            } else {
+              setProjectDemands([]);
+              setHasDemandsData(false);
+            }
           } else {
             setProjectDemands([]);
             setHasDemandsData(false);
@@ -150,6 +166,21 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
       await Promise.all([
         fetchDemandsPromise
       ]);
+      
+      const deductTdsEnabled = String(currentAppSettings?.deduct_tds) === '1';
+
+      if (!deductTdsEnabled && !item.tds_option_id) {
+         setTdsOptionId('not_applicable');
+         toast('Auto TDS Deduction disabled To enable it go to Settings', { icon: '⚠️', id: 'tds_disabled_toast' });
+         const baseAmt = Number(item.price || 0) * Number(item.qnty || 1);
+         setTdsData({
+           base_amount: String(baseAmt),
+           tds_amount: '0',
+           gross_amount: String(baseAmt)
+         });
+         setIsLoading(false);
+         return;
+      }
       
       const currentTdsOptionId = item.tds_option_id || (fetchedTdsOptions.find((o: any) => String(o.is_default) === '1')?.id);
       const currentCustomRate = item.custom_tds_rate || '';
@@ -214,6 +245,8 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
     }
 
     const timer = setTimeout(() => {
+      // Removed global deduct_tds override so that user can manually select a TDS Percentage.
+
       let effectiveRate = '0';
       if (tdsOptionId === 'not_applicable') {
         effectiveRate = '0';

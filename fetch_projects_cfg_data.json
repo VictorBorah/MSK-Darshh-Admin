@@ -144,13 +144,13 @@
             {
                 "id": "255",
                 "item_name": "2 Pin Top",
-                "default_price": "30.00",
+                "default_price": "28.00",
                 "default_gst": "18.00"
             },
             {
                 "id": "256",
                 "item_name": "A1 Ghost Buster",
-                "default_price": "0.00",
+                "default_price": "81.00",
                 "default_gst": "18.00"
             }
         ],
@@ -180,7 +180,7 @@
                 "master_category_id": "21",
                 "master_category_name": "Bill Payments",
                 "is_material": "0"
-            }
+            }            
         ],
         "budget_heads_array": [
             {
@@ -201,6 +201,36 @@
             "default_gst": "18.00",
             "fileMaxSize": "2"
         },
+        "tds_options": [
+            {
+                "id": "1",
+                "tds_option": "1.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "2",
+                "tds_option": "2.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "3",
+                "tds_option": "5.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "4",
+                "tds_option": "10.00",
+                "is_default": "1",
+                "active": "1",
+                "cKey": "1"
+            }
+        ],
         "Message": "Configuration data fetched successfully"
     }
 ]

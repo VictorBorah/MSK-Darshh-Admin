@@ -14,10 +14,10 @@ interface NewItemModalProps {
 export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModalProps) {
   const [loading, setLoading] = useState(false);
   
-  // Master data lists
   const [categories, setCategories] = useState<any[]>([]);
   const [vendors, setVendors] = useState<any[]>([]);
   const [units, setUnits] = useState<any[]>([]);
+  const [budgetHeads, setBudgetHeads] = useState<any[]>([]);
   
   // Form Data
   const [formData, setFormData] = useState({
@@ -28,6 +28,7 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
     default_price: '0.00',
     vendor_id: '',
     unit_id: '',
+    budget_head: '',
     is_material: 1
   });
 
@@ -67,6 +68,7 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
         default_price: '0.00',
         vendor_id: '',
         unit_id: '',
+        budget_head: '',
         is_material: 1
       });
     }
@@ -88,6 +90,7 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
         if (data.item_categories_data) setCategories(data.item_categories_data);
         if (data.vendors) setVendors(data.vendors);
         if (data.units_data) setUnits(data.units_data);
+        if (data.budget_heads_array) setBudgetHeads(data.budget_heads_array);
         
         let fetchedGst = '';
         if (data.app_settings && data.app_settings.default_gst) {
@@ -284,6 +287,7 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
       payload.append('default_price', formData.default_price || '0.00');
       payload.append('unit_id', formData.unit_id);
       payload.append('is_material', String(formData.is_material));
+      if (formData.budget_head) payload.append('budget_head', formData.budget_head);
       
       if (formData.is_material === 1) {
         payload.append('default_gst', formData.default_gst);
@@ -311,6 +315,7 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
           default_price: '0.00',
           vendor_id: '',
           unit_id: '',
+          budget_head: '',
           is_material: 1
         });
         
@@ -355,6 +360,21 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
              </div>
           ) : (
             <>
+              {/* Construction Material Checkbox Row */}
+              <div className="mb-2 flex items-center">
+                <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={formData.is_material === 1}
+                    onChange={(e) => setFormData({ ...formData, is_material: e.target.checked ? 1 : 0 })}
+                    className="w-4 h-4 rounded border-gray-600 bg-[#1e293b] text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
+                  />
+                  <span className="text-[13px] text-[#ccd6f6] font-medium group-hover:text-white transition-colors">
+                    Is construction material
+                  </span>
+                </label>
+              </div>
+
               {/* Row 1 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
@@ -396,8 +416,8 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
               </div>
 
               {/* Row 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
-                <div className="md:col-span-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
                   <input
                     type="text"
@@ -407,18 +427,24 @@ export default function NewItemModal({ isOpen, onClose, onSuccess }: NewItemModa
                     placeholder="E.g. Steel Fe500"
                   />
                 </div>
-                <div className="md:col-span-4 flex items-center h-[40px] mb-[2px]">
-                  <label className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                    <input
-                      type="checkbox"
-                      checked={formData.is_material === 1}
-                      onChange={(e) => setFormData({ ...formData, is_material: e.target.checked ? 1 : 0 })}
-                      className="w-4 h-4 rounded border-gray-600 bg-[#1e293b] text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
-                    />
-                    <span className="text-[13px] text-[#ccd6f6] font-medium group-hover:text-white transition-colors">
-                      Is construction material
-                    </span>
-                  </label>
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Budget Head</label>
+                  <Select
+                    value={budgetHeads.find(b => String(b.id) === formData.budget_head) ? { value: formData.budget_head, label: budgetHeads.find(b => String(b.id) === formData.budget_head)?.head } : null}
+                    options={budgetHeads.map((b: any) => ({ value: String(b.id), label: b.head }))}
+                    onChange={(val: any) => setFormData({ ...formData, budget_head: val ? val.value : '' })}
+                    placeholder="Select Budget Head..."
+                    isClearable
+                    styles={{
+                      control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                      menuPortal: base => ({ ...base, zIndex: 99999 }),
+                      menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                      option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                      singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                      input: base => ({ ...base, color: '#e2e8f0' })
+                    }}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
                 </div>
               </div>
 

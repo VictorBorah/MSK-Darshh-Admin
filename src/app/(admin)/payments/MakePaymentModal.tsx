@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import Select from 'react-select';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 import SuccessConfirmationModal from '../../../components/SuccessConfirmationModal';
+import InformationAlert from '../../../components/InformationAlert';
 import ConfigurePaymentSettings from './ConfigurePaymentSettings';
 import { useModalEscape } from '@/hooks/useModalEscape';
 
@@ -38,7 +39,9 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
 
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
   const [tdsOptions, setTdsOptions] = useState<any[]>([]);
+  const [appSettings, setAppSettings] = useState<any>(null);
   const [showTdsAlert, setShowTdsAlert] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 200);
 
@@ -57,8 +60,9 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
           const text = await res.text();
           let arr; try { arr = JSON.parse(text); } catch (e) {}
           const data = arr && Array.isArray(arr) ? arr[0] : arr;
-          if (data && String(data.Status) === '1' && data.tds_options) {
-             setTdsOptions(data.tds_options);
+          if (data && String(data.Status) === '1') {
+             if (data.tds_options) setTdsOptions(data.tds_options);
+             if (data.app_settings) setAppSettings(data.app_settings);
           }
         } catch(e) {
           console.error("Failed to load tds options");
@@ -284,18 +288,40 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
     const timer = setTimeout(async () => {
       const token = localStorage.getItem('at_ki8Xq1iV');
       
+      const deductTdsEnabled = String(appSettings?.deduct_tds) === '1';
+
       const updates = await Promise.all(itemsToCalc.map(async (item) => {
          let effectiveRate = '0';
-         if (item.tds_option_id === 'not_applicable') {
-           effectiveRate = '0';
-         } else if (item.tds_option_id === 'other') {
-           effectiveRate = item.custom_tds_rate || '0';
-         } else if (item.tds_option_id) {
-           const matched = tdsOptions.find(o => String(o.id) === String(item.tds_option_id));
-           if (matched) effectiveRate = matched.tds_option;
+         const hasExplicitOption = item.tds_option_id !== undefined && item.tds_option_id !== '';
+
+         if (hasExplicitOption) {
+           if (item.tds_option_id === 'not_applicable') {
+             effectiveRate = '0';
+           } else if (item.tds_option_id === 'other') {
+             effectiveRate = item.custom_tds_rate || '0';
+           } else {
+             const matched = tdsOptions.find(o => String(o.id) === String(item.tds_option_id));
+             if (matched) effectiveRate = matched.tds_option;
+           }
          } else {
-           const defaultOpt = tdsOptions.find(o => String(o.is_default) === '1');
-           if (defaultOpt) effectiveRate = defaultOpt.tds_option;
+           if (deductTdsEnabled) {
+             const defaultOpt = tdsOptions.find(o => String(o.is_default) === '1');
+             if (defaultOpt) effectiveRate = defaultOpt.tds_option;
+           } else {
+             const calcAmt = String((Number(item.qnty) || 0) * (Number(item.price) || 0));
+             return { 
+               id: item.id, 
+               success: true, 
+               isBypassed: true,
+               data: {
+                 base_amount: calcAmt,
+                 tds_amount: '0',
+                 gross_amount: calcAmt,
+                 Message: 'Auto TDS Deduction disabled'
+               }, 
+               item 
+             };
+           }
          }
 
          const params = new URLSearchParams();
@@ -310,16 +336,23 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
            const text = await res.text();
            let arr; try { arr = JSON.parse(text); } catch(e){}
            const data = arr && Array.isArray(arr) ? arr[0] : arr;
-           return { id: item.id, success: String(data?.Status) === '1', data, item };
+           return { id: item.id, success: String(data?.Status) === '1', isBypassed: false, data, item };
          } catch(e) {
-           return { id: item.id, success: false, item };
+           return { id: item.id, success: false, isBypassed: false, item };
          }
       }));
 
+      const anyBypassed = updates.some(u => u.isBypassed);
+      if (anyBypassed) {
+         toast('Auto TDS Deduction disabled To enable it go to Settings', { icon: '⚠️', id: 'tds_disabled_toast' });
+      }
+
       updates.forEach(update => {
          if (update.success) {
-            toast.success(update.data.Message || 'TDS Calculated');
-            if (update.item.showTdsAlertTrigger) {
+            if (!update.isBypassed) {
+               toast.success(update.data.Message || 'TDS Calculated');
+            }
+            if (update.item.showTdsAlertTrigger && !update.isBypassed) {
                setShowTdsAlert(true);
             }
          } else {
@@ -348,13 +381,69 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
     setTableItems(prev => prev.filter(item => item.id !== id));
   };
 
-  const handleSavePayment = () => {
+  const handleSavePayment = async () => {
     if (tableItems.length === 0) {
       toast.error('Please add at least one item before saving.');
       return;
     }
-    toast.success('Payment save logic will be implemented later');
-    onClose();
+
+    const missingMode = tableItems.find(item => !item.mode_id);
+    if (missingMode) {
+      toast.error(`Please select a payment mode for item: ${missingMode.item_name}`);
+      return;
+    }
+
+    const payment_data = tableItems.map(item => {
+      const isTxnFileUploaded = item.has_transaction_file === '1' && item.transaction_file ? "1" : "0";
+      
+      return {
+        item_id: item.item_id || "",
+        payment_mode: item.mode_id || "",
+        demand_id: item.demand_id || "",
+        qnty: String(item.qnty || "1"),
+        tds_rate: String(item.tdsData?.tds_rate || "0"),
+        tds_amount: String(item.tdsData?.tds_amount || "0"),
+        base_amount: String(item.tdsData?.base_amount || (Number(item.qnty || 1) * Number(item.price || 0))),
+        gross_amount: String(item.tdsData?.gross_amount || item.amount || (Number(item.qnty || 1) * Number(item.price || 0))),
+        tds_option: String(item.tds_option_id || ""),
+        txn_file_uploaded: isTxnFileUploaded,
+        txn_file_string: item.transaction_file || "",
+        transaction_no: item.transaction_number || "",
+        comment: item.comment || ""
+      };
+    });
+
+    const payment_json = JSON.stringify({ payment_data });
+
+    setIsSaving(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const payload = new FormData();
+      payload.append('project_id', selectedProject);
+      payload.append('payment_json', payment_json);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/savePayment`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: payload
+      });
+
+      const rawText = await res.text();
+      let arr; try { arr = JSON.parse(rawText); } catch(e){}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && String(data.Status) === '1') {
+        toast.success(data.Message || 'Payment Saved');
+        if (onSuccess) onSuccess();
+        onClose();
+      } else {
+        toast.error(data?.Message || 'Failed to save payment');
+      }
+    } catch (e) {
+      toast.error('Network error communicating with endpoint.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const grandTotal = tableItems.reduce((acc, row) => acc + (parseFloat(row.amount || 0)), 0);
@@ -401,10 +490,9 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         }}
       />
 
-      <SuccessConfirmationModal
+      <InformationAlert
         isOpen={showTdsAlert}
         onClose={() => setShowTdsAlert(false)}
-        onConfirm={() => setShowTdsAlert(false)}
         title="TDS Deducted"
         content="TDS Deducted. To turn it off, go to Payment Configuration."
       />
@@ -663,8 +751,10 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
               </button>
               <button
                 onClick={handleSavePayment}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
+                disabled={isSaving}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
               >
+                {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
                 Save Payment
               </button>
             </div>

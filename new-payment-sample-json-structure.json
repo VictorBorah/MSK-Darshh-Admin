@@ -1,0 +1,34 @@
+{  
+    "payment_data": [
+      {
+        "item_id": "1",
+        "payment_mode": "1",
+        "demand_id": "1",
+        "qnty": "10",
+        "tds_rate": "18",
+        "tds_amount": "15.25",        
+		"base_amount": "100.00",
+		"gross_amount": "100.00",        
+        "tds_option": "1",       
+		"txn_file_uploaded": "1",
+        "txn_file_string": "66934734438734-kqzhxgfh46677.pdf",
+        "transaction_no": "AXCBIF-232343549103434",
+        "comment": "test Comment 1"
+      },
+       {
+        "item_id": "2",
+        "payment_mode": "3",
+        "demand_id": "2",
+        "qnty": "10",
+        "tds_rate": "5",
+        "tds_amount": "13.25",        
+		"base_amount": "100.00",
+		"gross_amount": "95.00",        
+        "tds_option": "1",       
+		"txn_file_uploaded": "1",
+        "txn_file_string": "456476878778-3455ggfhgh567.pdf",
+        "transaction_no": "ASJHDGHD-4546665600212",
+		"comment": "test Comment 2"
+      }
+    ]
+  }

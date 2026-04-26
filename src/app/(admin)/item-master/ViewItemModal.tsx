@@ -100,6 +100,10 @@ export default function ViewItemModal({ isOpen, onClose, itemId }: ViewItemModal
                 <span className="text-gray-200 font-medium">{itemData.category_name || '-'}</span>
               </div>
               <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Budget Head</span>
+                <span className="text-gray-200 font-medium">{itemData.budget_head_name || '-'}</span>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Default Vendor</span>
                 <span className="text-gray-200 font-medium">{itemData.default_vendor_name || '-'}</span>
               </div>

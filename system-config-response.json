@@ -47,7 +47,8 @@
         "app_settings": {
             "sendEmail": "1",
             "default_gst": "18.00",
-            "fileMaxSize": "2"
+            "fileMaxSize": "2",
+			"deduct_tds": "1"
         },
         "tds_options": [
             {
