@@ -372,6 +372,7 @@ export default function ProcurementsPage() {
                 <th className="px-4 py-3 border-r border-[#bac4cf]">PROJECT</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">STATUS</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">VENDOR</th>
+                <th className="px-4 py-3 border-r border-[#bac4cf]">AMOUNT</th>
                 <th className="px-4 py-3 text-center border-r border-[#bac4cf] w-16">PRINT</th>
                 <th className="px-4 py-3 text-center w-16">MORE</th>
               </tr>
@@ -384,6 +385,7 @@ export default function ProcurementsPage() {
                   <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
                   <td className="px-4 py-3 text-white">{row.procurement_txt || '-'}</td>
                   <td className="px-4 py-3 text-white">{row.vendor_name || '-'}</td>
+                  <td className="px-4 py-3 text-white font-semibold">₹{row.total_purchase_value || '-'}</td>
                   <td className="px-4 py-3 text-center">
                     <button
                       disabled={String(row.invoice_ready) !== '1'}
@@ -405,7 +407,7 @@ export default function ProcurementsPage() {
               ))}
               {procurementsList.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">No procurements found.</td>
+                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No procurements found.</td>
                 </tr>
               )}
             </tbody>

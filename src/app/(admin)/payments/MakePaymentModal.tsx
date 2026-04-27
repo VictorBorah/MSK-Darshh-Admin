@@ -396,6 +396,13 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
     const payment_data = tableItems.map(item => {
       const isTxnFileUploaded = item.has_transaction_file === '1' && item.transaction_file ? "1" : "0";
       
+      let tdsOptionValue = String(item.tds_option_id || "");
+      if (item.tds_option_id === 'not_applicable') {
+        tdsOptionValue = "-1";
+      } else if (item.tds_option_id === 'other') {
+        tdsOptionValue = "-2";
+      }
+
       return {
         item_id: item.item_id || "",
         payment_mode: item.mode_id || "",
@@ -405,7 +412,7 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         tds_amount: String(item.tdsData?.tds_amount || "0"),
         base_amount: String(item.tdsData?.base_amount || (Number(item.qnty || 1) * Number(item.price || 0))),
         gross_amount: String(item.tdsData?.gross_amount || item.amount || (Number(item.qnty || 1) * Number(item.price || 0))),
-        tds_option: String(item.tds_option_id || ""),
+        tds_option: tdsOptionValue,
         txn_file_uploaded: isTxnFileUploaded,
         txn_file_string: item.transaction_file || "",
         transaction_no: item.transaction_number || "",

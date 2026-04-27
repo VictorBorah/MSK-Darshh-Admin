@@ -1,4 +1,4 @@
-import { X, Box, FileText, Anchor, Printer } from 'lucide-react';
+import { X, Box, FileText, Anchor, Printer, Info } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import { useRef } from 'react';
 import { generatePdfFromElement } from '@/utils/pdfGenerator';
@@ -75,6 +75,22 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
                         <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">SGST ({itemRow.sgst_rate || 0}%)</span>
                         <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.sgst_amount || 0).toFixed(2)}</span>
                      </div>
+
+                     {String(itemRow.demand_diff) === '1' && (
+                        <div className="col-span-2 mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-md flex flex-col gap-1.5">
+                           <h4 className="text-[11px] font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <Info className="w-3.5 h-3.5" /> Purchase Information
+                           </h4>
+                           <div className="flex flex-col gap-1 mt-0.5">
+                              <div className="text-[12px] text-gray-300">
+                                 <span className="font-semibold text-gray-400">Difference in Qnty. :</span> {itemRow.diff_qnty}
+                              </div>
+                              <div className="text-[12px] text-gray-300">
+                                 <span className="font-semibold text-gray-400">Message :</span> {itemRow.diff_qnty_msg}
+                              </div>
+                           </div>
+                        </div>
+                     )}
 
                      <div className="col-span-2 flex justify-end mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
                         <button
