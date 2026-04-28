@@ -19,10 +19,10 @@ export default function Home() {
               Current Status: <span className="font-medium text-red-400">Project progress is late by 2 Days</span>
             </span>
             <span className="text-white font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-red-400 font-semibold">Payments Section</span>
+              Currently Working on: <span className="text-red-400 font-semibold">Fixes in Payments Section as per discussion dtd. 27-04-2026</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 26/04/2026 01:16 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              Status Updated on: 28/04/2026 02:30 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
         </div>

@@ -110,7 +110,7 @@
             }
         ],
         "System_Data": {
-            "appName": "Darshh Automation",
+            "appName": "ZYN Construction Network",
             "apiVersion": "1.00",
             "curSession": "1",
             "curSession_txt": "2026-27",
@@ -126,7 +126,7 @@
             "s3BucketName": "doca",
             "s3BucketKey": "DO00XLCD7FPRXXBX28HQ",
             "s3Region": "blr1",
-            "appLogo": null,
+            "appLogo": "",
             "webAppLogo": "Logo.png",
             "smsPEId": "1205165992846067265",
             "hostName": "api.zlabz.space",
@@ -136,9 +136,15 @@
             "maxStorage": "524300000",
             "ticketFileMaxSize": "2",
             "dpFileMaxSize": "2",
-            "paginationRowNum": "2",
+            "paginationRowNum": "10",
+            "reports_rownum": "500",
             "sendTicketmails": "0",
+            "tds_percent1": "3",
+            "tds_percent2": "4",
             "sendEmail": "1",
+            "purchase_budget_head": "2",
+            "payment_budget_head": "1",
+            "auto_create_demands_from_diff": "1",
             "showDemandsInAdmin": "1"
         },
         "Message": "App Data Fetched Successfully"
