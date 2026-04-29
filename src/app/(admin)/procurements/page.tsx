@@ -297,7 +297,7 @@ export default function ProcurementsPage() {
           <div className="flex items-center gap-4">
             <h2 className="text-lg font-medium text-white tracking-wide flex items-center gap-2">
               <ShoppingCart className="w-5 h-5 text-blue-400" />
-              Procurements
+              Purchases
             </h2>
             <button onClick={() => setShowPurchaseModal(true)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
               <Plus className="w-3.5 h-3.5" /> New
@@ -407,7 +407,7 @@ export default function ProcurementsPage() {
               ))}
               {procurementsList.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No procurements found.</td>
+                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No purchases found.</td>
                 </tr>
               )}
             </tbody>

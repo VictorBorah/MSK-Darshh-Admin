@@ -24,7 +24,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
-  
+
   const [showWarning, setShowWarning] = useState(false);
   const [showProjectChangeWarning, setShowProjectChangeWarning] = useState(false);
   const [pendingProjectChange, setPendingProjectChange] = useState<string | null>(null);
@@ -40,7 +40,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   const [showDemandPrompt, setShowDemandPrompt] = useState(false);
   const [isCheckingDemands, setIsCheckingDemands] = useState(false);
   const [isFetchingDemands, setIsFetchingDemands] = useState(false);
-  
+
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
 
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 200);
@@ -94,7 +94,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const text = await res.text();
-      let arr; try { arr = JSON.parse(text); } catch(e){}
+      let arr; try { arr = JSON.parse(text); } catch (e) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
 
       if (data && String(data.Status) === '1') {
@@ -125,9 +125,9 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       const token = localStorage.getItem('at_ki8Xq1iV');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/getDemandInformation?project_id=${projectId}`, { headers: { 'Authorization': `Bearer ${token}` } });
       const text = await res.text();
-      let arr; try { arr = JSON.parse(text); } catch(e){}
+      let arr; try { arr = JSON.parse(text); } catch (e) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
-      
+
       if (data && String(data.Status) === '1') {
         toast.success(data.Message || 'Demand check successful');
         if (String(data.demands_exists) === '1') {
@@ -136,7 +136,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       } else if (data && (String(data.Status) === '0' || data.Status === 0)) {
         toast.error(data.Message || 'Failed to check active demands');
       }
-    } catch(e) {
+    } catch (e) {
       toast.error('Failed to communicate with demand API');
     } finally {
       setIsCheckingDemands(false);
@@ -149,9 +149,9 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       const token = localStorage.getItem('at_ki8Xq1iV');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemandItems?project_id=${selectedProject}`, { headers: { 'Authorization': `Bearer ${token}` } });
       const text = await res.text();
-      let arr; try { arr = JSON.parse(text); } catch(e){}
+      let arr; try { arr = JSON.parse(text); } catch (e) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
-      
+
       if (data && String(data.Status) === '1' && data.items_data) {
         toast.success(data.Message || 'Demands loaded!');
         const addedDemandItems: any[] = [];
@@ -176,7 +176,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
             addedDemandItems.push(newItem);
           }
         });
-        
+
         if (addedDemandItems.length > 0) {
           setTableItems(prev => [...prev, ...addedDemandItems]);
           addedDemandItems.forEach(item => {
@@ -186,7 +186,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       } else {
         toast.error(data?.Message || 'Failed to fetch active demands');
       }
-    } catch(e) {
+    } catch (e) {
       toast.error('Failed to load demands');
     } finally {
       setIsFetchingDemands(false);
@@ -215,9 +215,9 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   useEffect(() => {
     if (itemSearch.length === 0) {
       if (lastSearchedQuery.current !== '') {
-         lastSearchedQuery.current = '';
-         setSearchResults([]);
-         setShowSearchDropdown(false);
+        lastSearchedQuery.current = '';
+        setSearchResults([]);
+        setShowSearchDropdown(false);
       }
       return;
     }
@@ -230,47 +230,47 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       return;
     }
 
-    if (itemSearch === lastSearchedQuery.current) return; 
+    if (itemSearch === lastSearchedQuery.current) return;
 
     const performSearch = async () => {
-       if (abortControllerRef.current) abortControllerRef.current.abort();
-       
-       const controller = new AbortController();
-       abortControllerRef.current = controller;
-       
-       setIsSearching(true);
-       
-       try {
-         const token = localStorage.getItem('at_ki8Xq1iV');
-         const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/searchItem?query_str=${encodeURIComponent(itemSearch)}&project_id=${selectedProject}`;
-         
-         const res = await fetch(endpoint, {
-           method: 'GET',
-           headers: { 'Authorization': `Bearer ${token}` },
-           signal: controller.signal
-         });
-         
-         const rawText = await res.text();
-         let arr;
-         try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
-         const data = Array.isArray(arr) ? arr[0] : arr;
-         
-         if (data && String(data.Status) === '1' && data.items_data) {
-           setSearchResults(data.items_data);
-           setShowSearchDropdown(true);
-           lastSearchedQuery.current = itemSearch;
-         } else {
-           setSearchResults([]);
-           setShowSearchDropdown(true);
-           lastSearchedQuery.current = itemSearch;
-         }
-       } catch (error: any) {
-         if (error.name !== 'AbortError') {
-           setSearchResults([]);
-         }
-       } finally {
-         setIsSearching(false);
-       }
+      if (abortControllerRef.current) abortControllerRef.current.abort();
+
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
+      setIsSearching(true);
+
+      try {
+        const token = localStorage.getItem('at_ki8Xq1iV');
+        const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/searchItem?query_str=${encodeURIComponent(itemSearch)}&project_id=${selectedProject}`;
+
+        const res = await fetch(endpoint, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal
+        });
+
+        const rawText = await res.text();
+        let arr;
+        try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
+        const data = Array.isArray(arr) ? arr[0] : arr;
+
+        if (data && String(data.Status) === '1' && data.items_data) {
+          setSearchResults(data.items_data);
+          setShowSearchDropdown(true);
+          lastSearchedQuery.current = itemSearch;
+        } else {
+          setSearchResults([]);
+          setShowSearchDropdown(true);
+          lastSearchedQuery.current = itemSearch;
+        }
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          setSearchResults([]);
+        }
+      } finally {
+        setIsSearching(false);
+      }
     };
 
     const timer = setTimeout(() => {
@@ -348,14 +348,14 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
   return (
     <>
-      <WarningAlertModal 
+      <WarningAlertModal
         isOpen={showWarning}
         onClose={() => setShowWarning(false)}
         title="Project Required"
         content="Please select a Project before searching for an item."
       />
 
-      <WarningAlertModal 
+      <WarningAlertModal
         isOpen={showProjectChangeWarning}
         onClose={() => {
           setShowProjectChangeWarning(false);
@@ -364,25 +364,25 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         title="Change Project?"
         content="Changing the project will remove all the selected items. Continue?"
         onConfirm={() => {
-           if (pendingProjectChange) {
-             setSelectedProject(pendingProjectChange);
-             if (itemSearch) setItemSearch('');
-             setTableItems([]);
-             checkActiveDemands(pendingProjectChange);
-           }
-           setShowProjectChangeWarning(false);
-           setPendingProjectChange(null);
+          if (pendingProjectChange) {
+            setSelectedProject(pendingProjectChange);
+            if (itemSearch) setItemSearch('');
+            setTableItems([]);
+            checkActiveDemands(pendingProjectChange);
+          }
+          setShowProjectChangeWarning(false);
+          setPendingProjectChange(null);
         }}
       />
-      
-      <WarningAlertModal 
+
+      <WarningAlertModal
         isOpen={showEscapeWarning}
         onClose={() => setShowEscapeWarning(false)}
         title="Unsaved Changes"
         content="Are you sure you want to close this form without saving?"
         onConfirm={() => {
-           setShowEscapeWarning(false);
-           onClose();
+          setShowEscapeWarning(false);
+          onClose();
         }}
       />
 
@@ -394,28 +394,27 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         title="Active Demands Located"
         content="Found active demands for this project. Load them automatically?"
       />
-      
+
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-        <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${
-          isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'
-        }`}>
-          
+        <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'
+          }`}>
+
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="text-blue-400">New Procurement</span>
+              <span className="text-blue-400">New Purchase</span>
             </h2>
             <div className="flex items-center gap-2">
-              <button 
-                onClick={() => setIsMaximized(!isMaximized)} 
+              <button
+                onClick={() => setIsMaximized(!isMaximized)}
                 className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1.5 hover:bg-white/10 rounded"
                 title={isMaximized ? "Restore Size" : "Maximize"}
               >
                 {isMaximized ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
               </button>
-              <button 
-                onClick={onClose} 
-                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" 
+              <button
+                onClick={onClose}
+                className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
                 title="Close"
               >
                 <X className="w-5 h-5" />
@@ -431,7 +430,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
               </div>
             )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-              
+
               {/* Select Project */}
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-medium text-gray-300">Select Project <span className="text-red-400">*</span></label>
@@ -475,7 +474,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                     className="w-full bg-[#161a25] border border-gray-600 rounded pl-9 pr-8 py-2 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500"
                   />
                   <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
-                  
+
                   <div className="absolute right-2 top-2.5 flex items-center gap-2">
                     {isSearching && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
                     {itemSearch && (
@@ -492,8 +491,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                       ) : (
                         <ul className="py-1">
                           {searchResults.map((result: any) => (
-                            <li 
-                              key={result.item_id} 
+                            <li
+                              key={result.item_id}
                               onClick={() => handleSelectItem(result)}
                               className="px-4 py-2 hover:bg-[#11141e] cursor-pointer text-[13px] text-gray-300 border-b border-gray-700/50 last:border-0 transition-colors flex justify-between items-center"
                             >
@@ -554,7 +553,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                           />
                         </td>
                         <td className="px-4 py-2 border-l border-gray-700/50">
-                          <input 
+                          <input
                             type="number"
                             min="0"
                             value={row.qnty}
@@ -565,7 +564,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                         <td className="px-4 py-2 border-l border-gray-700/50">
                           <div className="relative">
                             <IndianRupee className="w-3.5 h-3.5 text-gray-500 absolute left-2 top-2" />
-                            <input 
+                            <input
                               type="number"
                               min="0"
                               step="0.01"
@@ -588,19 +587,19 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                         </td>
                         <td className="px-4 py-3 text-center">
                           <div className="flex items-center justify-center gap-2">
-                             <button 
-                               onClick={() => {
-                                  setTaxationItem(row);
-                                  setShowTaxationModal(true);
-                               }} 
-                               className="text-gray-400 hover:text-blue-400 p-1.5 hover:bg-white/10 rounded transition-colors" 
-                               title="Taxation Configuration"
-                             >
-                                <Settings className="w-[18px] h-[18px]" />
-                             </button>
-                             <button onClick={() => removeTableItem(row.id)} className="text-gray-500 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded transition-colors" title="Remove Item">
-                               <Trash2 className="w-[18px] h-[18px]" />
-                             </button>
+                            <button
+                              onClick={() => {
+                                setTaxationItem(row);
+                                setShowTaxationModal(true);
+                              }}
+                              className="text-gray-400 hover:text-blue-400 p-1.5 hover:bg-white/10 rounded transition-colors"
+                              title="Taxation Configuration"
+                            >
+                              <Settings className="w-[18px] h-[18px]" />
+                            </button>
+                            <button onClick={() => removeTableItem(row.id)} className="text-gray-500 hover:text-red-400 p-1.5 hover:bg-red-500/10 rounded transition-colors" title="Remove Item">
+                              <Trash2 className="w-[18px] h-[18px]" />
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -610,7 +609,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                         <td colSpan={7} className="px-4 py-16 text-center">
                           <div className="flex flex-col items-center justify-center gap-2 text-gray-500">
                             <Search className="w-8 h-8 opacity-20" />
-                            <p>Search and select items to add to the procurement list.</p>
+                            <p>Search and select items to add to the Purchase order.</p>
                           </div>
                         </td>
                       </tr>
@@ -624,50 +623,50 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-between items-center">
-             <div className="flex items-center gap-4">
-                 <div className="text-[13px] text-gray-400">
-                     Total Items: <span className="text-white font-medium ml-1">{tableItems.length}</span>
-                 </div>
-                 <div className="text-[16px] font-bold text-white flex items-center gap-2 bg-[#161a25] px-4 py-1.5 rounded-lg border border-gray-700 shadow-inner">
-                     Grand Total:
-                     <span className="text-emerald-400 flex items-center">
-                         <IndianRupee className="w-4 h-4 ml-2 mr-0.5" /> {grandTotal.toFixed(2)}
-                     </span>
-                 </div>
-             </div>
-             <div className="flex gap-3">
-                 <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm">
-                   Close
-                 </button>
-                 <button 
-                   onClick={() => {
-                     if (tableItems.length === 0) {
-                       toast.error('Please add at least one item before saving.');
-                       return;
-                     }
-                     setShowSaveModal(true);
-                   }}
-                   className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
-                 >
-                   Save Procurement
-                 </button>
-             </div>
+            <div className="flex items-center gap-4">
+              <div className="text-[13px] text-gray-400">
+                Total Items: <span className="text-white font-medium ml-1">{tableItems.length}</span>
+              </div>
+              <div className="text-[16px] font-bold text-white flex items-center gap-2 bg-[#161a25] px-4 py-1.5 rounded-lg border border-gray-700 shadow-inner">
+                Grand Total:
+                <span className="text-emerald-400 flex items-center">
+                  <IndianRupee className="w-4 h-4 ml-2 mr-0.5" /> {grandTotal.toFixed(2)}
+                </span>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm">
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  if (tableItems.length === 0) {
+                    toast.error('Please add at least one item before saving.');
+                    return;
+                  }
+                  setShowSaveModal(true);
+                }}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
+              >
+                Save Purchase
+              </button>
+            </div>
           </div>
-          
+
         </div>
       </div>
 
       <TaxationDetailsModal
-         isOpen={showTaxationModal}
-         onClose={() => setShowTaxationModal(false)}
-         item={taxationItem}
-         vendors={vendors}
-         demands={demands}
-         onApply={(updatedData) => {
-            if (taxationItem) {
-               setTableItems(prev => prev.map(r => r.id === taxationItem.id ? { ...r, ...updatedData } : r));
-            }
-         }}
+        isOpen={showTaxationModal}
+        onClose={() => setShowTaxationModal(false)}
+        item={taxationItem}
+        vendors={vendors}
+        demands={demands}
+        onApply={(updatedData) => {
+          if (taxationItem) {
+            setTableItems(prev => prev.map(r => r.id === taxationItem.id ? { ...r, ...updatedData } : r));
+          }
+        }}
       />
 
       <SaveProcurementModal
@@ -678,64 +677,64 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
           setIsSavingProcurement(true);
           const toastId = toast.loading('Saving procurement...');
           try {
-             // Build JSON
-             const item_data = tableItems.map(row => {
-               const taxInfo = row.taxData || {};
-               return {
-                 item_id: String(row.item_id),
-                 vendor_id: String(row.vendor_id),
-                 demand_id: String(row.demand_id || ""),
-                 qnty: String(row.qnty),
-                 gst_rate: String(row.gst_rate || taxInfo.gst_rate || "0"),
-                 gst_amount: String(taxInfo.gst_amount || "0"),
-                 sgst_amount: String(taxInfo.sgst_amount || "0"),
-                 cgst_amount: String(taxInfo.cgst_amount || "0"),
-                 unit_price: String(row.price || "0"),
-                 total_price_inc_gst: String(taxInfo.final_amount || row.amount || "0"),
-                 total_price_exc_gst: String(taxInfo.base_price || "0"),
-                 tax_inc: String(row.tax_inc !== undefined ? row.tax_inc : defaultGstInclusive),
-                 invoice_uploaded: row.has_gst_invoice === '1' ? "1" : "0",
-                 invoice_file_string: row.invoice_file || "",
-                 tax_inv_no: row.invoice_number || ""
-               };
-             });
-             
-             const purchaseJsonObj = { item_data };
-             
-             // Construct FormData
-             const formData = new FormData();
-             formData.append('project_id', selectedProject);
-             formData.append('purchase_json', JSON.stringify(purchaseJsonObj));
-             formData.append('purchase_status', saveData.status);
-             
-             if (saveData.has_gst_invoice === '1') {
-                formData.append('has_tax_invoice', '1');
-                if (saveData.invoice_file) formData.append('tax_invoice_file_name', saveData.invoice_file);
-                if (saveData.invoice_number) formData.append('tax_invoice_no', saveData.invoice_number);
-             } else {
-                formData.append('has_tax_invoice', '0');
-             }
+            // Build JSON
+            const item_data = tableItems.map(row => {
+              const taxInfo = row.taxData || {};
+              return {
+                item_id: String(row.item_id),
+                vendor_id: String(row.vendor_id),
+                demand_id: String(row.demand_id || ""),
+                qnty: String(row.qnty),
+                gst_rate: String(row.gst_rate || taxInfo.gst_rate || "0"),
+                gst_amount: String(taxInfo.gst_amount || "0"),
+                sgst_amount: String(taxInfo.sgst_amount || "0"),
+                cgst_amount: String(taxInfo.cgst_amount || "0"),
+                unit_price: String(row.price || "0"),
+                total_price_inc_gst: String(taxInfo.final_amount || row.amount || "0"),
+                total_price_exc_gst: String(taxInfo.base_price || "0"),
+                tax_inc: String(row.tax_inc !== undefined ? row.tax_inc : defaultGstInclusive),
+                invoice_uploaded: row.has_gst_invoice === '1' ? "1" : "0",
+                invoice_file_string: row.invoice_file || "",
+                tax_inv_no: row.invoice_number || ""
+              };
+            });
 
-             const token = localStorage.getItem('at_ki8Xq1iV');
-             const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/savePurchase`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-             });
-             
-             const text = await res.text();
-             let arr; try { arr = JSON.parse(text); } catch(x){}
-             const respData = arr && Array.isArray(arr) ? arr[0] : arr;
-             
-             if (respData && String(respData.Status) === '1') {
-                toast.success(respData.Message || 'Procurement Done', { id: toastId });
-                setShowSaveModal(false);
-                onSuccess?.();
-                onClose();
-             } else {
-                toast.error(respData?.Message || 'Failed to save procurement', { id: toastId });
-             }
-          } catch(err: any) {
+            const purchaseJsonObj = { item_data };
+
+            // Construct FormData
+            const formData = new FormData();
+            formData.append('project_id', selectedProject);
+            formData.append('purchase_json', JSON.stringify(purchaseJsonObj));
+            formData.append('purchase_status', saveData.status);
+
+            if (saveData.has_gst_invoice === '1') {
+              formData.append('has_tax_invoice', '1');
+              if (saveData.invoice_file) formData.append('tax_invoice_file_name', saveData.invoice_file);
+              if (saveData.invoice_number) formData.append('tax_invoice_no', saveData.invoice_number);
+            } else {
+              formData.append('has_tax_invoice', '0');
+            }
+
+            const token = localStorage.getItem('at_ki8Xq1iV');
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/savePurchase`, {
+              method: 'POST',
+              headers: { 'Authorization': `Bearer ${token}` },
+              body: formData
+            });
+
+            const text = await res.text();
+            let arr; try { arr = JSON.parse(text); } catch (x) { }
+            const respData = arr && Array.isArray(arr) ? arr[0] : arr;
+
+            if (respData && String(respData.Status) === '1') {
+              toast.success(respData.Message || 'Procurement Done', { id: toastId });
+              setShowSaveModal(false);
+              onSuccess?.();
+              onClose();
+            } else {
+              toast.error(respData?.Message || 'Failed to save procurement', { id: toastId });
+            }
+          } catch (err: any) {
             toast.error(err.message || 'Error occurred while saving', { id: toastId });
           } finally {
             setIsSavingProcurement(false);

@@ -17,6 +17,7 @@ import {
   FileMinus,
   Settings,
   CircleDot,
+  Clock,
   X
 } from 'lucide-react';
 
@@ -39,6 +40,7 @@ export default function Sidebar() {
       case 'item-master': return <Box className={className} />;
       case 'vendor-master': return <Users className={className} />;
       case 'system-settings': return <Settings className={className} />;
+      case 'sys-log': return <Clock className={className} />;
       default: return <CircleDot className={className} />;
     }
   };

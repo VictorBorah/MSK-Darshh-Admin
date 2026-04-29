@@ -13,8 +13,8 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
 
    if (!isOpen || !itemRow) return null;
 
-   // The button is disabled if demand_id is zero or empty.
-   const hasDemand = itemRow.demand_id && String(itemRow.demand_id) !== '0' && itemRow.demand_id !== '';
+   const isConnected = itemRow.demand_id && String(itemRow.demand_id) !== '0' && itemRow.demand_id !== '';
+   const canConnect = String(itemRow.demands_available) === '1';
 
    return (
       <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -90,8 +90,8 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
                   <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                      <Anchor className="w-3.5 h-3.5" /> Demand Connection
                   </h4>
-                  <div className={`bg-[#1b202c] border ${hasDemand ? 'border-blue-500/30' : 'border-gray-700/50 border-dashed'} rounded-lg p-5 flex flex-col items-center justify-center text-center gap-3`}>
-                     {hasDemand ? (
+                  <div className={`bg-[#1b202c] border ${isConnected ? 'border-blue-500/30' : 'border-gray-700/50 border-dashed'} rounded-lg p-5 flex flex-col items-center justify-center text-center gap-3`}>
+                     {isConnected ? (
                         <>
                            <span className="text-[13px] text-white font-bold">
                               Connected to: <span className="text-blue-400 block mt-1">{itemRow.connected_to_demand || `Demand #${itemRow.demand_id}`}</span>
@@ -102,14 +102,14 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
                            This payment item is not connected to any demand.
                         </span>
                      )}
-                     
+
                      <button
-                        disabled={!hasDemand}
+                        disabled={!canConnect}
                         onClick={(e) => {
                            e.preventDefault();
                            onDemandAction(itemRow);
                         }}
-                        className={`text-[11px] px-4 py-2 rounded font-bold uppercase tracking-wide transition-colors ${!hasDemand ? 'text-gray-500 bg-gray-800 cursor-not-allowed opacity-50' : 'text-white bg-blue-600 hover:bg-blue-500 shadow-sm'}`}
+                        className={`text-[11px] px-4 py-2 rounded font-bold uppercase tracking-wide transition-colors ${!canConnect ? 'text-gray-500 bg-gray-800 cursor-not-allowed opacity-50' : 'text-white bg-blue-600 hover:bg-blue-500 shadow-sm'}`}
                      >
                         Update Payment Connection
                      </button>

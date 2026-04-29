@@ -5,13 +5,15 @@
         "qnty": "10",
         "unit_price": "250.00",
         "gst_rate": "18.00%",
-        "sgst_rate": "9",
-        "cgst_rate": "9",
-        "sgst_amount": "190.6776",
-        "cgst_amount": "190.6776",
-        "base_price": "2118.64",
+        "sgst_rate": "9.00",
+        "cgst_rate": "9.00",
+        "sgst_amount": "0.00",
+        "cgst_amount": "0.00",
+        "igst_amount": "0.00",
+        "base_price": "1737.29",
         "gst_amount": "381.36",
-        "final_amount": "2500",
-        "Message": "System ready to proceed"
+        "final_amount": "2500.00",
+        "sys_msg": "Taxation calculated Tax Inclusive",
+        "Message": "Taxation obtained"
     }
 ]

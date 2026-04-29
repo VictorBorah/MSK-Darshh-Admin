@@ -8,10 +8,11 @@ interface PaymentDemandConnectionProps {
   onClose: () => void;
   onSuccess: () => void;
   paymentId: string | null;
+  paymentDetailId: string | null;
   oldDemandId: string | null;
 }
 
-export default function PaymentDemandConnection({ isOpen, onClose, onSuccess, paymentId, oldDemandId }: PaymentDemandConnectionProps) {
+export default function PaymentDemandConnection({ isOpen, onClose, onSuccess, paymentId, paymentDetailId, oldDemandId }: PaymentDemandConnectionProps) {
   useModalEscape(isOpen, onClose, 400);
 
   const [isLoading, setIsLoading] = useState(false);
@@ -34,7 +35,7 @@ export default function PaymentDemandConnection({ isOpen, onClose, onSuccess, pa
     setIsLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchAvailableDemands?payment_id=${paymentId}&is_material=0`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/fetchAvailablePaymentDemands?payment_id=${paymentId}`, {
         method: 'GET',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -63,12 +64,34 @@ export default function PaymentDemandConnection({ isOpen, onClose, onSuccess, pa
     }
 
     setIsSubmitting(true);
-    // Placeholder for future implementation
-    setTimeout(() => {
-       toast.success('Connection updated (Placeholder)');
-       setIsSubmitting(false);
-       onSuccess();
-    }, 1000);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const formData = new FormData();
+      formData.append('payment_detail_id', paymentDetailId || '');
+      formData.append('old_demand_id', oldDemandId && oldDemandId !== '0' && oldDemandId !== '' ? oldDemandId : '0');
+      formData.append('new_demand_id', selectedDemandId);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/changePaymentDemandConnection`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch (e) {}
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || 'Demand connection updated');
+        onSuccess();
+      } else {
+        toast.error(data?.Message || 'Failed to update demand connection');
+      }
+    } catch (err) {
+      toast.error('An error occurred while updating demand connection');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!isOpen) return null;

@@ -14,18 +14,18 @@ interface SaveProcurementModalProps {
 
 export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSaving = false }: SaveProcurementModalProps) {
   const [status, setStatus] = useState<string>('');
-  
+
   const [hasGstInvoice, setHasGstInvoice] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedInvoiceFilename, setUploadedInvoiceFilename] = useState('');
   const [uploadedInvoiceUrl, setUploadedInvoiceUrl] = useState('');
-  
+
   const [showDeleteInvoiceWarning, setShowDeleteInvoiceWarning] = useState(false);
   const [isDeletingInvoice, setIsDeletingInvoice] = useState(false);
-  
+
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 400);
 
@@ -49,7 +49,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
 
     setInvoiceFile(file);
     setIsUploading(true);
-    
+
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
       const formData = new FormData();
@@ -61,9 +61,9 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
         body: formData
       });
       const text = await res.text();
-      let arr; try { arr = JSON.parse(text); } catch(x){}
+      let arr; try { arr = JSON.parse(text); } catch (x) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
-      
+
       if (data && String(data.Status) === '1') {
         toast.success(data.Message || 'File uploaded successfully');
         setUploadedInvoiceFilename(data.file_name);
@@ -85,7 +85,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
   const handleFileDelete = async () => {
     if (!uploadedInvoiceFilename) return;
     setIsDeletingInvoice(true);
-    
+
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
       const formData = new FormData();
@@ -97,9 +97,9 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
         body: formData
       });
       const text = await res.text();
-      let arr; try { arr = JSON.parse(text); } catch(x){}
+      let arr; try { arr = JSON.parse(text); } catch (x) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
-      
+
       if (data && String(data.Status) === '1') {
         toast.success(data.Message || 'File Deleted');
         setInvoiceFile(null);
@@ -126,7 +126,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
       toast.error('Please upload the GST invoice file');
       return;
     }
-    
+
     const data = {
       status: status,
       has_gst_invoice: hasGstInvoice ? '1' : '0',
@@ -134,7 +134,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
       invoice_file: uploadedInvoiceFilename,
       invoice_url: uploadedInvoiceUrl
     };
-    
+
     onConfirm(data);
   };
 
@@ -150,24 +150,24 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
 
   return (
     <>
-      <WarningAlertModal 
+      <WarningAlertModal
         isOpen={showEscapeWarning}
         onClose={() => setShowEscapeWarning(false)}
         title="Discard Procurement Settings?"
         content="Are you sure you want to exit without finalizing? All progress will be lost."
         onConfirm={() => {
-           setShowEscapeWarning(false);
-           onClose();
+          setShowEscapeWarning(false);
+          onClose();
         }}
       />
       <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
         <div className="bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col w-[550px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-          
+
           {/* Header */}
           <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653]">
             <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              Finalize Procurement
+              Finalize Purchase Order
             </h2>
             <button onClick={onClose} disabled={isFormDisabled} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Close">
               <X className="w-5 h-5" />
@@ -288,8 +288,8 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
           </div>
 
           <div className="px-6 py-4 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-end gap-3">
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               disabled={isFormDisabled}
               className="px-6 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm"
             >
@@ -306,7 +306,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
         </div>
       </div>
 
-      <WarningAlertModal 
+      <WarningAlertModal
         isOpen={showDeleteInvoiceWarning}
         onClose={() => setShowDeleteInvoiceWarning(false)}
         title="Remove Invoice?"

@@ -573,6 +573,21 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                       />
                     </div>
                   </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
+                      IGST
+                      <HelpCircle className="w-3 h-3 text-gray-500 hover:text-white transition-colors cursor-help" />
+                    </label>
+                    <div className="relative">
+                      <IndianRupee className="w-4 h-4 text-gray-500 absolute left-3 top-2.5" />
+                      <input
+                        type="text"
+                        readOnly
+                        value={taxData?.igst_amount || ''}
+                        className="w-full bg-[#11141e] border border-gray-600 rounded-md pl-9 pr-3 py-2 text-gray-300 text-[13px] cursor-not-allowed opacity-80"
+                      />
+                    </div>
+                  </div>
 
                   <div className="flex flex-col gap-1.5">
                     <label className="text-[12px] text-gray-400 font-medium tracking-wide flex items-center gap-1.5" title="Automatically Calculated">
@@ -809,20 +824,32 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     {taxData?.base_price || '0.00'}
                   </span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[12px] text-gray-500 font-semibold">SGST ({taxData?.sgst_rate || '0'}%)</span>
-                  <span className="text-[13px] text-orange-400 flex items-center font-medium">
-                    <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
-                    {taxData?.sgst_amount || '0.00'}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-[12px] text-gray-500 font-semibold">CGST ({taxData?.cgst_rate || '0'}%)</span>
-                  <span className="text-[13px] text-orange-400 flex items-center font-medium">
-                    <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
-                    {taxData?.cgst_amount || '0.00'}
-                  </span>
-                </div>
+                {parseFloat(taxData?.igst_amount || '0') > 0 ? (
+                  <div className="flex justify-between items-center">
+                    <span className="text-[12px] text-gray-500 font-semibold">IGST ({taxData?.gst_percent || taxData?.gst_rate || '0'}%)</span>
+                    <span className="text-[13px] text-orange-400 flex items-center font-medium">
+                      <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
+                      {taxData?.igst_amount || '0.00'}
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] text-gray-500 font-semibold">SGST ({taxData?.sgst_rate || (parseFloat(taxData?.gst_percent || taxData?.gst_rate || '0') / 2).toFixed(1)}%)</span>
+                      <span className="text-[13px] text-orange-400 flex items-center font-medium">
+                        <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
+                        {taxData?.sgst_amount || '0.00'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[12px] text-gray-500 font-semibold">CGST ({taxData?.cgst_rate || (parseFloat(taxData?.gst_percent || taxData?.gst_rate || '0') / 2).toFixed(1)}%)</span>
+                      <span className="text-[13px] text-orange-400 flex items-center font-medium">
+                        <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
+                        {taxData?.cgst_amount || '0.00'}
+                      </span>
+                    </div>
+                  </>
+                )}
                 <div className="flex justify-between items-center border-t border-gray-800 pt-3 mt-1">
                   <span className="text-[12px] text-gray-400 font-bold uppercase tracking-wider">Total GST Amount</span>
                   <span className="text-[14px] text-orange-400 font-bold flex items-center">

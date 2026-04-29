@@ -60,6 +60,11 @@
                 "menu_type": "2",
                 "menu_item": "Settings",
                 "slug": "system-settings"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "System Log",
+                "slug": "sys-log"
             }
         ],
         "User_Data": [

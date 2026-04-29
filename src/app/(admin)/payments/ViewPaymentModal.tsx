@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Maximize2, Minimize2, Loader2, IndianRupee } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PaymentItemDetailsModal from './PaymentItemDetailsModal';
@@ -21,6 +21,35 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isConnectDemandOpen, setIsConnectDemandOpen] = useState(false);
 
+  const fetchDetails = useCallback(async () => {
+    if (!paymentId) return;
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/fetchPaymentDetails?payment_id=${paymentId}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch (x) { }
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && String(data.Status) === '1') {
+        setPaymentDetails(data.payment_data || null);
+        setItemData(data.item_data || []);
+      } else {
+        toast.error(data?.Message || 'Failed to fetch payment details');
+        onClose();
+      }
+    } catch (err: any) {
+      toast.error('An error occurred while fetching details');
+      onClose();
+    } finally {
+      setIsLoading(false);
+    }
+  }, [paymentId, onClose]);
+
   useEffect(() => {
     if (!isOpen || !paymentId) {
       setPaymentDetails(null);
@@ -30,36 +59,8 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
       return;
     }
 
-    const fetchDetails = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem('at_ki8Xq1iV');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/fetchPaymentDetails?payment_id=${paymentId}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        const text = await res.text();
-        let arr; try { arr = JSON.parse(text); } catch (x) { }
-        const data = arr && Array.isArray(arr) ? arr[0] : arr;
-
-        if (data && String(data.Status) === '1') {
-          setPaymentDetails(data.payment_data || null);
-          setItemData(data.item_data || []);
-        } else {
-          toast.error(data?.Message || 'Failed to fetch payment details');
-          onClose();
-        }
-      } catch (err: any) {
-        toast.error('An error occurred while fetching details');
-        onClose();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchDetails();
-  }, [isOpen, paymentId, onClose]);
+  }, [isOpen, paymentId, fetchDetails]);
 
   const handlePrintVoucher = () => {
     // Left empty for future functionalities
@@ -264,9 +265,10 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
         onClose={() => setIsConnectDemandOpen(false)}
         onSuccess={() => {
           setIsConnectDemandOpen(false);
-          // Placeholder for updating logic later
+          fetchDetails();
         }}
         paymentId={paymentId}
+        paymentDetailId={selectedItem?.payment_details_id || null}
         oldDemandId={selectedItem?.connected_demand_info?.demand_id || selectedItem?.demand_id || null}
       />
     </div>
