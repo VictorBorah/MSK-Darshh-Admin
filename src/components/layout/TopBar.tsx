@@ -33,7 +33,11 @@ export default function TopBar() {
   const currentMenuItem = menu.find(m => m.slug === rootSegment);
   
   const category = currentMenuItem ? (currentMenuItem.menu_type === "1" ? "Local" : "Master") : (rootSegment === 'home' ? '' : 'Navigate');
-  const pageName = currentMenuItem ? currentMenuItem.menu_item : (rootSegment.charAt(0).toUpperCase() + rootSegment.slice(1));
+  let pageName = currentMenuItem ? currentMenuItem.menu_item : (rootSegment.charAt(0).toUpperCase() + rootSegment.slice(1));
+  
+  if (pageName === 'Procurements') {
+    pageName = 'Purchases';
+  }
 
   return (
     <header className="h-16 border-b border-gray-800 bg-[#161a25] flex items-center justify-between px-6 shrink-0 z-10 sticky top-0">

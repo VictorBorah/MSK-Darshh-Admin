@@ -689,6 +689,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                 gst_amount: String(taxInfo.gst_amount || "0"),
                 sgst_amount: String(taxInfo.sgst_amount || "0"),
                 cgst_amount: String(taxInfo.cgst_amount || "0"),
+                igst_amount: String(taxInfo.igst_amount || "0"),
                 unit_price: String(row.price || "0"),
                 total_price_inc_gst: String(taxInfo.final_amount || row.amount || "0"),
                 total_price_exc_gst: String(taxInfo.base_price || "0"),

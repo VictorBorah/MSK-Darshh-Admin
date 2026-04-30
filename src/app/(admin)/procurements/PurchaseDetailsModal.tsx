@@ -75,6 +75,10 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
                         <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">SGST ({itemRow.sgst_rate || 0}%)</span>
                         <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.sgst_amount || 0).toFixed(2)}</span>
                      </div>
+                     <div className="flex flex-col gap-0.5">
+                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">IGST ({itemRow.gst_rate || 0}%)</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.igst_amount || 0).toFixed(2)}</span>
+                     </div>
 
                      {String(itemRow.demand_diff) === '1' && (
                         <div className="col-span-2 mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-md flex flex-col gap-1.5">

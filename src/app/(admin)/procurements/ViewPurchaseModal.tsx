@@ -224,6 +224,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                       <th className="px-2 py-2 border-r border-[#bac4cf] text-right">GST AMOUNT</th>
                       <th className="px-2 py-2 border-r border-[#bac4cf] text-right">SGST</th>
                       <th className="px-2 py-2 border-r border-[#bac4cf] text-right">CGST</th>
+                      <th className="px-2 py-2 border-r border-[#bac4cf] text-right">IGST</th>
                       <th className="px-2 py-2 text-center w-20">VIEW DETAIL</th>
                     </tr>
                   </thead>
@@ -254,6 +255,9 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                           </td>
                           <td className="px-2 py-2 text-right text-gray-300 font-medium border-r border-gray-700/30 whitespace-nowrap">
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.cgst_amount || 0).toFixed(2)}</div>
+                          </td>
+                          <td className="px-2 py-2 text-right text-gray-300 font-medium border-r border-gray-700/30 whitespace-nowrap">
+                            <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.igst_amount || 0).toFixed(2)}</div>
                           </td>
                           <td className="px-2 py-2 text-center">
                             <a
