@@ -11,7 +11,8 @@ import {
   UserCheck,
   UserMinus,
   AlertTriangle,
-  Loader2
+  Loader2,
+  XCircle
 } from 'lucide-react';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
@@ -207,7 +208,7 @@ export default function UserGroupsPage() {
           </h2>
           <div className="relative hidden sm:block">
             <div className="relative z-10">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
               <input 
                 type="text" 
                 placeholder="Search..." 
@@ -215,35 +216,43 @@ export default function UserGroupsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => { if (searchQuery.length >= 3) setIsDropdownOpen(true); }}
                 onBlur={() => setTimeout(() => setIsDropdownOpen(false), 200)}
-                className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
+                className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-10 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64 placeholder:text-gray-500"
               />
-            </div>
-            <div className="text-[10px] text-gray-500 italic mt-1.5 mb-1 pl-1">Min. 3 characters</div>
-            
-            {/* Search Dropdown */}
-            {isDropdownOpen && searchQuery.length >= 3 && (
-              <div className="absolute top-full right-0 mt-6 w-full bg-[#1b202c] border border-gray-700 rounded-md shadow-xl z-50 py-1 max-h-60 overflow-y-auto">
-                {isSearching ? (
-                  <div className="px-3 py-3 text-xs text-gray-400 flex items-center gap-2 justify-center">
-                    <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-                    Searching...
-                  </div>
-                ) : searchResults.length === 0 ? (
-                  <div className="px-3 py-3 text-xs text-gray-500 text-center">No matching usergroups found</div>
-                ) : (
-                  searchResults.map((result: any) => (
-                    <div
-                      key={result.group_id}
-                      className="px-3 py-2 hover:bg-white/10 cursor-pointer transition-colors border-b border-gray-700/50 last:border-0"
-                      onClick={() => handleSelectSearchResult(result)}
-                    >
-                      <div className="text-[13px] text-gray-200 font-medium">{result.group_name}</div>
-                      <div className="text-[11px] text-gray-500 mt-0.5">Permissions: {result.permissions?.length || 0}</div>
-                    </div>
-                  ))
+              
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                {isSearching && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+                {searchQuery && (
+                  <button onClick={() => { setSearchQuery(''); setSearchResults([]); setIsDropdownOpen(false); if (isShowingSearchResults) { setIsShowingSearchResults(false); fetchTableData(1); } }} className="text-gray-400 hover:text-white transition-colors" title="Clear Search">
+                    <XCircle className="w-4 h-4" />
+                  </button>
                 )}
               </div>
-            )}
+
+              {/* Search Dropdown */}
+              {isDropdownOpen && searchQuery.length >= 3 && !isSearching && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-[#1b202c] border border-gray-700 rounded shadow-2xl z-[150] max-h-[300px] overflow-y-auto">
+                  {searchResults.length === 0 ? (
+                    <div className="px-4 py-3 text-[13px] text-gray-400 text-center italic">No matching usergroups found</div>
+                  ) : (
+                    <ul className="py-1">
+                      {searchResults.map((result: any) => (
+                        <li
+                          key={result.group_id}
+                          className="px-4 py-2 hover:bg-[#11141e] cursor-pointer text-[13px] text-gray-300 border-b border-gray-700/50 last:border-0 transition-colors flex justify-between items-center"
+                          onClick={() => handleSelectSearchResult(result)}
+                        >
+                          <div className="flex flex-col">
+                            <span className="font-medium text-white">{result.group_name}</span>
+                            <span className="text-[11px] text-gray-500">Permissions: {result.permissions?.length || 0}</span>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="text-[10px] text-gray-500 italic mt-1.5 mb-1 pl-1">Min. 3 characters</div>
           </div>
         </div>
 
