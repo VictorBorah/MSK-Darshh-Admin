@@ -65,6 +65,11 @@
                 "menu_type": "2",
                 "menu_item": "System Log",
                 "slug": "sys-log"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "User Groups",
+                "slug": "user-groups"
             }
         ],
         "User_Data": [
@@ -152,6 +157,7 @@
             "auto_create_demands_from_diff": "1",
             "showDemandsInAdmin": "1"
         },
+        "Txn_Summary": [],
         "Message": "App Data Fetched Successfully"
     }
 ]

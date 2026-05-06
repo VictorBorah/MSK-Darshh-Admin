@@ -41,6 +41,7 @@ export default function Sidebar() {
       case 'vendor-master': return <Users className={className} />;
       case 'system-settings': return <Settings className={className} />;
       case 'sys-log': return <Clock className={className} />;
+      case 'user-groups': return <Users className={className} />;
       default: return <CircleDot className={className} />;
     }
   };
