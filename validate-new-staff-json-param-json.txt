@@ -1,0 +1,11 @@
+{
+  "staff_data": [
+    { 
+      "auth_email": "test@gmail.com",      
+      "mobile_1": "5541021102",      
+      "pan_no": "AVTPV2178J",
+      "aadhaar_no": "457845120247",
+      "voter_no": "ASDF2323"      
+    }
+  ]
+}

@@ -70,6 +70,16 @@
                 "menu_type": "2",
                 "menu_item": "User Groups",
                 "slug": "user-groups"
+            },
+            {
+                "menu_type": "1",
+                "menu_item": "Demands",
+                "slug": "demands"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Menu Config",
+                "slug": "menu-config"
             }
         ],
         "User_Data": [

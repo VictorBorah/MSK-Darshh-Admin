@@ -1,0 +1,49 @@
+{
+  "staff_data": [
+    {
+      "staff_id": "15",
+      "full_name": "John Smith",
+      "kyc_approved": "1111",
+      "account_activated": "11234",
+      "is_suspended": "1",
+      "projects_csv": "1,2,3,4",
+      "district_id": "21",
+      "auth_email": "test@gmail.com",
+      "email2": "test@gmail.com",
+      "mobile_1": "9954817702",
+      "mobile_2": "9954817702",
+      "kyc_approved": "1",
+      "pan_no": "AVTPV2178J",
+      "aadhaar_no": "457845120247",
+      "voter_no": "ASDF2323",
+      "address": "My address",
+      "pincode": "545784",
+      "sex": "1",
+      "blood_group": "1",
+      "father_name": "1",
+      "mother_name": "1",
+      "profile_photo_file": "file_1.jpg",
+      "pan_file": "file_2.jpg",
+      "voter_file": "file_3.jpg",
+      "aadhaar_file": "file_4.jpg",
+      "marital_status": "1"
+    },
+    {
+      "staff_id": "16",
+      "kyc_approved": "420",
+      "account_activated": "421",
+      "is_suspended": "1",
+      "projects_csv": "1,2,3,4",
+      "district_id": "21",
+      "auth_email": "test2@gmail.com",
+      "email2": "test2@gmail.com",
+      "mobile_1": "4578451247",
+      "mobile_2": "4578451247",
+      "kyc_approved": "0",
+	  "pan_no": "AVTPV2178J",
+	  "aadhaar_no": "203210124578",
+	  "voter_no": "ASDF2323",
+      "marital_status": "1"
+    }
+  ]
+}

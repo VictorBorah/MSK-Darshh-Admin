@@ -18,7 +18,8 @@ import {
   Settings,
   CircleDot,
   Clock,
-  X
+  X,
+  LayoutList
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -42,6 +43,7 @@ export default function Sidebar() {
       case 'system-settings': return <Settings className={className} />;
       case 'sys-log': return <Clock className={className} />;
       case 'user-groups': return <Users className={className} />;
+      case 'menu-config': return <LayoutList className={className} />;
       default: return <CircleDot className={className} />;
     }
   };

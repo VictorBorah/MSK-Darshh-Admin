@@ -1,0 +1,54 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "staff_data": [
+            {
+                "staff_id": "30",
+                "staff_name": "Black Kinght",
+                "userName": "",
+                "blood_group": "1",
+                "blood_group_txt": "O Positive (O+)",
+                "projects_csv": "",
+                "apiKey": "",
+                "group_id": "6",
+                "group_name": "Procurement Manager",
+                "userPIN": "",
+                "authorized_email": "test21@gmail.com",
+                "father_name": "test dad",
+                "mother_name": "test mom",
+                "email_2": "",
+                "mobile_1": "8745201476",
+                "mobile_2": "",
+                "emergency_mobile_no": "",
+                "emergency_contact_person": "",
+                "pan_no": "ACTRB2018j",
+                "aadhaar_no": "457045120247",
+                "voter_no": "af4e5455445",
+                "address": "test",
+                "pincode": "",
+                "district_id": "2",
+                "district_name": "BARPETA",
+                "gender_id": "1",
+                "gender_text": "Male",
+                "marital_status_id": "0",
+                "marital_status_txt": "",
+                "kyc_verified_by_id": "0",
+                "kyc_verified_by_name": "",
+                "last_login": "05-05-2026 03:19:18 AM",
+                "kyc_approved": "No",
+                "account_activated": "No",
+                "is_suspended": "No",
+                "files": [
+                    {
+                        "dp_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229143_1_54a743.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T120048Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=84a9c209e3dc75a7e351c5289046dcfc78d0ee8f10856156a07585aeaee99402",
+                        "pan_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229181_1_86fa1e.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T120048Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=9188d9f6cea7239ff24245d372ec38207795339093d82be8e57a0dc6037e6173",
+                        "voter_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229188_1_1fd1f9.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T120048Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=15a1531db44d635b6b8e553902eb1c8c815efdf4fc2762e024f47955a773eab2",
+                        "aadhar_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229162_1_731cee.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T120048Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=7f57499d59d59250d09974201c690f4f68654bfc875b8201bbb4848f63259767"
+                    }
+                ]
+            }
+        ],
+        "Message": "System ready to proceed"
+    }
+]
