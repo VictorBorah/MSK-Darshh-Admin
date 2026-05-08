@@ -45,6 +45,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
   const [pincode, setPincode] = useState('');
   const [mobile2, setMobile2] = useState('');
   const [kycComplete, setKycComplete] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -119,6 +120,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
       setPincode('');
       setMobile2('');
       setKycComplete(false);
+      setEmailError('');
       setShowValidationModal(false);
       setIsValidating(false);
       setIsSaving(false);
@@ -655,7 +657,21 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
 
                 <div className="space-y-1">
                   <label className="text-[12px] text-gray-400">Authorized Email <span className="text-red-400">*</span></label>
-                  <input type="email" value={authorizedEmail} onChange={e => setAuthorizedEmail(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-blue-500 outline-none" />
+                  <input 
+                    type="email" 
+                    value={authorizedEmail} 
+                    onChange={e => {
+                      setAuthorizedEmail(e.target.value);
+                      if (emailError) setEmailError('');
+                    }} 
+                    onBlur={() => {
+                      if (authorizedEmail && !authorizedEmail.toLowerCase().endsWith('@gmail.com')) {
+                        setEmailError('Only Google Accounts allowed');
+                      }
+                    }}
+                    className={`w-full bg-[#161a25] border ${emailError ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-blue-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none`} 
+                  />
+                  {emailError && <span className="text-red-500 text-[11px] block mt-1">{emailError}</span>}
                 </div>
 
                 <div className="space-y-1">
@@ -758,7 +774,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
               </button>
               <button 
                 onClick={handleValidateStep2}
-                disabled={isUploadingFile}
+                disabled={isUploadingFile || !!emailError}
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-[13px] font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
               >
                 <Save className="w-4 h-4" /> Save
