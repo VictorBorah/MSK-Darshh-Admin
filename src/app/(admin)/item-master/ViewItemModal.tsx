@@ -11,6 +11,7 @@ interface ViewItemModalProps {
 export default function ViewItemModal({ isOpen, onClose, itemId }: ViewItemModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [itemData, setItemData] = useState<any>(null);
+  const [usergroups, setUsergroups] = useState<any[]>([]);
 
   useEffect(() => {
     if (isOpen && itemId) {
@@ -24,6 +25,19 @@ export default function ViewItemModal({ isOpen, onClose, itemId }: ViewItemModal
     setIsLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
+      
+      // Fetch Config for Usergroups
+      const cfgRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_projects_cfg_data`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const cfgRawText = await cfgRes.text();
+      let cfgArr;
+      try { cfgArr = JSON.parse(cfgRawText); } catch(e) { }
+      const cfgData = cfgArr && Array.isArray(cfgArr) ? cfgArr[0] : cfgArr;
+      if (cfgData && cfgData.usergroups_data) {
+        setUsergroups(cfgData.usergroups_data);
+      }
+
       const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/getItemDetails?item_id=${id}`;
       
       const res = await fetch(endpoint, {
@@ -125,6 +139,18 @@ export default function ViewItemModal({ isOpen, onClose, itemId }: ViewItemModal
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</span>
                 <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded self-start ${String(itemData.status) === "1" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-red-500/10 text-red-400 border border-red-500/20"}`}>
                   {String(itemData.status) === "1" ? 'Active' : 'Disabled'}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Demand Privilege</span>
+                <span className="text-gray-200 font-medium">
+                  {usergroups.find(g => String(g.id) === String(itemData.demand_privilege))?.group_name || itemData.demand_privilege || '-'}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Purchase Privilege</span>
+                <span className="text-gray-200 font-medium">
+                  {usergroups.find(g => String(g.id) === String(itemData.purchase_privilege))?.group_name || itemData.purchase_privilege || '-'}
                 </span>
               </div>
             </div>

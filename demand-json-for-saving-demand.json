@@ -4,27 +4,31 @@
     "qnty": "568",
     "demand_title": "1",
     "demand_description": "Test Text",
-    "priority": "1"
+    "priority": "1",
+    "payment_amount": "1"
 },
 {
     "item_id": "2",
     "qnty": "568",
     "demand_title": "1",
     "demand_description": "Test Text",
-    "priority": "1"
+    "priority": "1",
+	"payment_amount": "1"
 },
 {
     "item_id": "3",
     "qnty": "568",
     "demand_title": "1",
     "demand_description": "Test Text",
-    "priority": "1"
+    "priority": "1",
+	"payment_amount": "1"
 },
 {
     "item_id": "4",
     "qnty": "568",
     "demand_title": "1",
     "demand_description": "Test Text",
-    "priority": "1"
+    "priority": "1",
+	"payment_amount": "1"
 }
 ]

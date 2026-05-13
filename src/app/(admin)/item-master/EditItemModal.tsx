@@ -17,6 +17,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
   const [vendors, setVendors] = useState<any[]>([]);
   const [units, setUnits] = useState<any[]>([]);
   const [budgetHeads, setBudgetHeads] = useState<any[]>([]);
+  const [usergroups, setUsergroups] = useState<any[]>([]);
   
   // Form Data
   const [formData, setFormData] = useState({
@@ -29,7 +30,9 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
     unit_id: '',
     budget_head: '',
     status: 1,
-    is_material: 1
+    is_material: 1,
+    demand_privilege: '',
+    purchase_privilege: ''
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -70,7 +73,9 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         unit_id: '',
         budget_head: '',
         status: 1,
-        is_material: 1
+        is_material: 1,
+        demand_privilege: '',
+        purchase_privilege: ''
       });
     }
   }, [isOpen, itemId]);
@@ -94,6 +99,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         if (cfgData.vendors) setVendors(cfgData.vendors);
         if (cfgData.units_data) setUnits(cfgData.units_data);
         if (cfgData.budget_heads_array) setBudgetHeads(cfgData.budget_heads_array);
+        if (cfgData.usergroups_data) setUsergroups(cfgData.usergroups_data);
       } else {
         toast.error('Failed to load system dependencies.');
       }
@@ -118,6 +124,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
           vendor_id: iData.default_vendor_id || '',
           unit_id: iData.unit_id || '',
           budget_head: iData.budget_head || '',
+          demand_privilege: iData.demand_privilege || '',
+          purchase_privilege: iData.purchase_privilege || '',
           status: parseInt(iData.status) === 1 ? 1 : 0,
           is_material: iData.is_material !== undefined ? parseInt(iData.is_material) : 1
         });
@@ -305,6 +313,8 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       payload.append('unit_id', formData.unit_id);
       payload.append('is_material', String(formData.is_material));
       if (formData.budget_head) payload.append('budget_head', formData.budget_head);
+      if (formData.demand_privilege) payload.append('demand_privilege', formData.demand_privilege);
+      if (formData.purchase_privilege) payload.append('purchase_privilege', formData.purchase_privilege);
       
       if (formData.is_material === 1) {
         payload.append('gst_value', String(formData.default_gst));
@@ -551,8 +561,48 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                 </div>
               )}
 
-              {/* Row 5 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Row 5: Privileges */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Demand Privilege <span className="text-red-400">*</span></label>
+                  <Select
+                    value={usergroups.find(g => String(g.id) === formData.demand_privilege) ? { value: formData.demand_privilege, label: usergroups.find(g => String(g.id) === formData.demand_privilege)?.group_name } : null}
+                    options={usergroups.map((g: any) => ({ value: String(g.id), label: String(g.group_name) }))}
+                    onChange={(val: any) => setFormData({ ...formData, demand_privilege: val ? val.value : '' })}
+                    placeholder="Select Demand Privilege..."
+                    styles={{
+                      control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                      menuPortal: base => ({ ...base, zIndex: 99999 }),
+                      menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                      option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                      singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                      input: base => ({ ...base, color: '#e2e8f0' })
+                    }}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Purchase Privilege <span className="text-red-400">*</span></label>
+                  <Select
+                    value={usergroups.find(g => String(g.id) === formData.purchase_privilege) ? { value: formData.purchase_privilege, label: usergroups.find(g => String(g.id) === formData.purchase_privilege)?.group_name } : null}
+                    options={usergroups.map((g: any) => ({ value: String(g.id), label: String(g.group_name) }))}
+                    onChange={(val: any) => setFormData({ ...formData, purchase_privilege: val ? val.value : '' })}
+                    placeholder="Select Purchase Privilege..."
+                    styles={{
+                      control: (base, state) => ({ ...base, backgroundColor: '#1e293b', borderColor: state.isFocused ? '#3b82f6' : '#334155', minHeight: '40px', boxShadow: 'none' }),
+                      menuPortal: base => ({ ...base, zIndex: 99999 }),
+                      menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+                      option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#374151' : 'transparent', color: state.isSelected ? '#fff' : '#e2e8f0', cursor: 'pointer' }),
+                      singleValue: base => ({ ...base, color: '#e2e8f0' }),
+                      input: base => ({ ...base, color: '#e2e8f0' })
+                    }}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+              </div>
+
+              {/* Row 6 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
                 <div>
                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Status</label>
                    <div className="flex items-center h-[40px]">

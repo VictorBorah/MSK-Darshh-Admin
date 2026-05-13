@@ -1,0 +1,16 @@
+[
+    {
+        "Status": 1,
+        "Profile_ID": "33",
+        "Usr_Grp": "5",
+        "Error": false,
+        "redirection_slug": "dashboard",
+        "Token_Type": "Bearer",
+        "Message": "success",
+        "Access_Token": "",
+        "Refresh_Token": "",
+        "Developer": "Victor Borah",
+        "Copyright": "Darsh Builders, All rights reserved 2026",
+        "Support": "hello@victorborah.dev"
+    }
+]

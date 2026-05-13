@@ -13,8 +13,12 @@ const STATIC_ITEMS = [
   "Demands",
   "Deliveries",
   "Purchases",
+  "Settings",
   "Payments",
-  "Settings"
+  "My Profile",
+  "Admin Reports",
+  "Expenses Ledger",
+  "Supply Ledger"
 ];
 
 // Helper to generate a stable ID for drag and drop
@@ -29,8 +33,8 @@ export default function MenuConfigPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [showWarningModal, setShowWarningModal] = useState(false);
 
-  const [availableItems, setAvailableItems] = useState<{id: string, label: string}[]>([]);
-  const [assignedItems, setAssignedItems] = useState<{id: string, label: string}[]>([]);
+  const [availableItems, setAvailableItems] = useState<{ id: string, label: string }[]>([]);
+  const [assignedItems, setAssignedItems] = useState<{ id: string, label: string }[]>([]);
 
   // Prevent SSR issues with DragDropContext
   useEffect(() => {
@@ -90,12 +94,12 @@ export default function MenuConfigPage() {
 
         if (data && String(data.Status) === '1') {
           const menuData = data.menu_data || [];
-          
+
           // Filter to only include the static items we care about
           const fetchedAssignedLabels = menuData
             .map((item: any) => item.menu_item)
             .filter((label: string) => STATIC_ITEMS.includes(label));
-          
+
           const assigned = fetchedAssignedLabels.map(createItem);
           const available = STATIC_ITEMS
             .filter(label => !fetchedAssignedLabels.includes(label))
@@ -156,7 +160,7 @@ export default function MenuConfigPage() {
   };
 
   const getSlugForMenuItem = (label: string) => {
-    switch(label) {
+    switch (label) {
       case 'Dashboard': return 'dashboard';
       case 'Projects': return 'projects';
       case 'Demands': return 'demands';
@@ -164,6 +168,10 @@ export default function MenuConfigPage() {
       case 'Purchases': return 'procurements';
       case 'Payments': return 'payments';
       case 'Settings': return 'settings';
+      case 'My Profile': return 'my-profile';
+      case 'Admin Reports': return 'admin-reports';
+      case 'Expenses Ledger': return 'expenses-ledger';
+      case 'Supply Ledger': return 'supply-ledger';
       default: return label.toLowerCase();
     }
   };
@@ -198,10 +206,10 @@ export default function MenuConfigPage() {
         },
         body: formData
       });
-      
+
       const text = await res.text();
       let data;
-      try { data = JSON.parse(text); } catch (e) {}
+      try { data = JSON.parse(text); } catch (e) { }
       data = Array.isArray(data) ? data[0] : data;
 
       if (data && String(data.Status) === '1') {
@@ -249,109 +257,103 @@ export default function MenuConfigPage() {
       </div>
 
       {/* Main Drag and Drop Area */}
-      <div 
+      <div
         className="relative"
         title={!selectedGroup ? "Select Usergroup First" : undefined}
       >
         {!selectedGroup && (
-          <div 
-            className="absolute inset-0 z-20 cursor-not-allowed" 
+          <div
+            className="absolute inset-0 z-20 cursor-not-allowed"
             onClick={() => setShowWarningModal(true)}
           />
         )}
         <div className={`transition-opacity duration-300 ${!selectedGroup ? 'opacity-50' : 'opacity-100'}`}>
           <DragDropContext onDragEnd={onDragEnd}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative flex-1 min-h-[400px]">
-          {isLoadingMenu && (
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#11141e]/60 backdrop-blur-sm rounded-xl">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
-              <p className="text-sm text-gray-300 font-medium tracking-wide">Loading Configuration...</p>
-            </div>
-          )}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 relative flex-1 min-h-[600px]">
+              {isLoadingMenu && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#11141e]/60 backdrop-blur-sm rounded-xl">
+                  <Loader2 className="w-8 h-8 animate-spin text-blue-500 mb-2" />
+                  <p className="text-sm text-gray-300 font-medium tracking-wide">Loading Configuration...</p>
+                </div>
+              )}
 
-          {/* Left Pane - Available */}
-          <div className="bg-[#191e2b] border border-gray-800 rounded-xl overflow-hidden flex flex-col shadow-sm max-h-[500px]">
-            <div className="p-5 border-b border-gray-800 flex justify-center items-center shrink-0">
-              <h2 className="text-[14px] font-medium text-gray-200">Available Menu Items</h2>
-            </div>
-            <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
-              <Droppable droppableId="available">
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`min-h-[100px] flex flex-col gap-4 rounded-md transition-colors ${snapshot.isDraggingOver ? 'bg-white/5' : ''}`}
-                  >
-                    {availableItems.map((item, index) => (
-                      <Draggable key={item.id} draggableId={item.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={{
-                              ...provided.draggableProps.style,
-                            }}
-                            className={`flex items-center gap-4 bg-[#e5e7eb] text-gray-900 rounded-[8px] px-4 py-3 shadow transition-transform ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-xl ring-2 ring-blue-500' : ''}`}
-                          >
-                            <GripVertical className="w-5 h-5 text-gray-500 shrink-0" />
-                            <span className="font-bold text-[14px] tracking-wide">{item.label}</span>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          </div>
+              {/* Left Pane - Available */}
+              <div className="bg-[#191e2b] border border-gray-800 rounded-xl overflow-hidden flex flex-col shadow-sm max-h-[700px]">
+                <div className="flex-1 p-4 overflow-y-auto custom-scrollbar">
+                  <Droppable droppableId="available">
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`min-h-[100px] flex flex-col gap-3 rounded-md transition-colors ${snapshot.isDraggingOver ? 'bg-white/5' : ''}`}
+                      >
+                        {availableItems.map((item, index) => (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                }}
+                                className={`flex items-center gap-4 bg-[#e5e7eb] text-gray-900 rounded-[8px] px-4 py-3 shadow transition-transform ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-xl ring-2 ring-blue-500' : ''}`}
+                              >
+                                <GripVertical className="w-5 h-5 text-gray-500 shrink-0" />
+                                <span className="font-bold text-[14px] tracking-wide">{item.label}</span>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              </div>
 
-          {/* Right Pane - Assigned */}
-          <div className="bg-[#2d3a6c] border border-[#2d3a6c] rounded-xl overflow-hidden flex flex-col shadow-sm max-h-[500px]">
-            <div className="p-5 flex justify-center items-center shrink-0">
-              <h2 className="text-[14px] font-bold text-white">Assigned Menu Items</h2>
+              {/* Right Pane - Assigned */}
+              <div className="bg-[#2d3a6c] border border-[#2d3a6c] rounded-xl overflow-hidden flex flex-col shadow-sm max-h-[700px]">
+                <div className="flex-1 p-4 overflow-y-auto custom-scrollbar">
+                  <Droppable droppableId="assigned">
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`min-h-[200px] flex flex-col gap-3 rounded-md transition-colors p-2 -m-2 ${snapshot.isDraggingOver ? 'bg-white/10' : 'bg-transparent'}`}
+                      >
+                        {assignedItems.map((item, index) => (
+                          <Draggable key={item.id} draggableId={item.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={{
+                                  ...provided.draggableProps.style,
+                                }}
+                                className={`flex items-center gap-4 bg-[#e5e7eb] text-gray-900 rounded-[8px] px-4 py-3 shadow transition-transform ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-xl ring-2 ring-blue-500' : ''}`}
+                              >
+                                <GripVertical className="w-5 h-5 text-gray-500 shrink-0" />
+                                <span className="font-bold text-[14px] tracking-wide">{item.label}</span>
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </div>
+                    )}
+                  </Droppable>
+                </div>
+              </div>
             </div>
-            <div className="flex-1 p-6 overflow-y-auto custom-scrollbar">
-              <Droppable droppableId="assigned">
-                {(provided, snapshot) => (
-                  <div
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                    className={`min-h-[200px] flex flex-col gap-4 rounded-md transition-colors p-2 -m-2 ${snapshot.isDraggingOver ? 'bg-white/10' : 'bg-transparent'}`}
-                  >
-                    {assignedItems.map((item, index) => (
-                      <Draggable key={item.id} draggableId={item.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            style={{
-                              ...provided.draggableProps.style,
-                            }}
-                            className={`flex items-center gap-4 bg-[#e5e7eb] text-gray-900 rounded-[8px] px-4 py-3 shadow transition-transform ${snapshot.isDragging ? 'rotate-2 scale-105 shadow-xl ring-2 ring-blue-500' : ''}`}
-                          >
-                            <GripVertical className="w-5 h-5 text-gray-500 shrink-0" />
-                            <span className="font-bold text-[14px] tracking-wide">{item.label}</span>
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </div>
-          </div>
+          </DragDropContext>
         </div>
-      </DragDropContext>
-      </div>
       </div>
 
       {/* Footer Save Button */}
       <div className="mt-8 mb-4 flex justify-end">
-        <button 
+        <button
           onClick={handleSave}
           disabled={isSaving || !selectedGroup}
           className="flex items-center gap-2 bg-[#2563eb] hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-10 rounded-lg shadow transition-colors text-sm"

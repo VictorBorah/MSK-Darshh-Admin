@@ -5,112 +5,275 @@
         "pagination_size": "10",
         "file_max_size": "2",
         "send_Email": "1",
+        "My_Projects": [
+            {
+                "project_id": "13",
+                "project_name": "DIKRONG TOWER",
+                "geofence_json": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": [],
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [
+                                        [
+                                            76.889231,
+                                            20.447385
+                                        ],
+                                        [
+                                            76.889322,
+                                            20.447224
+                                        ],
+                                        [
+                                            76.889413,
+                                            20.447305
+                                        ],
+                                        [
+                                            76.889301,
+                                            20.447436
+                                        ],
+                                        [
+                                            76.889231,
+                                            20.447385
+                                        ]
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "site_coordinates": "26.120123206348392, 91.76072828785053",
+                "site_address": "BELTOLA",
+                "start_date": "12-06-2025",
+                "status": "Ongoing",
+                "geofence_ready": "No"
+            },
+            {
+                "project_id": "9",
+                "project_name": "GOGOI RESIDENCE",
+                "geofence_json": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": [],
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [
+                                        [
+                                            91.771543,
+                                            26.144395
+                                        ],
+                                        [
+                                            91.771392,
+                                            26.145055
+                                        ],
+                                        [
+                                            91.771908,
+                                            26.14531
+                                        ],
+                                        [
+                                            91.77261,
+                                            26.145064
+                                        ],
+                                        [
+                                            91.772063,
+                                            26.144294
+                                        ],
+                                        [
+                                            91.771543,
+                                            26.144395
+                                        ]
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "site_coordinates": "26.13656362054904, 91.77032768726349",
+                "site_address": "KAHILIPARA",
+                "start_date": "19-02-2026",
+                "status": "Ongoing",
+                "geofence_ready": "No"
+            },
+            {
+                "project_id": "10",
+                "project_name": "SHELTON",
+                "geofence_json": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": [],
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [
+                                        [
+                                            91.767168,
+                                            26.152718
+                                        ],
+                                        [
+                                            91.766653,
+                                            26.150734
+                                        ],
+                                        [
+                                            91.768885,
+                                            26.1506
+                                        ],
+                                        [
+                                            91.767168,
+                                            26.152718
+                                        ]
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "site_coordinates": "26.14082248605997, 91.79608247054976",
+                "site_address": "KAHILIPARA, GUWAHATI",
+                "start_date": "04-05-2021",
+                "status": "Ongoing",
+                "geofence_ready": "No"
+            },
+            {
+                "project_id": "8",
+                "project_name": "SUPERNOVA",
+                "geofence_json": {
+                    "type": "FeatureCollection",
+                    "features": [
+                        {
+                            "type": "Feature",
+                            "properties": [],
+                            "geometry": {
+                                "type": "Polygon",
+                                "coordinates": [
+                                    [
+                                        [
+                                            91.780214,
+                                            26.12859
+                                        ],
+                                        [
+                                            91.778154,
+                                            26.12127
+                                        ],
+                                        [
+                                            91.789225,
+                                            26.11996
+                                        ],
+                                        [
+                                            91.788281,
+                                            26.128899
+                                        ],
+                                        [
+                                            91.780214,
+                                            26.12859
+                                        ]
+                                    ]
+                                ]
+                            }
+                        }
+                    ]
+                },
+                "site_coordinates": "26.12230531297829, 91.76794052124023",
+                "site_address": "TEST ADDRESS",
+                "start_date": "26-02-2026",
+                "status": "Ongoing",
+                "geofence_ready": "No"
+            }
+        ],
         "Menu_Data": [
             {
+                "master_menu_id": "1",
                 "menu_type": "1",
                 "menu_item": "Dashboard",
-                "slug": "dashboard"
+                "slug": "dashboard",
+                "widgets": [
+                    "projects_summary",
+                    "demands_summary",
+                    "deliveries_summary",
+                    "payments_summary"
+                ]
             },
             {
+                "master_menu_id": "2",
                 "menu_type": "1",
                 "menu_item": "Projects",
-                "slug": "projects"
+                "slug": "projects",
+                "widgets": [
+                    "projects_info",
+                    "gps_location",
+                    "geofence_coordinates"
+                ]
             },
             {
-                "menu_type": "1",
-                "menu_item": "Staff",
-                "slug": "staff"
-            },
-            {
-                "menu_type": "1",
-                "menu_item": "Procurements",
-                "slug": "procurements"
-            },
-            {
-                "menu_type": "1",
-                "menu_item": "Payments",
-                "slug": "payments"
-            },
-            {
-                "menu_type": "1",
-                "menu_item": "Supply Ledger",
-                "slug": "supply-ledger"
-            },
-            {
-                "menu_type": "1",
-                "menu_item": "Stock Inventory",
-                "slug": "stock-inventory"
-            },
-            {
-                "menu_type": "2",
-                "menu_item": "Item Categories",
-                "slug": "item-categories"
-            },
-            {
-                "menu_type": "2",
-                "menu_item": "Item Master",
-                "slug": "item-master"
-            },
-            {
-                "menu_type": "2",
-                "menu_item": "Vendor Master",
-                "slug": "vendor-master"
-            },
-            {
-                "menu_type": "2",
-                "menu_item": "Settings",
-                "slug": "system-settings"
-            },
-            {
-                "menu_type": "2",
-                "menu_item": "System Log",
-                "slug": "sys-log"
-            },
-            {
-                "menu_type": "2",
-                "menu_item": "User Groups",
-                "slug": "user-groups"
-            },
-            {
+                "master_menu_id": "15",
                 "menu_type": "1",
                 "menu_item": "Demands",
-                "slug": "demands"
+                "slug": "demands",
+                "widgets": [
+                    "demands_summary",
+                    "make_demand",
+                    "view_demands"
+                ]
             },
             {
-                "menu_type": "2",
-                "menu_item": "Menu Config",
-                "slug": "menu-config"
+                "master_menu_id": "18",
+                "menu_type": "1",
+                "menu_item": "Deliveries",
+                "slug": "deliveries",
+                "widgets": [
+                    "deliveries_summary",
+                    "recieve_item",
+                    "view_deliveries",
+                    "gps_photo"
+                ]
+            },
+            {
+                "master_menu_id": "17",
+                "menu_type": "1",
+                "menu_item": "My Profile",
+                "slug": "my-profile",
+                "widgets": [
+                    "profile_details",
+                    "edit_profile"
+                ]
             }
         ],
         "User_Data": [
             {
-                "display_name": "Victor",
-                "full_name": "Victor Borah",
-                "grp_id": 1,
-                "grp_name": "Super Admin",
-                "username": "",
-                "projects_csv": "0",
-                "auth_email": "victorborah@gmail.com",
+                "display_name": "karan_b26",
+                "full_name": "Karan Borah",
+                "grp_id": 5,
+                "grp_name": "Site Supervisor",
+                "username": "karan_b26",
+                "projects_csv": "13,9,10,8",
+                "auth_email": "my.den2010@gmail.com",
                 "email2": "",
-                "mobile_1": "9954817702",
+                "mobile_1": "8474896677",
                 "mobile_2": "",
-                "profile_photo": "",
-                "pan_no": "",
-                "aadhaar_no": "",
-                "address": "",
-                "district_id": "3",
-                "district_name": "BISWANATH",
+                "profile_photo": "1778305132_1_9cc7f1.png",
+                "pan_no": "AXCFF7612M",
+                "aadhaar_no": "124578524102",
+                "address": "W4, Dhemaji Town",
+                "district_id": "8",
+                "district_name": "DHEMAJI",
                 "pincode": "787057",
                 "marital_status": "1",
                 "marital_status_txt": "Married",
-                "father_name": null,
-                "mother_name": null,
+                "father_name": "Manoj Borah",
+                "mother_name": "Parismita Borah",
                 "sex_key": "1",
                 "sex_txt": "Male",
                 "pan_file": null,
                 "aadhaar_file": null,
-                "emergency_mobile_no": null,
-                "emergency_contact_person": null,
+                "emergency_mobile_no": "5547810024",
+                "emergency_contact_person": "Priya Borah",
                 "kyc_approved": "1",
                 "is_suspended": "0"
             }
@@ -167,6 +330,130 @@
             "auto_create_demands_from_diff": "1",
             "showDemandsInAdmin": "1"
         },
+        "districts": [
+            {
+                "id": "1",
+                "district": "BAKSA"
+            },
+            {
+                "id": "2",
+                "district": "BARPETA"
+            },
+            {
+                "id": "3",
+                "district": "BISWANATH"
+            }
+        ],
+        "tasks_data": [
+            {
+                "usrGRP_ID": "5",
+                "task_id": "11",
+                "task_tag": "Demands",
+                "sub_tasks": [
+                    {
+                        "sub_task_id": "21",
+                        "widget_key": "10",
+                        "widget": "Make Demand",
+                        "menu_master_id": "15",
+                        "menu_master_txt": "Demands",
+                        "widget_slug": "demands_summary"
+                    },
+                    {
+                        "sub_task_id": "22",
+                        "widget_key": "11",
+                        "widget": "My Demands",
+                        "menu_master_id": "15",
+                        "menu_master_txt": "Demands",
+                        "widget_slug": "make_demand"
+                    },
+                    {
+                        "sub_task_id": "45",
+                        "widget_key": "26",
+                        "widget": "View Demands",
+                        "menu_master_id": "15",
+                        "menu_master_txt": "Demands",
+                        "widget_slug": "view_demands"
+                    }
+                ]
+            },
+            {
+                "usrGRP_ID": "5",
+                "task_id": "12",
+                "task_tag": "Deliveries",
+                "sub_tasks": [
+                    {
+                        "sub_task_id": "23",
+                        "widget_key": "8",
+                        "widget": "Receive Item ",
+                        "menu_master_id": "18",
+                        "menu_master_txt": "Deliveries",
+                        "widget_slug": "deliveries_summary"
+                    },
+                    {
+                        "sub_task_id": "24",
+                        "widget_key": "19",
+                        "widget": "GPS Photo",
+                        "menu_master_id": "18",
+                        "menu_master_txt": "Deliveries",
+                        "widget_slug": "view_deliveries"
+                    },
+                    {
+                        "sub_task_id": "25",
+                        "widget_key": "9",
+                        "widget": "View Deliveries ",
+                        "menu_master_id": "18",
+                        "menu_master_txt": "Deliveries",
+                        "widget_slug": "recieve_item"
+                    }
+                ]
+            },
+            {
+                "usrGRP_ID": "5",
+                "task_id": "13",
+                "task_tag": "Stock",
+                "sub_tasks": [
+                    {
+                        "sub_task_id": "26",
+                        "widget_key": "20",
+                        "widget": "View Stock",
+                        "menu_master_id": "7",
+                        "menu_master_txt": "Stock Inventory",
+                        "widget_slug": "stock-summary"
+                    }
+                ]
+            },
+            {
+                "usrGRP_ID": "5",
+                "task_id": "14",
+                "task_tag": "Workers",
+                "sub_tasks": [
+                    {
+                        "sub_task_id": "27",
+                        "widget_key": "21",
+                        "widget": "View workers",
+                        "menu_master_id": "21",
+                        "menu_master_txt": "Workers",
+                        "widget_slug": "workforce_summary"
+                    },
+                    {
+                        "sub_task_id": "28",
+                        "widget_key": "22",
+                        "widget": "Add Worker",
+                        "menu_master_id": "21",
+                        "menu_master_txt": "Workers",
+                        "widget_slug": "add_worker"
+                    },
+                    {
+                        "sub_task_id": "29",
+                        "widget_key": "23",
+                        "widget": "Workforce Summary",
+                        "menu_master_id": "21",
+                        "menu_master_txt": "Workers",
+                        "widget_slug": "view_workers"
+                    }
+                ]
+            }
+        ],
         "Txn_Summary": [],
         "Message": "App Data Fetched Successfully"
     }

@@ -1,0 +1,54 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "staff_data": [
+            {
+                "staff_id": "31",
+                "staff_name": "Arjit Singh",
+                "userName": "Arjit_Paaji",
+                "blood_group": "5",
+                "blood_group_txt": "B Positive (B+)",
+                "projects_csv": "",
+                "apiKey": "OGUyNWJlYjZjMGRjY2Y0NmY4NjczYjZmMTBjYzg4YmM=",
+                "group_id": "8",
+                "group_name": "Office Staff",
+                "userPIN": "3832",
+                "authorized_email": "arjitzden.211@gmail.com",
+                "father_name": "Manjeet Paaji",
+                "mother_name": "Kuldeep Kaur",
+                "email_2": "",
+                "mobile_1": "4451215502",
+                "mobile_2": "",
+                "emergency_mobile_no": "7845124574",
+                "emergency_contact_person": "Hardeep Singh",
+                "pan_no": "ASDFH6543W",
+                "aadhaar_no": "121212121234",
+                "voter_no": "ASDJ2323",
+                "address": "My test Address",
+                "pincode": "784176",
+                "district_id": "3",
+                "district_name": "BISWANATH",
+                "gender_id": "1",
+                "gender_text": "Male",
+                "marital_status_id": "2",
+                "marital_status_txt": "Unmarried",
+                "kyc_verified_by_id": "0",
+                "kyc_verified_by_name": "",
+                "last_login": "05-05-2026 03:19:18 AM",
+                "kyc_approved": "Yes",
+                "account_activated": "No",
+                "is_suspended": "No",
+                "files": [
+                    {
+                        "dp_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778241324_1_340ff1.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T154314Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=3915357e358a252237a1e17636d6d73c780d920d241cfd955170c2b76fabf2fa",
+                        "pan_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229970_1_9707ce.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T154314Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=78e561833dc5ed80b30807d986557fdff7e3eea0cb2b211ed4ca7184945cb7e6",
+                        "voter_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229977_1_be28ff.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T154314Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=b60c914f8fd3026d4f08e568f256812b64a40cdb48c3da20111955557195f5ff",
+                        "aadhar_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778229964_1_26a79a.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260508%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260508T154314Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=7d840d9b1b7252527f2f3d8e756d976cd6f2cc0b138bd2017788f21ca70c9208"
+                    }
+                ]
+            }
+        ],
+        "Message": "System ready to proceed"
+    }
+]

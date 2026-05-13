@@ -17,6 +17,8 @@
             "default_vendor_name": "Balaji Traders",
             "unit_id": "5",
             "unit_name": "Bag",
+            "demand_privilege": "5",
+            "purchase_privilege": "2",
             "status": "1"
         },
         "Message": "Item details fetched"

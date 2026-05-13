@@ -359,9 +359,9 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
                  if (vById) return String(vById.id);
                  const vByName = cData.vendors?.find((cv: any) => cv.vendor_name?.trim().toLowerCase() === cleanV);
                  if (vByName) return String(vByName.id);
-                 return v.trim(); // Fallback to the raw string if not found in dictionary
+                 return ''; // Don't fallback to the raw string if not found in dictionary to ensure we only post IDs
               } else if (typeof v === 'object' && v) {
-                 return String(v.id || v.vendor_id || v.vendor_name || '');
+                 return String(v.id || v.vendor_id || ''); // Don't fallback to vendor_name
               }
               return '';
            }).filter(Boolean);
@@ -475,11 +475,6 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
   const masonOptions = configData?.hr_array?.masons?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   
   const vendorOptions = configData?.vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name })) || [];
-  vendorId.forEach(id => {
-    if (!vendorOptions.find((o: any) => o.value === id)) {
-      vendorOptions.push({ value: id, label: id }); // Fallback UI option for missing configs
-    }
-  });
 
   return (
     <>

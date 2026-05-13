@@ -10,10 +10,6 @@
             {
                 "id": "2",
                 "stage": "Foundation Initiation"
-            },
-            {
-                "id": "3",
-                "stage": "Foundation Construction"
             }
         ],
         "clients": [
@@ -77,6 +73,14 @@
                 {
                     "id": "7",
                     "name": "Manoj Gupta"
+                },
+                {
+                    "id": "26",
+                    "name": "Test 4"
+                },
+                {
+                    "id": "29",
+                    "name": "Rakesh Dutta"
                 }
             ],
             "masons": [
@@ -97,6 +101,10 @@
                 {
                     "id": "9",
                     "name": "Mohan Singh"
+                },
+                {
+                    "id": "25",
+                    "name": "Test 3"
                 }
             ],
             "contractors": [
@@ -137,14 +145,14 @@
                 {
                     "id": "15",
                     "name": "Test Office Staff 2"
-                }
+                }                
             ]
         },
         "items_data": [
             {
                 "id": "255",
                 "item_name": "2 Pin Top",
-                "default_price": "28.00",
+                "default_price": "29.00",
                 "default_gst": "18.00"
             },
             {
@@ -180,7 +188,7 @@
                 "master_category_id": "21",
                 "master_category_name": "Bill Payments",
                 "is_material": "0"
-            }            
+            }
         ],
         "budget_heads_array": [
             {
@@ -215,18 +223,26 @@
                 "is_default": "0",
                 "active": "1",
                 "cKey": "1"
-            },
+            }
+        ],
+        "usergroups_data": [
             {
-                "id": "3",
-                "tds_option": "5.00",
-                "is_default": "0",
+                "id": "2",
+                "group_name": "Accountant",
+                "permissions_csv": "1,2,3,9,24,25",
+                "privileges_csv": null,
+                "has_ui": "1",
+                "login_revoked": "0",
                 "active": "1",
                 "cKey": "1"
             },
             {
-                "id": "4",
-                "tds_option": "10.00",
-                "is_default": "1",
+                "id": "3",
+                "group_name": "Site Engineer",
+                "permissions_csv": "5,6,7,8,10",
+                "privileges_csv": null,
+                "has_ui": "1",
+                "login_revoked": "0",
                 "active": "1",
                 "cKey": "1"
             }
