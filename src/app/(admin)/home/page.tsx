@@ -16,13 +16,13 @@ export default function Home() {
           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <div className="flex flex-col">
             <span className="text-white font-bold text-[14px]">
-              Current Status: <span className="font-medium text-red-400">Project progress is late by 4 Days</span>
+              Current Status: <span className="font-medium text-red-400">Project progress is late by 2 Days</span>
             </span>
             <span className="text-white font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-red-400 font-semibold">Staff PWA App and Usergroup Routing</span>
+              Currently Working on: <span className="text-red-400 font-semibold">Staff PWA App Functionalities</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 08/05/2026 09:41 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              Status Updated on: 15/05/2026 01:05 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
         </div>
