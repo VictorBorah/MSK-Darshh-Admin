@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { X, Loader2, Maximize2, Minimize2, UserCircle, FileImage, ShieldCheck, Mail, Phone, MapPin, Building2, User, UserSquare2, PhoneCall, CheckCircle2, XCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Loader2, Maximize2, Minimize2, UserCircle, FileImage, ShieldCheck, Mail, Phone, MapPin, Building2, User, UserSquare2, PhoneCall, CheckCircle2, XCircle, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useModalEscape } from '@/hooks/useModalEscape';
+import { generatePdfFromElement } from '@/utils/pdfGenerator';
 
 interface ViewStaffModalProps {
   isOpen: boolean;
@@ -12,12 +13,50 @@ interface ViewStaffModalProps {
 export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffModalProps) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
+  const printRef = useRef<HTMLDivElement>(null);
+
+  const handlePrint = () => {
+    const today = new Date();
+    const dateStr = `${today.getDate().toString().padStart(2, '0')}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getFullYear()}`;
+    const footerText = `ZYN Construction network, ${dateStr} System generated information`;
+    const filename = `Staff_Information_${displayData.staffName?.replace(/\s+/g, '_') || 'Profile'}.pdf`;
+    generatePdfFromElement(printRef.current, filename, footerText);
+  };
 
   // Staff Details State
   const [staffData, setStaffData] = useState<any>(null);
   
   // Mapped display fields
   const [displayData, setDisplayData] = useState<Record<string, any>>({});
+
+  // Image Base64 State for Print
+  const [base64Dp, setBase64Dp] = useState<string | null>(null);
+  const [dpError, setDpError] = useState(false);
+
+  useEffect(() => {
+    if (displayData.files?.dp_file) {
+      const fetchImage = async () => {
+        try {
+          const response = await fetch(displayData.files.dp_file);
+          if (!response.ok) throw new Error('Network response was not ok');
+          const blob = await response.blob();
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setBase64Dp(reader.result as string);
+          };
+          reader.readAsDataURL(blob);
+        } catch (error) {
+          // Silently handle CORS or network failures for the proxy fetch
+          // to prevent Next.js from throwing a red error overlay in dev mode.
+          setDpError(true);
+        }
+      };
+      fetchImage();
+    } else {
+      setBase64Dp(null);
+      setDpError(false);
+    }
+  }, [displayData.files?.dp_file]);
 
   useModalEscape(isOpen, () => {
     onClose();
@@ -98,6 +137,8 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
               gender: getMatched(fetchedGenders, staff.gender_id, 'gender_txt'),
               maritalStatus: getMatched(fetchedMaritalStatuses, staff.marital_status_id, 'status_txt'),
               bloodGroup: getMatched(fetchedBloodgroups, staff.blood_group, 'blood_group'),
+              paymentCategory: (staff.payment_category_id && String(staff.payment_category_id) !== "0" && String(staff.payment_category_id) !== "") ? staff.payment_category_txt : '-',
+              contractAmount: staff.contract_amount ? `₹ ${staff.contract_amount}` : '-',
               files: staff.files && staff.files[0] ? staff.files[0] : null
             });
 
@@ -216,6 +257,8 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
                   {/* Details Grid Block */}
                   <div className="p-5 bg-[#1c2230]/50 border border-gray-700/50 rounded-xl grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-y-5 gap-x-4">
                     <Field label="Username" value={displayData.username} icon={UserSquare2} important />
+                    <Field label="Payment Category" value={displayData.paymentCategory} icon={UserSquare2} />
+                    <Field label="Contract Amount" value={displayData.contractAmount} icon={UserSquare2} />
                     <Field label="Gender" value={displayData.gender} icon={User} />
                     <Field label="Blood Group" value={displayData.bloodGroup} icon={User} />
                     
@@ -353,8 +396,110 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
           )}
         </div>
 
+        {/* Hidden Printable A4 Layout */}
+        <div className="absolute top-[-9999px] left-[-9999px] pointer-events-none opacity-0 -z-50">
+          <div ref={printRef} className="w-[800px] p-10 bg-white text-black font-sans box-border relative flex flex-col gap-6" data-html2canvas-ignore="false">
+            
+            {/* Header / Title */}
+            <div className="text-center border-b-2 border-black pb-4 mb-2">
+              <h1 className="text-2xl font-bold uppercase tracking-wider mb-1">Staff Information</h1>
+              <p className="text-sm font-medium">Profile Overview</p>
+            </div>
+
+            {/* Top Profile Section */}
+            <div className="flex gap-8 items-start">
+              {/* Profile Image - if available */}
+              <div className="w-[120px] h-[120px] shrink-0 border border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden rounded-md text-gray-400">
+                {base64Dp ? (
+                  <img src={base64Dp} alt="Profile" className="w-full h-full object-cover" />
+                ) : (displayData.files?.dp_file && !dpError) ? (
+                  <span className="text-sm">Loading...</span>
+                ) : (
+                  <UserCircle className="w-16 h-16" strokeWidth={1.5} />
+                )}
+              </div>
+
+              {/* Core Details */}
+              <div className="flex-1 flex flex-col gap-2 pt-1">
+                <h2 className="text-xl font-bold uppercase tracking-wide">{displayData.staffName}</h2>
+                <div className="text-sm flex flex-col gap-1 mt-2">
+                  <p><strong>Designation / Group:</strong> {displayData.groupName || 'No Group Assigned'}</p>
+                  <p><strong>Status:</strong> {displayData.isSuspended ? 'Suspended' : 'Active'} | <strong>KYC:</strong> {displayData.kycComplete ? 'Verified' : 'Pending'} | <strong>Account:</strong> {displayData.accountActivated ? 'Activated' : 'Inactive'}</p>
+                  <p><strong>Username:</strong> {displayData.username || 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Categorized Information */}
+            
+            {/* 1. Contact & Location */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-bold border-b border-gray-300 pb-1">Contact & Location</h3>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm mt-1">
+                <p><strong>Email:</strong> {displayData.authorizedEmail || 'N/A'}</p>
+                <p><strong>Mobile 1:</strong> {displayData.mobile1 || 'N/A'}</p>
+                <p><strong>Mobile 2:</strong> {displayData.mobile2 || 'N/A'}</p>
+                <p><strong>District:</strong> {displayData.district || 'N/A'}</p>
+                <div className="col-span-2">
+                  <p><strong>Permanent Address:</strong> {displayData.address || 'N/A'}</p>
+                </div>
+                <p><strong>Pincode:</strong> {displayData.pincode || 'N/A'}</p>
+              </div>
+            </div>
+
+            {/* 2. Personal & Bio */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-bold border-b border-gray-300 pb-1">Personal Details</h3>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm mt-1">
+                <p><strong>Gender:</strong> {displayData.gender || 'N/A'}</p>
+                <p><strong>Blood Group:</strong> {displayData.bloodGroup || 'N/A'}</p>
+                <p><strong>Marital Status:</strong> {displayData.maritalStatus || 'N/A'}</p>
+                <p><strong>Father's Name:</strong> {displayData.fatherName || 'N/A'}</p>
+                <p><strong>Mother's Name:</strong> {displayData.motherName || 'N/A'}</p>
+              </div>
+            </div>
+
+            {/* 3. Identity & Documents */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-bold border-b border-gray-300 pb-1">Identity Information</h3>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm mt-1">
+                <p><strong>AADHAR Number:</strong> {displayData.aadhaarNo || 'N/A'}</p>
+                <p><strong>PAN Number:</strong> {displayData.panNo || 'N/A'}</p>
+                <p><strong>Voter / EPIC:</strong> {displayData.voterNo || 'N/A'}</p>
+              </div>
+            </div>
+
+            {/* 4. Employment & Emergency */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-bold border-b border-gray-300 pb-1">Employment & Emergency</h3>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm mt-1">
+                <p><strong>Payment Category:</strong> {displayData.paymentCategory || '-'}</p>
+                <p><strong>Contract Amount:</strong> {displayData.contractAmount || '-'}</p>
+                <p><strong>Emergency Contact Person:</strong> {displayData.emergencyContact || 'N/A'}</p>
+                <p><strong>Emergency Mobile:</strong> {displayData.emergencyMobile || 'N/A'}</p>
+              </div>
+            </div>
+
+            {/* 5. System Data */}
+            <div className="flex flex-col gap-2">
+              <h3 className="text-lg font-bold border-b border-gray-300 pb-1">System Record</h3>
+              <div className="grid grid-cols-2 gap-y-3 gap-x-6 text-sm mt-1">
+                <p><strong>Staff ID:</strong> {staffId || 'N/A'}</p>
+                <p><strong>Last Login:</strong> {displayData.lastLogin || 'Never logged in'}</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-700 bg-[#1f2536] flex justify-end shrink-0">
+        <div className="px-6 py-4 border-t border-gray-700 bg-[#1f2536] flex justify-end gap-3 shrink-0">
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-2 px-6 py-2 text-sm font-medium text-white bg-[#293653] hover:bg-[#324368] border border-gray-600 rounded transition-colors shadow-sm"
+          >
+            <Printer className="w-4 h-4" /> Print
+          </button>
           <button 
             onClick={onClose} 
             className="px-6 py-2 text-sm font-medium text-white bg-gray-700 hover:bg-gray-600 rounded transition-colors shadow-sm"

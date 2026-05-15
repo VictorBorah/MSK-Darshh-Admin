@@ -1,0 +1,11 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "material_demands": "2",
+        "non_material_demands": "1",
+        "materials_received": "0",
+        "non_materials_received": "0",
+        "Message": "Fetched Demands and Receiveables summary"
+    }
+]

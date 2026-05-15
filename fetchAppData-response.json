@@ -99,92 +99,6 @@
                 "start_date": "19-02-2026",
                 "status": "Ongoing",
                 "geofence_ready": "No"
-            },
-            {
-                "project_id": "10",
-                "project_name": "SHELTON",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            91.767168,
-                                            26.152718
-                                        ],
-                                        [
-                                            91.766653,
-                                            26.150734
-                                        ],
-                                        [
-                                            91.768885,
-                                            26.1506
-                                        ],
-                                        [
-                                            91.767168,
-                                            26.152718
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "26.14082248605997, 91.79608247054976",
-                "site_address": "KAHILIPARA, GUWAHATI",
-                "start_date": "04-05-2021",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "8",
-                "project_name": "SUPERNOVA",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            91.780214,
-                                            26.12859
-                                        ],
-                                        [
-                                            91.778154,
-                                            26.12127
-                                        ],
-                                        [
-                                            91.789225,
-                                            26.11996
-                                        ],
-                                        [
-                                            91.788281,
-                                            26.128899
-                                        ],
-                                        [
-                                            91.780214,
-                                            26.12859
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "26.12230531297829, 91.76794052124023",
-                "site_address": "TEST ADDRESS",
-                "start_date": "26-02-2026",
-                "status": "Ongoing",
-                "geofence_ready": "No"
             }
         ],
         "Menu_Data": [
@@ -255,7 +169,7 @@
                 "projects_csv": "13,9,10,8",
                 "auth_email": "my.den2010@gmail.com",
                 "email2": "",
-                "mobile_1": "8474896677",
+                "mobile_1": "1234512345",
                 "mobile_2": "",
                 "profile_photo": "1778305132_1_9cc7f1.png",
                 "pan_no": "AXCFF7612M",
@@ -304,8 +218,8 @@
             "default_sgst_rate": "9",
             "default_cgst_rate": "9",
             "gst_inclusive": "1",
-            "s3BucketBasePath": "https://doca.blr1.digitaloceanspaces.com",
-            "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
+            "s3BucketBasePath": "https:\/\/doca.blr1.digitaloceanspaces.com",
+            "s3CdnBasePath": "https:\/\/sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "doca",
             "s3BucketKey": "DO00XLCD7FPRXXBX28HQ",
             "s3Region": "blr1",
@@ -313,7 +227,7 @@
             "webAppLogo": "Logo.png",
             "smsPEId": "1205165992846067265",
             "hostName": "api.zlabz.space",
-            "appBaseUrl": "api.zlabz.space/webservices/v1",
+            "appBaseUrl": "api.zlabz.space\/webservices\/v1",
             "frontEndBaseUrl": "zlabz.space",
             "fileMaxSize": "2",
             "maxStorage": "524300000",
@@ -352,16 +266,8 @@
                 "sub_tasks": [
                     {
                         "sub_task_id": "21",
-                        "widget_key": "10",
-                        "widget": "Make Demand",
-                        "menu_master_id": "15",
-                        "menu_master_txt": "Demands",
-                        "widget_slug": "demands_summary"
-                    },
-                    {
-                        "sub_task_id": "22",
                         "widget_key": "11",
-                        "widget": "My Demands",
+                        "widget": "Make Demand",
                         "menu_master_id": "15",
                         "menu_master_txt": "Demands",
                         "widget_slug": "make_demand"
@@ -455,6 +361,23 @@
             }
         ],
         "Txn_Summary": [],
+        "item_categories_data": [
+            {
+                "master_category_id": "2",
+                "master_category_name": "Aggregates",
+                "is_material": "1"
+            },
+            {
+                "master_category_id": "3",
+                "master_category_name": "Bricks & Blocks",
+                "is_material": "1"
+            },
+            {
+                "master_category_id": "1",
+                "master_category_name": "Cement & Concrete",
+                "is_material": "1"
+            }
+        ],
         "Message": "App Data Fetched Successfully"
     }
 ]

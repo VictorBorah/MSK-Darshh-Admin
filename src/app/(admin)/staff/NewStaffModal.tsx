@@ -19,6 +19,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
   const [genders, setGenders] = useState<any[]>([]);
   const [bloodgroups, setBloodgroups] = useState<any[]>([]);
   const [maritalStatuses, setMaritalStatuses] = useState<any[]>([]);
+  const [paymentCategories, setPaymentCategories] = useState<any[]>([]);
 
   // Step 1 Form State
   const [selectedUsergroup, setSelectedUsergroup] = useState<any>(null);
@@ -30,6 +31,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
   const [selectedGender, setSelectedGender] = useState<any>(null);
   const [selectedBloodgroup, setSelectedBloodgroup] = useState<any>(null);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState<any>(null);
+  const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<any>(null);
   
   const [username, setUsername] = useState('');
   const [authorizedEmail, setAuthorizedEmail] = useState('');
@@ -45,6 +47,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
   const [pincode, setPincode] = useState('');
   const [mobile2, setMobile2] = useState('');
   const [kycComplete, setKycComplete] = useState(false);
+  const [contractAmount, setContractAmount] = useState('');
   const [emailError, setEmailError] = useState('');
 
   const [showValidationModal, setShowValidationModal] = useState(false);
@@ -106,6 +109,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
       setSelectedGender(null);
       setSelectedBloodgroup(null);
       setSelectedMaritalStatus(null);
+      setSelectedPaymentCategory(null);
       setUsername('');
       setAuthorizedEmail('');
       setMobile1('');
@@ -119,6 +123,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
       setMotherName('');
       setPincode('');
       setMobile2('');
+      setContractAmount('');
       setKycComplete(false);
       setEmailError('');
       setShowValidationModal(false);
@@ -146,6 +151,18 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
             if (data.gender_data) setGenders(data.gender_data);
             if (data.bloodgroup_data) setBloodgroups(data.bloodgroup_data);
             if (data.marital_data) setMaritalStatuses(data.marital_data);
+          }
+
+          const appRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const appText = await appRes.text();
+          let appArr;
+          try { appArr = JSON.parse(appText); } catch (e) { }
+          const appData = appArr && Array.isArray(appArr) ? appArr[0] : appArr;
+          
+          if (appData && String(appData.Status) === '1' && appData.item_categories_data) {
+            setPaymentCategories(appData.item_categories_data.filter((c: any) => c.is_material === "0"));
           }
         } catch (error) {
           console.error("Failed to fetch config", error);
@@ -305,6 +322,8 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
       if (selectedGender) payload.sex = selectedGender.value;
       if (selectedBloodgroup) payload.blood_group = selectedBloodgroup.value;
       if (selectedMaritalStatus) payload.marital_status = selectedMaritalStatus.value;
+      if (selectedPaymentCategory) payload.payment_category = selectedPaymentCategory.value;
+      if (contractAmount) payload.contract_amount = contractAmount;
       
       if (username) payload.username = username;
       if (authorizedEmail) payload.auth_email = authorizedEmail;
@@ -540,7 +559,7 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
           </div>
         ) : (
           // Step 2 Modal (Large)
-          <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1050px] max-w-[95vw] max-h-[90vh] min-h-[600px]'}`}>
+          <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1200px] max-w-[95vw] max-h-[90vh] min-h-[650px]'}`}>
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
               <h2 className="text-lg font-bold text-white">New Staff</h2>
@@ -651,6 +670,17 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
                 </div>
 
                 <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Payment Category</label>
+                  <Select
+                    options={paymentCategories.map(c => ({ value: c.master_category_id, label: c.master_category_name }))}
+                    value={selectedPaymentCategory}
+                    onChange={setSelectedPaymentCategory}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+
+                <div className="space-y-1">
                   <label className="text-[12px] text-gray-400">Emergency mobile no. <span className="text-red-400">*</span></label>
                   <input type="text" value={emergencyMobile} onChange={e => setEmergencyMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-blue-500 outline-none" />
                 </div>
@@ -694,16 +724,24 @@ export default function NewStaffModal({ isOpen, onClose, onSuccess }: any) {
                   <textarea value={permanentAddress} onChange={e => setPermanentAddress(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-2 text-[13px] text-white focus:border-blue-500 outline-none resize-none h-[88px]" />
                 </div>
 
-                <div className="space-y-1 flex items-end h-[34px]">
-                  <label className="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked={kycComplete} onChange={e => setKycComplete(e.target.checked)} className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-blue-500" />
-                    <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Mark KYC Complete</span>
-                  </label>
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Contract Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[13px]">₹</span>
+                    <input type="text" value={contractAmount} onChange={e => setContractAmount(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full bg-[#161a25] border border-gray-700 rounded pl-7 pr-3 py-1.5 text-[13px] text-white focus:border-blue-500 outline-none" />
+                  </div>
                 </div>
 
                 <div className="space-y-1">
                   <label className="text-[12px] text-gray-400">Mobile 2</label>
                   <input type="text" value={mobile2} onChange={e => setMobile2(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-blue-500 outline-none" />
+                </div>
+
+                <div className="space-y-1 flex items-end h-[34px]">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" checked={kycComplete} onChange={e => setKycComplete(e.target.checked)} className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-blue-500" />
+                    <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Mark KYC Complete</span>
+                  </label>
                 </div>
 
                 </div>

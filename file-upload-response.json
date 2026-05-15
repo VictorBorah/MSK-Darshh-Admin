@@ -2,9 +2,9 @@
     {
         "Error": false,
         "Status": "1",
-        "file_name": "1776353313_1_31ee60.png",
-        "file_url": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1776353313_1_31ee60.png",
-        "presigned_url": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1776353313_1_31ee60.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260416%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260416T152833Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=72d789e4c6f0e76efcbb0237f110c07aac4b4985dbe40ac4b1b8e5f95e4890e5",
+        "file_name": "1778741376_33_143fce.gif",
+        "file_url": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778741376_33_143fce.gif",
+        "presigned_url": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778741376_33_143fce.gif?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260514%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260514T064938Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=e633811d3663e5df1a16ce9b315f91914b5ce1ab5a58e6bcf8e803f784fa45ae",
         "Message": "File uploaded"
     }
 ]

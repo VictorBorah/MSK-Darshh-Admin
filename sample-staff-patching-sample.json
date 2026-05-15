@@ -11,8 +11,7 @@
       "auth_email": "test@gmail.com",
       "email2": "test@gmail.com",
       "mobile_1": "9954817702",
-      "mobile_2": "9954817702",
-      "kyc_approved": "1",
+      "mobile_2": "9954817702",      
       "pan_no": "AVTPV2178J",
       "aadhaar_no": "457845120247",
       "voter_no": "ASDF2323",
@@ -26,6 +25,8 @@
       "pan_file": "file_2.jpg",
       "voter_file": "file_3.jpg",
       "aadhaar_file": "file_4.jpg",
+      "payment_category": "5",
+      "contract_amount": "52000.50",
       "marital_status": "1"
     },
     {
@@ -38,12 +39,12 @@
       "auth_email": "test2@gmail.com",
       "email2": "test2@gmail.com",
       "mobile_1": "4578451247",
-      "mobile_2": "4578451247",
-      "kyc_approved": "0",
+      "mobile_2": "4578451247",      
 	  "pan_no": "AVTPV2178J",
 	  "aadhaar_no": "203210124578",
 	  "voter_no": "ASDF2323",
-      "marital_status": "1"
+      "marital_status": "1",
+	  "payment_category": "10"
     }
   ]
 }

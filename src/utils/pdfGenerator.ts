@@ -11,7 +11,8 @@ import toast from 'react-hot-toast';
  */
 export const generatePdfFromElement = async (
   element: HTMLElement | null,
-  filename: string = 'document.pdf'
+  filename: string = 'document.pdf',
+  footerText: string = 'Zyn Construction Netwok version 1.0.0'
 ) => {
   if (!element) {
     toast.error('Could not find content to generate PDF');
@@ -55,6 +56,7 @@ export const generatePdfFromElement = async (
     const imgData = await toPng(clone, {
       pixelRatio: 2,
       backgroundColor: '#ffffff',
+      imagePlaceholder: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
       filter: (node: HTMLElement) => {
         if (node.dataset && node.dataset.html2canvasIgnore === 'true') {
           return false;
@@ -124,7 +126,7 @@ export const generatePdfFromElement = async (
     pdf.setTextColor(150, 150, 150); // off-white grey color
     for (let i = 1; i <= totalPages; i++) {
       pdf.setPage(i);
-      pdf.text('Zyn Construction Netwok version 1.0.0', pdfWidth / 2, pdfHeight - 5, { align: 'center' });
+      pdf.text(footerText, pdfWidth / 2, pdfHeight - 5, { align: 'center' });
     }
 
     pdf.save(filename);

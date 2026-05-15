@@ -19,7 +19,8 @@ import {
   CircleDot,
   Clock,
   X,
-  LayoutList
+  LayoutList,
+  ListChecks
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -44,6 +45,7 @@ export default function Sidebar() {
       case 'sys-log': return <Clock className={className} />;
       case 'user-groups': return <Users className={className} />;
       case 'menu-config': return <LayoutList className={className} />;
+      case 'demands': return <ListChecks className={className} />;
       default: return <CircleDot className={className} />;
     }
   };

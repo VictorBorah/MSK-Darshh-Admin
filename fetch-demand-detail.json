@@ -56,7 +56,7 @@
                 "is_connected": "0",
                 "connection_available": "1",
                 "is_locked": "No",
-                "delivery_confirmed": "No",
+                "delivery_confirmed": "Yes",
                 "delivery_date": "",
                 "gps_photo_file": "<File String Placeholder>",
                 "exif_match_success": "No",
