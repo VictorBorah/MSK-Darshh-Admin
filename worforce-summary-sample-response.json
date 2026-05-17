@@ -1,0 +1,25 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "workforce_data": [
+            {
+                "workers_with_kyc": 1,
+                "workers_without_kyc": 3
+            },
+            {
+                "workers_with_kyc": 0,
+                "workers_without_kyc": 4
+            },
+            {
+                "workers_with_kyc": 0,
+                "workers_without_kyc": 4
+            },
+            {
+                "workers_with_kyc": 0,
+                "workers_without_kyc": 0
+            }
+        ],
+        "Message": "System ready to proceed"
+    }
+]

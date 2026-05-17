@@ -101,6 +101,30 @@
                 "geofence_ready": "No"
             }
         ],
+        "usergroups_data": [
+            {
+                "id": "11",
+                "group_name": "Labourer",
+                "permissions_csv": null,
+                "privileges_csv": null,
+                "has_ui": "0",
+                "labour_staff": "1",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "12",
+                "group_name": "Daily Wager",
+                "permissions_csv": null,
+                "privileges_csv": null,
+                "has_ui": "0",
+                "labour_staff": "1",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            }
+        ],
         "Menu_Data": [
             {
                 "master_menu_id": "1",
@@ -149,6 +173,27 @@
                 ]
             },
             {
+                "master_menu_id": "21",
+                "menu_type": "1",
+                "menu_item": "Workers",
+                "slug": "workers",
+                "widgets": [
+                    "workforce_summary",
+                    "add_worker",
+                    "view_workers"
+                ]
+            },
+            {
+                "master_menu_id": "7",
+                "menu_type": "1",
+                "menu_item": "Stock Inventory",
+                "slug": "stock-inventory",
+                "widgets": [
+                    "stock-sumamry",
+                    "view_stock"
+                ]
+            },
+            {
                 "master_menu_id": "17",
                 "menu_type": "1",
                 "menu_item": "My Profile",
@@ -157,6 +202,13 @@
                     "profile_details",
                     "edit_profile"
                 ]
+            },
+            {
+                "master_menu_id": "0",
+                "menu_type": false,
+                "menu_item": false,
+                "slug": false,
+                "widgets": []
             }
         ],
         "User_Data": [
@@ -218,8 +270,8 @@
             "default_sgst_rate": "9",
             "default_cgst_rate": "9",
             "gst_inclusive": "1",
-            "s3BucketBasePath": "https:\/\/doca.blr1.digitaloceanspaces.com",
-            "s3CdnBasePath": "https:\/\/sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
+            "s3BucketBasePath": "https://doca.blr1.digitaloceanspaces.com",
+            "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "doca",
             "s3BucketKey": "DO00XLCD7FPRXXBX28HQ",
             "s3Region": "blr1",
@@ -227,7 +279,7 @@
             "webAppLogo": "Logo.png",
             "smsPEId": "1205165992846067265",
             "hostName": "api.zlabz.space",
-            "appBaseUrl": "api.zlabz.space\/webservices\/v1",
+            "appBaseUrl": "api.zlabz.space/webservices/v1",
             "frontEndBaseUrl": "zlabz.space",
             "fileMaxSize": "2",
             "maxStorage": "524300000",
@@ -252,10 +304,6 @@
             {
                 "id": "2",
                 "district": "BARPETA"
-            },
-            {
-                "id": "3",
-                "district": "BISWANATH"
             }
         ],
         "tasks_data": [
@@ -370,11 +418,6 @@
             {
                 "master_category_id": "3",
                 "master_category_name": "Bricks & Blocks",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "1",
-                "master_category_name": "Cement & Concrete",
                 "is_material": "1"
             }
         ],
