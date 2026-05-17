@@ -109,6 +109,7 @@
                 "privileges_csv": null,
                 "has_ui": "0",
                 "labour_staff": "1",
+				"is_contractor": "0",
                 "login_revoked": "0",
                 "active": "1",
                 "cKey": "1"
@@ -120,6 +121,7 @@
                 "privileges_csv": null,
                 "has_ui": "0",
                 "labour_staff": "1",
+				"is_contractor": "0",
                 "login_revoked": "0",
                 "active": "1",
                 "cKey": "1"
