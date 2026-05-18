@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Select from 'react-select';
-import { X, Loader2, Edit3 } from 'lucide-react';
+import { X, Loader2, Edit3, Maximize2, Minimize2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface EditItemModalProps {
@@ -32,10 +32,13 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
     status: 1,
     is_material: 1,
     demand_privilege: '',
-    purchase_privilege: ''
+    purchase_privilege: '',
+    reorder_level: '',
+    amount_editing: 0
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
 
   // Add Category States
   const [showAddCatModal, setShowAddCatModal] = useState(false);
@@ -75,7 +78,9 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
         status: 1,
         is_material: 1,
         demand_privilege: '',
-        purchase_privilege: ''
+        purchase_privilege: '',
+        reorder_level: '',
+        amount_editing: 0
       });
     }
   }, [isOpen, itemId]);
@@ -127,7 +132,9 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
           demand_privilege: iData.demand_privilege || '',
           purchase_privilege: iData.purchase_privilege || '',
           status: parseInt(iData.status) === 1 ? 1 : 0,
-          is_material: iData.is_material !== undefined ? parseInt(iData.is_material) : 1
+          is_material: iData.is_material !== undefined ? parseInt(iData.is_material) : 1,
+          reorder_level: iData.reorder_level && parseFloat(iData.reorder_level) > 0 ? iData.reorder_level : '',
+          amount_editing: parseInt(iData.amount_editing) === 1 ? 1 : 0
         });
       } else {
         toast.error('Failed to load item details.');
@@ -315,6 +322,11 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
       if (formData.budget_head) payload.append('budget_head', formData.budget_head);
       if (formData.demand_privilege) payload.append('demand_privilege', formData.demand_privilege);
       if (formData.purchase_privilege) payload.append('purchase_privilege', formData.purchase_privilege);
+      payload.append('amount_editing', String(formData.amount_editing));
+      
+      if (formData.reorder_level && parseFloat(formData.reorder_level) > 0) {
+        payload.append('reorder_level', formData.reorder_level);
+      }
       
       if (formData.is_material === 1) {
         payload.append('gst_value', String(formData.default_gst));
@@ -352,7 +364,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
 
   return (
     <div className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#1c2130] w-[600px] max-w-[95vw] border border-gray-700/80 rounded-xl shadow-2xl flex flex-col relative overflow-hidden">
+      <div className={`bg-[#1c2130] border border-gray-700/80 shadow-2xl flex flex-col relative overflow-hidden transition-all duration-300 ${isMaximized ? 'w-full h-full rounded-none' : 'w-[800px] max-w-[95vw] rounded-xl'}`}>
         
         {/* Header */}
         <div className="px-5 py-4 border-b border-gray-700/50 flex justify-between items-center bg-[#1e2436]">
@@ -360,13 +372,18 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
              <Edit3 className="w-5 h-5 text-blue-400" />
              Edit Item
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1 rounded-md hover:bg-gray-800">
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setIsMaximized(!isMaximized)} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1 rounded-md hover:bg-gray-800">
+              {isMaximized ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+            </button>
+            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors outline-none bg-transparent border-none p-1 rounded-md hover:bg-gray-800">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Form Body */}
-        <div className="p-6 flex flex-col gap-5 bg-[#161a25] max-h-[75vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700">
+        <div className={`p-6 flex flex-col gap-5 bg-[#161a25] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 ${isMaximized ? 'flex-1' : 'max-h-[85vh]'}`}>
           {loading ? (
              <div className="flex flex-col items-center justify-center py-12 gap-3">
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
@@ -389,8 +406,9 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                 </label>
               </div>
 
-              {/* Row 1 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                {/* Row 1 */}
+                <div className="contents">
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <label className="text-[13px] text-[#ccd6f6] font-medium block">Category <span className="text-red-400">*</span></label>
@@ -430,7 +448,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
               </div>
 
               {/* Row 2 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="contents">
                 <div>
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Item Name <span className="text-red-400">*</span></label>
                   <input
@@ -463,7 +481,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
               </div>
 
               {/* Row 3 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="contents">
                 {formData.is_material === 1 && (
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
@@ -536,7 +554,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
 
               {/* Row 4 */}
               {formData.is_material === 1 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="contents">
                   <div>
                     <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Default GST (%) <span className="text-red-400">*</span></label>
                     <input
@@ -562,7 +580,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
               )}
 
               {/* Row 5: Privileges */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+              <div className="contents">
                 <div>
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Demand Privilege <span className="text-red-400">*</span></label>
                   <Select
@@ -602,7 +620,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
               </div>
 
               {/* Row 6 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+              <div className="contents">
                 <div>
                    <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Status</label>
                    <div className="flex items-center h-[40px]">
@@ -621,6 +639,40 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                    </div>
                 </div>
               </div>
+
+              {/* Row 7 */}
+              <div className="contents">
+                <div>
+                  <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Reorder Level</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={formData.reorder_level}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === '' || parseFloat(val) > 0) {
+                        setFormData({ ...formData, reorder_level: val });
+                      }
+                    }}
+                    className="w-full bg-[#1e293b] border border-gray-700 hover:border-gray-600 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-md h-[40px] px-3 text-[#e2e8f0] text-sm transition-colors outline-none"
+                    placeholder="Enter reorder level..."
+                  />
+                </div>
+                <div className="flex items-end pb-2">
+                   <label className="flex items-center gap-3 cursor-pointer group">
+                     <input
+                       type="checkbox"
+                       checked={formData.amount_editing === 1}
+                       onChange={(e) => setFormData({ ...formData, amount_editing: e.target.checked ? 1 : 0 })}
+                       className="w-4 h-4 rounded border-gray-600 bg-[#1e293b] text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
+                     />
+                     <span className="text-[13px] text-[#ccd6f6] font-medium group-hover:text-white transition-colors">
+                       Enable Amount Edit
+                     </span>
+                   </label>
+                </div>
+              </div>
+            </div>
             </>
           )}
         </div>

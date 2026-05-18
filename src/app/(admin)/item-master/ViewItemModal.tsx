@@ -153,6 +153,18 @@ export default function ViewItemModal({ isOpen, onClose, itemId }: ViewItemModal
                   {usergroups.find(g => String(g.id) === String(itemData.purchase_privilege))?.group_name || itemData.purchase_privilege || '-'}
                 </span>
               </div>
+              <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Reorder Level</span>
+                <span className="text-gray-200 font-medium">
+                  {itemData.reorder_level && parseFloat(itemData.reorder_level) > 0 ? itemData.reorder_level : 'Not Set'}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 border-b border-gray-800 pb-2">
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount Editing</span>
+                <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded self-start ${String(itemData.amount_editing) === "1" ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-gray-500/10 text-gray-400 border border-gray-500/20"}`}>
+                  {String(itemData.amount_editing) === "1" ? 'Enabled' : 'Disabled'}
+                </span>
+              </div>
             </div>
           ) : (
             <div className="py-12 text-center text-gray-500">

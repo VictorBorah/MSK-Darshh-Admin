@@ -19,6 +19,8 @@
             "unit_name": "Bag",
             "demand_privilege": "5",
             "purchase_privilege": "2",
+            "reorder_level": "0",
+            "amount_editing": "0",
             "status": "1"
         },
         "Message": "Item details fetched"

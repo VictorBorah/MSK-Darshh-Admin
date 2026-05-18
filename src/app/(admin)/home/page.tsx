@@ -1,4 +1,4 @@
-import { CheckSquare, Square, CheckCircle, AlertTriangle } from 'lucide-react';
+import { CheckSquare, Square, CheckCircle, AlertTriangle, Rocket } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -16,15 +16,64 @@ export default function Home() {
           <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
           <div className="flex flex-col">
             <span className="text-white font-bold text-[14px]">
-              Current Status: <span className="font-medium text-red-400">Project progress is late by 2 Days</span>
+              Current Status: <span className="font-medium text-red-400">Project progress is late by 5 Days</span>
             </span>
             <span className="text-white font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-red-400 font-semibold">Staff PWA App Functionalities</span>
+              Currently Working on: <span className="text-red-400 font-semibold">Deploying to Production Cloud</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 15/05/2026 01:05 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              Status Updated on: 18/05/2026 12:15 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
+        </div>
+
+        <div className="mt-5 bg-blue-950/20 border border-blue-500/30 rounded-md p-5 max-w-4xl">
+          <div className="flex items-center gap-3 mb-4 border-b border-blue-500/20 pb-3">
+            <Rocket className="w-5 h-5 text-blue-400" />
+            <h3 className="text-blue-400 font-bold text-[15px]">Production Cloud Deployment Checklist</h3>
+          </div>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8">
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Provision Domains for API Web Services and Frontend Application</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Configure Linux Droplet Server on DigitalOcean Cloud</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Set up Shared Hosting Environment on Hostinger for Frontend App</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Deploy and Secure Decentralized Database Cluster on DigitalOcean</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Initialize Cloud Object Storage for File Management</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Issue and Bind SSL/TLS Certificates (HTTPS) for all domains</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Inject Production Environment Variables and API Credentials</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Reconfigure GitHub CI/CD Pipelines with New Host Secrets</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Verify Global DNS Propagation and Routing</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Execute Final Production Deployment and Perform Sanity Checks</span>
+            </li>
+          </ul>
         </div>
       </div>
 
@@ -63,35 +112,35 @@ export default function Home() {
               <span className="text-gray-400 line-through">26 April - 28 April 2026: Design and build the Site Supervisor App</span>
             </li>
             <li className="flex items-start gap-3">
-              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>28 April - 10 May 2026: Design and build the Staff PWA App</span>
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">28 April - 10 May 2026: Design and build the Staff PWA App</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>10 May - 15 May 2026: Deploy to Production (Digital Ocean Cloud)</span>
+              <span>17 May - 19 May 2026: Deploy to Production (Digital Ocean Cloud)</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>18 May - 22 May 2026: Design and build the Admin Dashboard & Settings Page</span>
+              <span>20 May - 24 May 2026: Design and build the Admin Dashboard & Settings Page</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>22 May - 30 May 2026: Connect all the dots for the Admin Projects Management</span>
+              <span>24 May - 25 May 2026: Connect all the dots for the Admin Projects Management</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>30 May - 05 June 2026: Design and build the Notifications & Admin Reporting Engine</span>
+              <span>25 May - 30 May 2026: Design and build the Notifications & Admin Reporting Engine</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>05 June - 15 June 2026: Finish App with final production deployment</span>
+              <span>30 May - 05 June 2026: Finish App with final production deployment</span>
             </li>
           </ul>
         </div>
 
         <div className="bg-emerald-900/20 border border-emerald-500/20 rounded-md p-4">
           <p className="text-emerald-400 font-medium text-[13px] flex items-center gap-2">
-            Target SLA: The Project infrastructure will hit finalized production deployment pipelines by 15th May 2026.
+            Target SLA: The Project infrastructure will hit finalized production deployment pipelines by 20th May 2026.
           </p>
         </div>
       </div>
