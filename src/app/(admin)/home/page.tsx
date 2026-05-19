@@ -22,7 +22,7 @@ export default function Home() {
               Currently Working on: <span className="text-red-400 font-semibold">Deploying to Production Cloud</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 18/05/2026 12:15 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              Status Updated on: 19/05/2026 10:30 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
         </div>
@@ -34,8 +34,8 @@ export default function Home() {
           </div>
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-8">
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Provision Domains for API Web Services and Frontend Application</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Provision Domains for API Web Services and Frontend Application</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />

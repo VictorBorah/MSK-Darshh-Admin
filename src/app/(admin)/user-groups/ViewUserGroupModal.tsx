@@ -9,6 +9,11 @@ interface Permission {
   permisson_txt: string;
 }
 
+interface UserGroup {
+  id: string;
+  group_name: string;
+}
+
 export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName }: any) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -19,6 +24,10 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
   const [name, setName] = useState('');
   const [revokeLogin, setRevokeLogin] = useState(false);
 
+  const [usergroupsData, setUsergroupsData] = useState<UserGroup[]>([]);
+  const [manageGroupsCsv, setManageGroupsCsv] = useState<string>('');
+  const [typeKey, setTypeKey] = useState<string>('0');
+
   // Reset state and fetch data when modal opens
   useEffect(() => {
     if (!isOpen) {
@@ -27,6 +36,9 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
       setPermissions([]);
       setName('');
       setRevokeLogin(false);
+      setUsergroupsData([]);
+      setManageGroupsCsv('');
+      setTypeKey('0');
     } else if (groupId) {
       const fetchData = async () => {
         setIsLoading(true);
@@ -45,6 +57,9 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
           if (configData && configData.permissions_master) {
             setPermissions(configData.permissions_master);
           }
+          if (configData && configData.usergroups_data) {
+            setUsergroupsData(configData.usergroups_data);
+          }
 
           // Fetch group specific info
           const groupRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/fetchUserGroupInfo?group_id=${groupId}`, {
@@ -60,6 +75,8 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
              
              setName(dataObj?.group_name || '');
              setRevokeLogin(String(dataObj?.login_revoked) === '1');
+             setTypeKey(dataObj?.type_key != null ? String(dataObj.type_key) : '0');
+             setManageGroupsCsv(dataObj?.managing_groups_csv || '');
              
              const perms = dataObj?.permissions || [];
              const checkedIds = perms.map((p: any) => Object.keys(p)[0]);
@@ -137,6 +154,24 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
                       </span>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* Group Settings Section */}
+              <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex flex-col sm:flex-row gap-8 shadow-sm">
+                <div>
+                  <h3 className="text-[12px] text-gray-500 font-medium uppercase tracking-wider mb-1">Group Type</h3>
+                  <p className="text-[14px] font-medium text-gray-200">
+                    {typeKey === '0' ? 'Regular Group' : typeKey === '1' ? 'Contractor Group' : typeKey === '2' ? 'Labourer Group' : 'Unknown'}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-[12px] text-gray-500 font-medium uppercase tracking-wider mb-1">Managed Usergroups</h3>
+                  <p className="text-[14px] font-medium text-gray-200">
+                    {manageGroupsCsv 
+                      ? usergroupsData.filter(g => manageGroupsCsv.split(',').includes(g.id)).map(g => g.group_name).join(', ') || 'None'
+                      : 'None'}
+                  </p>
                 </div>
               </div>
 

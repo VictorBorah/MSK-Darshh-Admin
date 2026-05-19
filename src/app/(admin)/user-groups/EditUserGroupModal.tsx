@@ -1,12 +1,17 @@
 'use client';
 
-import { X, Loader2, Save, Maximize2, Minimize2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { X, Loader2, Save, Maximize2, Minimize2, ChevronDown, Check } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 
 interface Permission {
   id: string;
   permisson_txt: string;
+}
+
+interface UserGroup {
+  id: string;
+  group_name: string;
 }
 
 export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName, onSuccess }: any) {
@@ -17,12 +22,32 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
   const [permissions, setPermissions] = useState<Permission[]>([]);
   const [selectedPerms, setSelectedPerms] = useState<string[]>([]);
   
+  const [usergroupsData, setUsergroupsData] = useState<UserGroup[]>([]);
+  const [selectedManageGroups, setSelectedManageGroups] = useState<string[]>([]);
+  const [typeKey, setTypeKey] = useState('0');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
   // Reset state and fetch data when modal opens
   useEffect(() => {
     if (!isOpen) {
       setSelectedPerms([]);
       setIsMaximized(false);
       setPermissions([]);
+      setTypeKey('0');
+      setSelectedManageGroups([]);
+      setIsDropdownOpen(false);
     } else if (groupId) {
       const fetchData = async () => {
         setIsLoading(true);
@@ -41,6 +66,9 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
           if (configData && configData.permissions_master) {
             setPermissions(configData.permissions_master);
           }
+          if (configData && configData.usergroups_data) {
+            setUsergroupsData(configData.usergroups_data);
+          }
 
           // Fetch group specific info to know which permissions are checked
           const groupRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/fetchUserGroupInfo?group_id=${groupId}`, {
@@ -56,6 +84,14 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
              const perms = dataObj?.permissions || [];
              const checkedIds = perms.map((p: any) => Object.keys(p)[0]);
              setSelectedPerms(checkedIds);
+             
+             setTypeKey(dataObj?.type_key != null ? String(dataObj.type_key) : '0');
+             const manageCsv = dataObj?.managing_groups_csv;
+             if (manageCsv) {
+               setSelectedManageGroups(manageCsv.split(',').filter(Boolean));
+             } else {
+               setSelectedManageGroups([]);
+             }
           }
         } catch (error) {
           console.error("Failed to fetch data", error);
@@ -85,6 +121,8 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
       const token = localStorage.getItem('at_ki8Xq1iV');
       const formData = new FormData();
       formData.append('group_id', String(groupId));
+      formData.append('type_key', typeKey);
+      formData.append('groups_csv', selectedManageGroups.join(','));
       formData.append('permissions_csv', selectedPerms.join(','));
       
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/patchUserGroupPermissions`, {
@@ -144,8 +182,100 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
         </div>
 
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-6 bg-[#11141e] flex flex-col gap-6 relative">
+        <div className="flex-1 overflow-y-auto p-6 bg-[#11141e] flex flex-col gap-6 relative overflow-visible">
           
+          <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex flex-col gap-4 shadow-sm relative z-20">
+            <h3 className="text-[15px] font-semibold text-white tracking-wide mb-2">Group Settings</h3>
+            
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="radio" 
+                  name="groupType"
+                  value="0"
+                  checked={typeKey === '0'}
+                  onChange={(e) => setTypeKey(e.target.value)}
+                  disabled={isSaving}
+                  className="bg-[#161a25] border-gray-500 cursor-pointer h-4 w-4 accent-blue-500 disabled:cursor-not-allowed"
+                />
+                <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Is a regular group</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="radio" 
+                  name="groupType"
+                  value="1"
+                  checked={typeKey === '1'}
+                  onChange={(e) => setTypeKey(e.target.value)}
+                  disabled={isSaving}
+                  className="bg-[#161a25] border-gray-500 cursor-pointer h-4 w-4 accent-blue-500 disabled:cursor-not-allowed"
+                />
+                <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Is a contractor group</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer group">
+                <input 
+                  type="radio" 
+                  name="groupType"
+                  value="2"
+                  checked={typeKey === '2'}
+                  onChange={(e) => setTypeKey(e.target.value)}
+                  disabled={isSaving}
+                  className="bg-[#161a25] border-gray-500 cursor-pointer h-4 w-4 accent-blue-500 disabled:cursor-not-allowed"
+                />
+                <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Is a labourer group</span>
+              </label>
+            </div>
+
+            <div className="flex items-center gap-4 mt-2">
+              <label className="text-[13px] font-medium text-gray-300 w-[140px] shrink-0">Usergroups to manage</label>
+              <div className="relative w-full sm:w-[400px]" ref={dropdownRef}>
+                <div 
+                  className={`bg-[#161a25] border border-gray-600 rounded px-3 py-2 text-[13px] text-white flex items-center justify-between transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-500'}`}
+                  onClick={() => {
+                    if (!isSaving) setIsDropdownOpen(!isDropdownOpen);
+                  }}
+                >
+                  <div className="truncate pr-4">
+                    {selectedManageGroups.length > 0 
+                      ? usergroupsData.filter(g => selectedManageGroups.includes(g.id)).map(g => g.group_name).join(', ')
+                      : <span className="text-gray-500">Select usergroup ...</span>}
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                </div>
+                
+                {isDropdownOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-[#232b3e] border border-gray-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto z-50 py-1">
+                    {usergroupsData.length === 0 ? (
+                      <div className="px-3 py-2 text-[13px] text-gray-400 italic">No usergroups available</div>
+                    ) : (
+                      usergroupsData.map(group => {
+                        const isSelected = selectedManageGroups.includes(group.id);
+                        return (
+                          <div 
+                            key={group.id}
+                            className="px-3 py-2 hover:bg-[#2a3449] cursor-pointer flex items-center justify-between group/item"
+                            onClick={() => {
+                              setSelectedManageGroups(prev => 
+                                isSelected 
+                                  ? prev.filter(id => id !== group.id)
+                                  : [...prev, group.id]
+                              );
+                            }}
+                          >
+                            <span className={`text-[13px] ${isSelected ? 'text-white' : 'text-gray-300 group-hover/item:text-white'}`}>
+                              {group.group_name}
+                            </span>
+                            {isSelected && <Check className="w-4 h-4 text-blue-500" />}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* Middle Section: Checkboxes Container */}
           <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex-1 flex flex-col min-h-[250px] shadow-sm">
             
