@@ -93,7 +93,7 @@ export default function Sidebar() {
       )}
 
       <aside 
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen shrink-0 bg-[#191e2b] border-r border-gray-800 text-gray-300 transition-all duration-300 ease-in-out
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen shrink-0 bg-gradient-to-t from-teal-900/40 via-[#191e2b] to-[#191e2b] border-r border-gray-800 text-gray-300 transition-all duration-300 ease-in-out
           ${sidebarOpen ? 'w-[200px] translate-x-0 md:relative' : 'w-[200px] md:w-16 -translate-x-full md:translate-x-0 md:relative'}
         `}
       >
@@ -174,8 +174,11 @@ export default function Sidebar() {
 
         </div>
         
+        {/* Gradient Separator */}
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-teal-500/30 to-transparent mt-auto shrink-0" />
+        
         {/* Footer Version */}
-        <div className={`p-4 text-xs text-gray-500 border-t border-gray-800 flex items-center bg-[#191e2b] mt-auto overflow-hidden ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
+        <div className={`p-4 text-xs text-teal-400/80 flex items-center bg-transparent overflow-hidden ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
           <span className={`shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>1.0.1</span>
         </div>
       </aside>
