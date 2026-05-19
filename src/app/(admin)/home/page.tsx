@@ -22,7 +22,7 @@ export default function Home() {
               Currently Working on: <span className="text-red-400 font-semibold">Deploying to Production Cloud</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 19/05/2026 10:30 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              Status Updated on: 19/05/2026 03:20 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
         </div>
@@ -42,16 +42,24 @@ export default function Home() {
               <span>Configure Linux Droplet Server on DigitalOcean Cloud</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Set up Shared Hosting Environment on Hostinger for Frontend App</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Set up Shared Hosting Environment on Hostinger for Frontend App</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
               <span>Deploy and Secure Decentralized Database Cluster on DigitalOcean</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Reconfigure GitHub CI/CD Pipelines with New Host Secrets</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
               <span>Initialize Cloud Object Storage for File Management</span>
+            </li>
+            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
+              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
+              <span>Verify Global DNS Propagation and Routing</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
@@ -60,14 +68,6 @@ export default function Home() {
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
               <span>Inject Production Environment Variables and API Credentials</span>
-            </li>
-            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Reconfigure GitHub CI/CD Pipelines with New Host Secrets</span>
-            </li>
-            <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Verify Global DNS Propagation and Routing</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
