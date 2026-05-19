@@ -1,33 +1,34 @@
 name: Build and Deploy Next.js to cPanel
 
-# This tells GitHub to run this script every time you push to 'master', 
-# and allows you to trigger it manually via the Actions tab.
 on:
   push:
     branches:
       - master
+      - staging
   workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    
+    # This is the magic. It dynamically sets the environment based on the branch.
+    # If the branch is 'master', it pulls from the 'production' environment secrets.
+    # Otherwise, it defaults to the 'staging' environment secrets.
+    environment:
+      name: ${{ github.ref == 'refs/heads/master' && 'production' || 'staging' }}
 
     steps:
-      # 1. Grab your code from the repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Set up a Node.js environment (Updated to 24 to fix deprecation warning)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24' 
 
-      # 3. Install your project dependencies
       - name: Install Dependencies
         run: npm ci
 
-      # 4. Build the static HTML export with injected Environment Variables
       - name: Build Next.js App
         run: npm run build
         env:
@@ -43,7 +44,6 @@ jobs:
           NEXT_PUBLIC_ENCRYPTION_KEY: ${{ secrets.NEXT_PUBLIC_ENCRYPTION_KEY }}
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           
-      # 5. Sync the /out folder to your cPanel via FTP
       - name: FTP Deploy to cPanel
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
