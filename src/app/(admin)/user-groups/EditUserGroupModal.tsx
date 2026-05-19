@@ -14,6 +14,44 @@ interface UserGroup {
   group_name: string;
 }
 
+const groupPermissions = (perms: Permission[]) => {
+  const groups: Record<string, Permission[]> = {
+    'Project & Site Info': [],
+    'Financials & Expenses': [],
+    'Procurement & Inventory': [],
+    'Staff & Administration': [],
+    'Other': []
+  };
+
+  perms.forEach(perm => {
+    const txt = perm.permisson_txt.toLowerCase();
+    if (txt.includes('project') || txt.includes('site') || txt.includes('blueprint') || txt.includes('legal') || txt.includes('geofence')) {
+      if (txt.includes('budget') || txt.includes('expenses') || txt.includes('ledger') || txt.includes('payment') || txt.includes('salaries')) {
+        groups['Financials & Expenses'].push(perm);
+      } else {
+        groups['Project & Site Info'].push(perm);
+      }
+    } else if (txt.includes('payment') || txt.includes('salaries') || txt.includes('budget') || txt.includes('expenses') || txt.includes('ledger') || txt.includes('initial entries')) {
+      groups['Financials & Expenses'].push(perm);
+    } else if (txt.includes('demand') || txt.includes('purchase') || txt.includes('delivery') || txt.includes('dispense')) {
+      groups['Procurement & Inventory'].push(perm);
+    } else if (txt.includes('staff') || txt.includes('system')) {
+      groups['Staff & Administration'].push(perm);
+    } else {
+      groups['Other'].push(perm);
+    }
+  });
+
+  // Remove empty groups
+  Object.keys(groups).forEach(key => {
+    if (groups[key].length === 0) {
+      delete groups[key];
+    }
+  });
+
+  return groups;
+};
+
 export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName, onSuccess }: any) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -156,7 +194,7 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-      <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'}`}>
+      <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1200px] max-w-[95vw] max-h-[90vh]'}`}>
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
@@ -227,7 +265,7 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
             </div>
 
             <div className="flex items-center gap-4 mt-2">
-              <label className="text-[13px] font-medium text-gray-300 w-[140px] shrink-0">Usergroups to manage</label>
+              <label className="text-[13px] font-medium text-gray-300 w-[160px] whitespace-nowrap shrink-0">Usergroups to manage</label>
               <div className="relative w-full sm:w-[400px]" ref={dropdownRef}>
                 <div 
                   className={`bg-[#161a25] border border-gray-600 rounded px-3 py-2 text-[13px] text-white flex items-center justify-between transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-gray-500'}`}
@@ -277,7 +315,7 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
           </div>
 
           {/* Middle Section: Checkboxes Container */}
-          <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex-1 flex flex-col min-h-[250px] shadow-sm">
+          <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex flex-col min-h-[250px] h-fit shrink-0 shadow-sm">
             
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full gap-3 text-gray-400 mt-10">
@@ -292,19 +330,24 @@ export default function EditUserGroupModal({ isOpen, onClose, groupId, groupName
                 </div>
 
                 {permissions.length > 0 ? (
-                  <div className="columns-1 md:columns-3 gap-8">
-                    {permissions.map((perm) => (
-                      <label key={perm.id} className="flex items-start gap-3 cursor-pointer group p-1.5 hover:bg-[#232b3e] rounded-lg transition-colors border border-transparent hover:border-gray-700/50 mb-3 break-inside-avoid">
-                        <input 
-                          type="checkbox"
-                          checked={selectedPerms.includes(perm.id)}
-                          onChange={() => togglePermission(perm.id)}
-                          className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-blue-500 mt-0.5 shrink-0"
-                        />
-                        <span className="text-[13px] text-gray-300 group-hover:text-white leading-tight font-medium">
-                          {perm.permisson_txt}
-                        </span>
-                      </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Object.entries(groupPermissions(permissions)).map(([category, perms]) => (
+                      <fieldset key={category} className="border border-gray-700/50 rounded-lg p-4 bg-[#161a25]/50 flex flex-col gap-3">
+                        <legend className="text-[13px] font-semibold text-blue-400 px-2">{category}</legend>
+                        {perms.map((perm) => (
+                          <label key={perm.id} className="flex items-start gap-3 cursor-pointer group p-1.5 hover:bg-[#232b3e] rounded-lg transition-colors border border-transparent hover:border-gray-700/50">
+                            <input 
+                              type="checkbox"
+                              checked={selectedPerms.includes(perm.id)}
+                              onChange={() => togglePermission(perm.id)}
+                              className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-blue-500 mt-0.5 shrink-0"
+                            />
+                            <span className="text-[13px] text-gray-300 group-hover:text-white leading-tight font-medium">
+                              {perm.permisson_txt}
+                            </span>
+                          </label>
+                        ))}
+                      </fieldset>
                     ))}
                   </div>
                 ) : (
