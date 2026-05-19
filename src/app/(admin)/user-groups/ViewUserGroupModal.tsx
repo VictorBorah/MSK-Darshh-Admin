@@ -14,6 +14,44 @@ interface UserGroup {
   group_name: string;
 }
 
+const groupPermissions = (perms: Permission[]) => {
+  const groups: Record<string, Permission[]> = {
+    'Project & Site Info': [],
+    'Financials & Expenses': [],
+    'Procurement & Inventory': [],
+    'Staff & Administration': [],
+    'Other': []
+  };
+
+  perms.forEach(perm => {
+    const txt = perm.permisson_txt.toLowerCase();
+    if (txt.includes('project') || txt.includes('site') || txt.includes('blueprint') || txt.includes('legal') || txt.includes('geofence')) {
+      if (txt.includes('budget') || txt.includes('expenses') || txt.includes('ledger') || txt.includes('payment') || txt.includes('salaries')) {
+        groups['Financials & Expenses'].push(perm);
+      } else {
+        groups['Project & Site Info'].push(perm);
+      }
+    } else if (txt.includes('payment') || txt.includes('salaries') || txt.includes('budget') || txt.includes('expenses') || txt.includes('ledger') || txt.includes('initial entries')) {
+      groups['Financials & Expenses'].push(perm);
+    } else if (txt.includes('demand') || txt.includes('purchase') || txt.includes('delivery') || txt.includes('dispense')) {
+      groups['Procurement & Inventory'].push(perm);
+    } else if (txt.includes('staff') || txt.includes('system')) {
+      groups['Staff & Administration'].push(perm);
+    } else {
+      groups['Other'].push(perm);
+    }
+  });
+
+  // Remove empty groups
+  Object.keys(groups).forEach(key => {
+    if (groups[key].length === 0) {
+      delete groups[key];
+    }
+  });
+
+  return groups;
+};
+
 export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName }: any) {
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -27,6 +65,7 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
   const [usergroupsData, setUsergroupsData] = useState<UserGroup[]>([]);
   const [manageGroupsCsv, setManageGroupsCsv] = useState<string>('');
   const [typeKey, setTypeKey] = useState<string>('0');
+  const [assignPortal, setAssignPortal] = useState<string>('2');
 
   // Reset state and fetch data when modal opens
   useEffect(() => {
@@ -39,6 +78,7 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
       setUsergroupsData([]);
       setManageGroupsCsv('');
       setTypeKey('0');
+      setAssignPortal('2');
     } else if (groupId) {
       const fetchData = async () => {
         setIsLoading(true);
@@ -77,6 +117,7 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
              setRevokeLogin(String(dataObj?.login_revoked) === '1');
              setTypeKey(dataObj?.type_key != null ? String(dataObj.type_key) : '0');
              setManageGroupsCsv(dataObj?.managing_groups_csv || '');
+             setAssignPortal(dataObj?.assigned_login != null ? String(dataObj.assigned_login) : '2');
              
              const perms = dataObj?.permissions || [];
              const checkedIds = perms.map((p: any) => Object.keys(p)[0]);
@@ -98,7 +139,7 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-      <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'}`}>
+      <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1200px] max-w-[95vw] max-h-[90vh]'}`}>
         
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
@@ -134,25 +175,41 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
           ) : (
             <>
               {/* Top Info Section */}
-              <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex items-center justify-between shadow-sm">
+              <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
                 <div>
                   <h3 className="text-[12px] text-gray-500 font-medium uppercase tracking-wider mb-1">Group Name</h3>
                   <p className="text-[15px] font-semibold text-white">{name || groupName}</p>
                 </div>
-                <div>
-                  <h3 className="text-[12px] text-gray-500 font-medium uppercase tracking-wider mb-1 text-right">Login Status</h3>
-                  <div className="flex items-center gap-2 justify-end">
-                    {revokeLogin ? (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 text-[12px] font-medium border border-red-500/20">
-                        <XCircle className="w-3.5 h-3.5" />
-                        Revoked
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[12px] font-medium border border-emerald-500/20">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        Active
-                      </span>
-                    )}
+                <div className="flex items-center gap-6">
+                  <div>
+                    <h3 className="text-[12px] text-gray-500 font-medium uppercase tracking-wider mb-1 sm:text-right">Assigned Portal</h3>
+                    <div className="flex sm:justify-end">
+                      {assignPortal === '1' ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[12px] font-medium border border-blue-500/20">
+                          Admin Panel
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-400 text-[12px] font-medium border border-purple-500/20">
+                          Staff Panel
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-[12px] text-gray-500 font-medium uppercase tracking-wider mb-1 sm:text-right">Login Status</h3>
+                    <div className="flex items-center gap-2 sm:justify-end">
+                      {revokeLogin ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 text-[12px] font-medium border border-red-500/20">
+                          <XCircle className="w-3.5 h-3.5" />
+                          Revoked
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[12px] font-medium border border-emerald-500/20">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          Active
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -176,27 +233,32 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
               </div>
 
               {/* Privileges Section */}
-              <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex-1 flex flex-col min-h-[250px] shadow-sm">
+              <div className="bg-[#191e2b] border border-gray-700 rounded-lg p-5 flex flex-col min-h-[250px] h-fit shrink-0 shadow-sm">
                 <div className="mb-6 pb-4 border-b border-gray-700/50">
                   <h3 className="text-[15px] font-semibold text-white tracking-wide">Assigned Privileges</h3>
                   <p className="text-[12px] text-gray-400 mt-1">Read-only view of access privileges for this user group.</p>
                 </div>
 
                 {permissions.length > 0 ? (
-                  <div className="columns-1 md:columns-3 gap-8">
-                    {permissions.map((perm) => (
-                      <label key={perm.id} className={`flex items-start gap-3 group p-1.5 rounded-lg mb-3 break-inside-avoid ${selectedPerms.includes(perm.id) ? 'opacity-100' : 'opacity-40'}`}>
-                        <input 
-                          type="checkbox"
-                          checked={selectedPerms.includes(perm.id)}
-                          readOnly
-                          disabled
-                          className="bg-[#161a25] border-gray-500 rounded h-4 w-4 accent-blue-500 mt-0.5 shrink-0 disabled:opacity-100"
-                        />
-                        <span className={`text-[13px] leading-tight font-medium ${selectedPerms.includes(perm.id) ? 'text-gray-200' : 'text-gray-500'}`}>
-                          {perm.permisson_txt}
-                        </span>
-                      </label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Object.entries(groupPermissions(permissions)).map(([category, perms]) => (
+                      <fieldset key={category} className="border border-gray-700/50 rounded-lg p-4 bg-[#161a25]/50 flex flex-col gap-3">
+                        <legend className="text-[13px] font-semibold text-blue-400 px-2">{category}</legend>
+                        {perms.map((perm) => (
+                          <label key={perm.id} className={`flex items-start gap-3 group p-1.5 rounded-lg ${selectedPerms.includes(perm.id) ? 'opacity-100' : 'opacity-40'}`}>
+                            <input 
+                              type="checkbox"
+                              checked={selectedPerms.includes(perm.id)}
+                              readOnly
+                              disabled
+                              className="bg-[#161a25] border-gray-500 rounded h-4 w-4 accent-blue-500 mt-0.5 shrink-0 disabled:opacity-100"
+                            />
+                            <span className={`text-[13px] leading-tight font-medium ${selectedPerms.includes(perm.id) ? 'text-gray-200' : 'text-gray-500'}`}>
+                              {perm.permisson_txt}
+                            </span>
+                          </label>
+                        ))}
+                      </fieldset>
                     ))}
                   </div>
                 ) : (

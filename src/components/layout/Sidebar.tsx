@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 export default function Sidebar() {
-  const { menu, user } = useAuth();
+  const { menu, user, frontendVersion } = useAuth();
   const { sidebarOpen, setSidebarOpen } = useLayoutState();
   const pathname = usePathname();
 
@@ -176,7 +176,7 @@ export default function Sidebar() {
         
         {/* Footer Version */}
         <div className={`p-4 text-xs text-gray-500 border-t border-gray-800 flex items-center bg-[#191e2b] mt-auto overflow-hidden ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
-          <span className={`shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>1.0.1</span>
+          <span className={`shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>Version {frontendVersion || '1.0.1'}</span>
         </div>
       </aside>
     </>

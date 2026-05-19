@@ -16,10 +16,11 @@ interface AuthContextType {
     groupName: string;
   } | null;
   menu: MenuItem[];
+  frontendVersion: string | null;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, menu: [], logout: () => {} });
+const AuthContext = createContext<AuthContextType>({ user: null, menu: [], frontendVersion: null, logout: () => {} });
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -28,6 +29,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<{ displayName: string; groupName: string } | null>(null);
   const [menu, setMenu] = useState<MenuItem[]>([]);
+  const [frontendVersion, setFrontendVersion] = useState<string | null>(null);
   const [isLoggedOutModal, setIsLoggedOutModal] = useState(false);
 
   // Core validation function
@@ -82,6 +84,11 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           setMenu(data.Menu_Data);
         } else {
           setMenu([]);
+        }
+
+        // Set Frontend Version
+        if (data.System_Data && data.System_Data.frontendVersion) {
+          setFrontendVersion(data.System_Data.frontendVersion);
         }
 
         // Store CSV requirement globally
@@ -153,7 +160,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
 
   return (
-    <AuthContext.Provider value={{ user, menu, logout: triggerLogout }}>
+    <AuthContext.Provider value={{ user, menu, frontendVersion, logout: triggerLogout }}>
       {children}
       
       {/* Global Logout Modal Overlay */}

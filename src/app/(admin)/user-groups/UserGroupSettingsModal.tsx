@@ -3,6 +3,7 @@
 import { X, Save, Loader2, Maximize2, Minimize2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import Select from 'react-select';
 
 export default function UserGroupSettingsModal({ isOpen, onClose, groupId, groupName, onSuccess }: any) {
   const [isMaximized, setIsMaximized] = useState(false);
@@ -11,6 +12,7 @@ export default function UserGroupSettingsModal({ isOpen, onClose, groupId, group
 
   const [name, setName] = useState('');
   const [revokeLogin, setRevokeLogin] = useState(false);
+  const [assignPortal, setAssignPortal] = useState<{value: string; label: string} | null>({ value: '2', label: 'Staff Panel' });
 
   useEffect(() => {
     if (!isOpen) {
@@ -34,6 +36,8 @@ export default function UserGroupSettingsModal({ isOpen, onClose, groupId, group
              const dataObj = Array.isArray(groupData.Data) ? groupData.Data[0] : groupData.Data;
              setName(dataObj?.group_name || '');
              setRevokeLogin(String(dataObj?.login_revoked) === '1');
+             const assignedLogin = dataObj?.assigned_login != null ? String(dataObj.assigned_login) : '2';
+             setAssignPortal(assignedLogin === '1' ? { value: '1', label: 'Admin Panel' } : { value: '2', label: 'Staff Panel' });
           }
         } catch (error) {
           console.error("Failed to fetch data", error);
@@ -61,6 +65,7 @@ export default function UserGroupSettingsModal({ isOpen, onClose, groupId, group
       formData.append('group_id', String(groupId));
       formData.append('groupname', name.trim());
       formData.append('revoke_login', revokeLogin ? "1" : "0");
+      formData.append('portal_assigned', assignPortal?.value || '2');
       
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}admin/updateGroupSettings`, {
         method: 'POST',
@@ -87,6 +92,28 @@ export default function UserGroupSettingsModal({ isOpen, onClose, groupId, group
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const selectStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: '#161a25',
+      borderColor: state.isFocused ? '#3b82f6' : '#4b5563',
+      '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#6b7280' },
+      boxShadow: 'none',
+      minHeight: '38px',
+    }),
+    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+    menu: (base: any) => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#2d3a6c' : 'transparent',
+      color: '#fff',
+      cursor: 'pointer',
+      fontSize: '13px'
+    }),
+    singleValue: (base: any) => ({ ...base, color: '#e5e7eb', fontSize: '13px' }),
+    placeholder: (base: any) => ({ ...base, color: '#9ca3af', fontSize: '13px' }),
   };
 
   if (!isOpen) return null;
@@ -126,9 +153,14 @@ export default function UserGroupSettingsModal({ isOpen, onClose, groupId, group
                 <p className="text-[13px] font-medium tracking-wide">Loading details...</p>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[13px] font-medium text-gray-300">Group Name <span className="text-red-400">*</span></label>
+              <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-[13px] font-medium text-gray-300">Group Name <span className="text-red-400">*</span></label>
+                    <span className="text-[11px] text-gray-500">
+                      Remaining characters: {200 - name.length}
+                    </span>
+                  </div>
                   <input 
                     type="text" 
                     value={name}
@@ -137,9 +169,21 @@ export default function UserGroupSettingsModal({ isOpen, onClose, groupId, group
                     placeholder="e.g., Finance Team" 
                     className="w-full bg-[#161a25] border border-gray-600 rounded px-3 py-2 text-[13px] text-white focus:outline-none focus:border-blue-500 transition-colors"
                   />
-                  <div className="text-[11px] text-gray-500 text-right">
-                    Remaining characters: {200 - name.length}
-                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[13px] font-medium text-gray-300">Assign Portal <span className="text-red-400">*</span></label>
+                  <Select
+                    options={[
+                      { value: '1', label: 'Admin Panel' },
+                      { value: '2', label: 'Staff Panel' }
+                    ]}
+                    value={assignPortal}
+                    onChange={setAssignPortal}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    isSearchable
+                  />
                 </div>
                 
                 <label className="flex items-center gap-3 p-3 bg-[#161a25] border border-gray-700 rounded-lg cursor-pointer hover:border-gray-500 transition-colors group">

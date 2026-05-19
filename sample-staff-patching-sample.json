@@ -26,6 +26,8 @@
       "voter_file": "file_3.jpg",
       "aadhaar_file": "file_4.jpg",
       "payment_category": "5",
+      "pwd": "1234",
+      "projects_csv": "1,2,3,4",
       "contract_amount": "52000.50",
       "marital_status": "1"
     },
