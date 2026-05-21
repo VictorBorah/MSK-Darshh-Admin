@@ -635,7 +635,14 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
                         </FormRow>
 
                         <FormRow label="Start Date" helpText="Date of commencement of construction">
-                          <input type="date" value={startDate} max={new Date().toISOString().split('T')[0]} onChange={(e) => setStartDate(e.target.value)} className={`w-full bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-8 focus:outline-none cursor-pointer ${errorField === 'startDate' ? 'ring-2 ring-red-500 bg-red-100' : 'focus:ring-2 focus:ring-blue-500'}`} />
+                          <input
+                            type="date"
+                            value={startDate}
+                            max={new Date().toISOString().split('T')[0]}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            onClick={(e) => e.currentTarget.showPicker()}
+                            className={`w-full bg-[#eee0e0] border-none text-gray-900 text-[13px] font-medium rounded-sm px-2.5 h-8 focus:outline-none cursor-pointer light-bg-date-picker ${errorField === 'startDate' ? 'ring-2 ring-red-500 bg-red-100' : 'focus:ring-2 focus:ring-blue-500'}`}
+                          />
                         </FormRow>
 
                         <FormRow label="Link Client" helpText="Link this project to your client">

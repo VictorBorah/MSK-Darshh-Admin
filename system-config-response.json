@@ -16,6 +16,13 @@
                 "vendor_mobile": "0987456321",
                 "vendor_gst": "18AABCU9603R1ZM ",
                 "gst_seggregation": "0"
+            },
+            {
+                "id": "5",
+                "vendor_name": "Ganpati  Traders",
+                "vendor_mobile": "5212031074",
+                "vendor_gst": "18AAACB1534F3Z3",
+                "gst_seggregation": "0"
             }
         ],
         "items_data": [
@@ -64,6 +71,20 @@
                 "is_default": "0",
                 "active": "1",
                 "cKey": "1"
+            },
+            {
+                "id": "3",
+                "tds_option": "5.00",
+                "is_default": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "4",
+                "tds_option": "10.00",
+                "is_default": "1",
+                "active": "1",
+                "cKey": "1"
             }
         ],
         "payment_modes": [
@@ -81,6 +102,26 @@
                 "id": "3",
                 "mode": "IMPS",
                 "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "4",
+                "mode": "NEFT",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "5",
+                "mode": "RTGS",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "6",
+                "mode": "Demand Draft",
+                "txn_reference": "Draft Number"
+            },
+            {
+                "id": "7",
+                "mode": "Cheque",
+                "txn_reference": "Cheque Number"
             }
         ],
         "priority_data": [
@@ -105,6 +146,22 @@
             {
                 "id": "2",
                 "status": "Delivered"
+            },
+            {
+                "id": "3",
+                "status": "In Transit "
+            },
+            {
+                "id": "4",
+                "status": "Ordered and Paid"
+            },
+            {
+                "id": "5",
+                "status": "Ordered without payment"
+            },
+            {
+                "id": "6",
+                "status": "Raised"
             }
         ],
         "demands_status_options": [
@@ -115,6 +172,14 @@
             {
                 "id": "2",
                 "status": "Delivered"
+            },
+            {
+                "id": "3",
+                "status": "In Transit "
+            },
+            {
+                "id": "6",
+                "status": "Raised"
             }
         ],
         "permissions_master": [
@@ -131,6 +196,188 @@
                 "menu_id": "2",
                 "active": "1",
                 "cKey": "1"
+            },
+            {
+                "id": "3",
+                "permisson_txt": "View Project Total Expenses Info",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "4",
+                "permisson_txt": "View Project Expenses Ledger",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "5",
+                "permisson_txt": "Mange Initial Entries Expenses",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "6",
+                "permisson_txt": "View Site Location",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "7",
+                "permisson_txt": "View Site Blueprints",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "8",
+                "permisson_txt": "View Site Contract Copies",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "9",
+                "permisson_txt": "View Site Legal Documents",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "10",
+                "permisson_txt": "View Site Geofence",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "11",
+                "permisson_txt": "Edit Site Geofence",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "12",
+                "permisson_txt": "Make Demands",
+                "menu_id": "15",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "13",
+                "permisson_txt": "Verify Demands",
+                "menu_id": "15",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "14",
+                "permisson_txt": "Receive item delivery",
+                "menu_id": "18",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "15",
+                "permisson_txt": "View Staff",
+                "menu_id": "3",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "16",
+                "permisson_txt": "Manage Staff",
+                "menu_id": "3",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "17",
+                "permisson_txt": "Add Payment Records",
+                "menu_id": "5",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "18",
+                "permisson_txt": "View Salaries & Payment Records",
+                "menu_id": "5",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "19",
+                "permisson_txt": "Edit Project Info",
+                "menu_id": "2",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "20",
+                "permisson_txt": "Mark Payment as Complete",
+                "menu_id": "5",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "21",
+                "permisson_txt": "Mark Demand as Complete",
+                "menu_id": "15",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "22",
+                "permisson_txt": "Modify System Settings",
+                "menu_id": "12",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "23",
+                "permisson_txt": "Manage System Log",
+                "menu_id": "13",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "24",
+                "permisson_txt": "Verify Purchases",
+                "menu_id": "4",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "25",
+                "permisson_txt": "Make Purchases",
+                "menu_id": "4",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "26",
+                "permisson_txt": "Dispense Items",
+                "menu_id": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "27",
+                "permisson_txt": "Manage Attendance",
+                "menu_id": "21",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "28",
+                "permisson_txt": "Record Staff Payments",
+                "menu_id": "21",
+                "active": "1",
+                "cKey": "1"
             }
         ],
         "usergroups_data": [
@@ -139,7 +386,11 @@
                 "group_name": "Accountant",
                 "permissions_csv": "1,2,3,9,24,25",
                 "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "1",
                 "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
                 "login_revoked": "0",
                 "active": "1",
                 "cKey": "1"
@@ -149,7 +400,179 @@
                 "group_name": "Site Engineer",
                 "permissions_csv": "5,6,7,8,10",
                 "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "1",
                 "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "4",
+                "group_name": "Site Manager",
+                "permissions_csv": "1,2,3,4,5,6,7,8,9,10,11,21",
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "5",
+                "group_name": "Site Supervisor",
+                "permissions_csv": "13,1,6,10,14,12,21,26",
+                "privileges_csv": null,
+                "managing_groups_csv": "9,10,11,12",
+                "assigned_login": "2",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "6",
+                "group_name": "Procurement Manager",
+                "permissions_csv": "4,2,4,7,8,2,1,10",
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "7",
+                "group_name": "Operation Manager",
+                "permissions_csv": "1,2,3,4,8,7,5,4,8,20,12,19,7,15",
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "1",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "8",
+                "group_name": "Office Staff",
+                "permissions_csv": "1,2",
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "0",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "9",
+                "group_name": "Contractor",
+                "permissions_csv": null,
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "0",
+                "labour_staff": "0",
+                "is_contractor": "1",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "10",
+                "group_name": "Mistry",
+                "permissions_csv": null,
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "0",
+                "labour_staff": "1",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "11",
+                "group_name": "Labourer",
+                "permissions_csv": null,
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "0",
+                "labour_staff": "1",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "12",
+                "group_name": "Daily Wager",
+                "permissions_csv": null,
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "0",
+                "labour_staff": "1",
+                "is_contractor": "0",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "13",
+                "group_name": "Test 1",
+                "permissions_csv": "1,6,12",
+                "privileges_csv": null,
+                "managing_groups_csv": null,
+                "assigned_login": "2",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "0",
+                "login_revoked": "1",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "15",
+                "group_name": "King Kong",
+                "permissions_csv": "15,16,1,6,12,26",
+                "privileges_csv": null,
+                "managing_groups_csv": "11,12",
+                "assigned_login": "1",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "1",
+                "login_revoked": "0",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "16",
+                "group_name": "test grpx",
+                "permissions_csv": "15,1,6,12,14",
+                "privileges_csv": null,
+                "managing_groups_csv": "12,11,10",
+                "assigned_login": "2",
+                "has_ui": "1",
+                "labour_staff": "0",
+                "is_contractor": "1",
                 "login_revoked": "0",
                 "active": "1",
                 "cKey": "1"
@@ -169,7 +592,7 @@
                 "cKey": "1"
             }
         ],
-		 "bloodgroup_data": [
+        "bloodgroup_data": [
             {
                 "id": "1",
                 "blood_group": "O Positive (O+)",
@@ -231,9 +654,15 @@
                 "gender_txt": "Female",
                 "active": "1",
                 "cKey": "1"
+            },
+            {
+                "id": "3",
+                "gender_txt": "Transgender",
+                "active": "1",
+                "cKey": "1"
             }
         ],
-		 "marital_data": [
+        "marital_data": [
             {
                 "id": "1",
                 "status_txt": "Married",

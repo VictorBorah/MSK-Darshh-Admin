@@ -43,6 +43,10 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
 
+  const [enableBackDates, setEnableBackDates] = useState('0');
+  const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().split('T')[0]);
+  const [isMarkComplete, setIsMarkComplete] = useState(false);
+
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 200);
 
   const timersRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
@@ -58,6 +62,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       setShowSearchDropdown(false);
       setTableItems([]);
       lastSearchedQuery.current = '';
+      setIsMarkComplete(false);
+      setPurchaseDate(new Date().toISOString().split('T')[0]);
     } else {
       const fetchAppConfig = async () => {
         try {
@@ -70,6 +76,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
           const appDataRaw = Array.isArray(appArr) ? appArr[0] : appArr;
           const gstInc = appDataRaw?.System_Data?.gst_inclusive || '0';
           setDefaultGstInclusive(String(gstInc));
+          const enableBackDatesVal = appDataRaw?.System_Data?.enableBackDates || '0';
+          setEnableBackDates(String(enableBackDatesVal));
         } catch (e) {
           console.error("Failed to fetch app config", e);
         }
@@ -401,9 +409,24 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
 
           {/* Header */}
           <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <span className="text-blue-400">New Purchase</span>
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <span className="text-blue-400">New Purchase</span>
+              </h2>
+              {enableBackDates === '1' && (
+                <div className="flex items-center gap-2 bg-[#161a25]/60 px-3 py-1 rounded-lg border border-gray-600/50 shadow-inner">
+                  <span className="text-[12px] text-gray-400 font-medium">Purchase Date:</span>
+                  <input
+                    type="date"
+                    value={purchaseDate}
+                    max={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setPurchaseDate(e.target.value)}
+                    onClick={(e) => e.currentTarget.showPicker()}
+                    className="bg-[#1b202c] border border-gray-600 rounded px-2.5 py-0.5 text-xs text-white focus:outline-none focus:border-blue-500 font-medium cursor-pointer dark-bg-date-picker"
+                  />
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setIsMaximized(!isMaximized)}
@@ -633,6 +656,15 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                   <IndianRupee className="w-4 h-4 ml-2 mr-0.5" /> {grandTotal.toFixed(2)}
                 </span>
               </div>
+              <label className="flex items-center gap-2 cursor-pointer select-none text-[13px] font-medium text-gray-300 hover:text-white transition-colors bg-[#161a25] px-3.5 py-1.5 rounded-lg border border-gray-700 shadow-sm ml-2">
+                <input
+                  type="checkbox"
+                  checked={isMarkComplete}
+                  onChange={(e) => setIsMarkComplete(e.target.checked)}
+                  className="w-4 h-4 rounded border-gray-600 text-blue-600 bg-gray-700 focus:ring-blue-500 focus:ring-offset-gray-800 focus:ring-2 cursor-pointer"
+                />
+                <span>Mark Complete</span>
+              </label>
             </div>
             <div className="flex gap-3">
               <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm">
@@ -714,6 +746,13 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
               if (saveData.invoice_number) formData.append('tax_invoice_no', saveData.invoice_number);
             } else {
               formData.append('has_tax_invoice', '0');
+            }
+
+            formData.append('verified', isMarkComplete ? '1' : '0');
+
+            if (enableBackDates === '1' && purchaseDate) {
+              const [yyyy, mm, dd] = purchaseDate.split('-');
+              formData.append('purchase_date', `${dd}-${mm}-${yyyy}`);
             }
 
             const token = localStorage.getItem('at_ki8Xq1iV');

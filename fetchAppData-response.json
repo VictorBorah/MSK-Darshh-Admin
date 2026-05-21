@@ -296,7 +296,8 @@
             "purchase_budget_head": "2",
             "payment_budget_head": "1",
             "auto_create_demands_from_diff": "1",
-            "showDemandsInAdmin": "1"
+            "showDemandsInAdmin": "1",
+			"enableBackDates": "1"
         },
         "districts": [
             {

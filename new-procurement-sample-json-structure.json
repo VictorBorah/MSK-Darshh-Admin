@@ -1,6 +1,6 @@
 {  
     "item_data": [
-      {
+      {        
         "item_id": "1",
         "vendor_id": "1",
         "demand_id": "1",
@@ -13,7 +13,7 @@
         "unit_price": "100.00",
         "total_price_inc_gst": "100.00",
         "total_price_exc_gst": "69.49",
-        "tax_inc": "0",
+        "tax_inc": "0",	        		
 		"invoice_uploaded": "1",
         "invoice_file_string": "66934734438734-kqzhxgfh46677.pdf",
         "tax_inv_no": "AS/12-09345"
@@ -31,7 +31,7 @@
         "unit_price": "100.00",
         "total_price_inc_gst": "100.00",
         "total_price_exc_gst": "69.49",
-        "tax_inc": "0",
+        "tax_inc": "0",		
 		"invoice_uploaded": "1",
         "invoice_file_string": "66934734438734-kqzhxgfh46677.pdf",
         "tax_inv_no": "AS/12-09345"

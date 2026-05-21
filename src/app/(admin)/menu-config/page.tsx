@@ -18,7 +18,8 @@ const STATIC_ITEMS = [
   "My Profile",
   "Admin Reports",
   "Expenses Ledger",
-  "Supply Ledger"
+  "Supply Ledger",
+  "Workers"
 ];
 
 // Helper to generate a stable ID for drag and drop

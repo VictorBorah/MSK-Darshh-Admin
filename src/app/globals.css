@@ -32,3 +32,15 @@ a[disabled],
 [role="button"][disabled] {
   cursor: default;
 }
+
+/* Date Picker Calendar Icon Inversion Styles */
+.dark-bg-date-picker::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+.light-bg-date-picker::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  cursor: pointer;
+}
+

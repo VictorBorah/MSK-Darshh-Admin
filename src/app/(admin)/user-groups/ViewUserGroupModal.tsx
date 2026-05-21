@@ -35,7 +35,7 @@ const groupPermissions = (perms: Permission[]) => {
       groups['Financials & Expenses'].push(perm);
     } else if (txt.includes('demand') || txt.includes('purchase') || txt.includes('delivery') || txt.includes('dispense')) {
       groups['Procurement & Inventory'].push(perm);
-    } else if (txt.includes('staff') || txt.includes('system')) {
+    } else if (txt.includes('staff') || txt.includes('system') || txt.includes('attendance')) {
       groups['Staff & Administration'].push(perm);
     } else {
       groups['Other'].push(perm);

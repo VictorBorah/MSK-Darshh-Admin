@@ -353,8 +353,9 @@ export default function PaymentsPage() {
                   max={todayStr}
                   value={payDateFrom}
                   onChange={(e) => setPayDateFrom(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
                   title="From Date"
-                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer light-bg-date-picker"
                 />
                 <span className="text-gray-400 text-xs">to</span>
                 <input
@@ -362,8 +363,9 @@ export default function PaymentsPage() {
                   max={todayStr}
                   value={payDateTo}
                   onChange={(e) => setPayDateTo(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
                   title="To Date"
-                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer light-bg-date-picker"
                 />
               </div>
             </div>
@@ -493,8 +495,9 @@ export default function PaymentsPage() {
                   max={todayStr}
                   value={demDateFrom}
                   onChange={(e) => setDemDateFrom(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
                   title="From Date"
-                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer light-bg-date-picker"
                 />
                 <span className="text-gray-400 text-xs">to</span>
                 <input
@@ -502,8 +505,9 @@ export default function PaymentsPage() {
                   max={todayStr}
                   value={demDateTo}
                   onChange={(e) => setDemDateTo(e.target.value)}
+                  onClick={(e) => e.currentTarget.showPicker()}
                   title="To Date"
-                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer"
+                  className="w-[115px] bg-[#8ba0ba] border-none rounded py-1px px-1.5 text-[12px] text-gray-900 min-h-[31.5px] focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium cursor-pointer light-bg-date-picker"
                 />
               </div>
             </div>
