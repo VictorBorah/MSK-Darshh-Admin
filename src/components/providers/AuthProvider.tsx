@@ -145,15 +145,17 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         validateSession();
       }, 2500);
 
-      // 3. Check on every window regain focus (no delay needed here as time has passed)
-      const handleFocus = () => {
-        validateSession();
+      // 3. Check on every document visibility change (regaining tab focus)
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          validateSession();
+        }
       };
       
-      window.addEventListener('focus', handleFocus);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
       return () => {
         clearTimeout(mountTimer);
-        window.removeEventListener('focus', handleFocus);
+        document.removeEventListener('visibilitychange', handleVisibilityChange);
       };
     }
   }, [pathname]);

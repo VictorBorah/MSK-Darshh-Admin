@@ -15,7 +15,7 @@ import {
 import CryptoJS from 'crypto-js';
 
 // Import Firebase
-import { initializeApp } from "firebase/app";
+import { initializeApp, getApps } from "firebase/app";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 
 // Firebase Configuration from Environment Variables
@@ -29,7 +29,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
@@ -37,6 +37,8 @@ const API_ENDPOINT = `${process.env.NEXT_PUBLIC_API_BASE_URL}access/getAdminAcce
 
 export default function Login() {
   const router = useRouter();
+  
+  const [mounted, setMounted] = useState(false);
   
   // Form State
   const [email, setEmail] = useState('');
@@ -61,6 +63,7 @@ export default function Login() {
 
   // Mount Effect: Automatically bypass Login if session tokens exist
   useEffect(() => {
+    setMounted(true);
     const token1 = localStorage.getItem('u_x6yEui0t');
     const token2 = localStorage.getItem('g_3b7z1kw');
     const token3 = localStorage.getItem('at_ki8Xq1iV');
@@ -74,6 +77,9 @@ export default function Login() {
       }, 2000);
     }
   }, [router]);
+
+  // Prevent hydration mismatch
+  if (!mounted) return null;
 
   const closeModal = () => {
     setModalVisible(false);

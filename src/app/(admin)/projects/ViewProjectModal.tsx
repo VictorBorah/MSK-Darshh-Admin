@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { X, Loader2, Share2, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useModalEscape } from '@/hooks/useModalEscape';
+import dynamic from 'next/dynamic';
+
+const ViewGeofenceMap = dynamic(() => import('./ViewGeofenceMap'), { ssr: false, loading: () => <div className="text-white">Loading Map...</div> });
 
 const FormRow = ({ label, children, alignTop }: { label: string, children: React.ReactNode, alignTop?: boolean }) => (
   <div className={`flex items-${alignTop ? 'start' : 'center'} justify-between gap-3 mb-3 relative`}>
@@ -45,6 +48,7 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
   const [projectData, setProjectData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [errorError, setError] = useState('');
+  const [showGeofenceMap, setShowGeofenceMap] = useState(false);
 
   useEffect(() => {
     if (isOpen && projectId) {
@@ -156,7 +160,17 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
                        </FormRow>
 
                        <FormRow label="Geofence JSON" alignTop>
-                         <ReadOnlyInput value={projectData.geofence_json || ''} isTextarea={true} />
+                         <div className="w-full flex flex-col items-end">
+                           <ReadOnlyInput value={projectData.geofence_json || ''} isTextarea={true} />
+                           {projectData.geofence_json && (
+                             <span 
+                               onClick={() => setShowGeofenceMap(true)} 
+                               className="text-blue-400 text-[13px] cursor-pointer hover:underline mt-1.5 flex items-center gap-1.5 font-medium self-start"
+                             >
+                               <MapPin className="w-3.5 h-3.5" /> View Geofence Map
+                             </span>
+                           )}
+                         </div>
                        </FormRow>
 
                        <FormRow label="Start Date">
@@ -255,6 +269,17 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
              </div>
           )}
         </div>
+
+        {/* View Geofence Map Overlay */}
+        {showGeofenceMap && projectData?.geofence_json && (
+          <div className="fixed inset-0 bg-black/75 z-[130] flex items-center justify-center p-4 backdrop-blur-sm shadow-2xl transition-opacity animate-in fade-in duration-200">
+            <ViewGeofenceMap
+              geofenceJson={projectData.geofence_json}
+              projectName={projectData.project_name || projectName}
+              onClose={() => setShowGeofenceMap(false)}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

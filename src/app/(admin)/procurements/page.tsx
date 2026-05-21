@@ -242,9 +242,13 @@ export default function ProcurementsPage() {
 
     checkShowDemands();
 
-    const handleFocus = () => checkShowDemands();
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        checkShowDemands();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   // Initial Load Context

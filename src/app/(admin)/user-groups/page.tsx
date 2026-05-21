@@ -112,14 +112,16 @@ export default function UserGroupsPage() {
     fetchTableData(1);
     syncAppData(token);
 
-    // Setup Focus Listener
-    const handleFocus = () => {
-      syncAppData(token);
-      fetchTableData(currentPageRef.current);
+    // Setup Visibility Change Listener
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        syncAppData(token);
+        fetchTableData(currentPageRef.current);
+      }
     };
 
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [fetchTableData, syncAppData, router]);
 
   // Debounced Search Effect

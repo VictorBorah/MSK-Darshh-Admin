@@ -160,13 +160,15 @@ export default function StaffPage() {
     return () => clearTimeout(handler);
   }, [fetchStaffList, isShowingSearchResults]);
 
-  // Add focus listener
+  // Add visibility change listener
   useEffect(() => {
-    const handleFocus = () => {
-      if (!isShowingSearchResults) fetchStaffList();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isShowingSearchResults) {
+        fetchStaffList();
+      }
     };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [fetchStaffList, isShowingSearchResults]);
 
   // Debounced Search Effect

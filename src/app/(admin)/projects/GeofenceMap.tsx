@@ -67,19 +67,47 @@ export default function GeofenceMap({ initialGeofence, onSave, onCancel }: Geofe
         }
       }
 
-      const esriSatellite = L.tileLayer(
-        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        { maxZoom: 22, attribution: 'Tiles &copy; Esri' }
+      // Premium Google Maps Tile Layers for high-fidelity geofence context
+      const googleHybrid = L.tileLayer(
+        'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+        {
+          maxZoom: 22,
+          maxNativeZoom: 18,
+          attribution: 'Map data &copy; Google',
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }
       ).addTo(map);
 
-      const osmLabels = L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { maxZoom: 22, opacity: 0.4 }
+      const googleSatellite = L.tileLayer(
+        'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+        {
+          maxZoom: 22,
+          maxNativeZoom: 18,
+          attribution: 'Map data &copy; Google',
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }
+      );
+
+      const googleRoadmap = L.tileLayer(
+        'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        {
+          maxZoom: 22,
+          maxNativeZoom: 18,
+          attribution: 'Map data &copy; Google',
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+        }
+      );
+
+      const esriSatellite = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 22, maxNativeZoom: 18, attribution: 'Tiles &copy; Esri' }
       );
 
       L.control.layers({
-        "Satellite": esriSatellite,
-        "Hybrid": L.layerGroup([esriSatellite, osmLabels])
+        "Google Hybrid (Default)": googleHybrid,
+        "Google Satellite": googleSatellite,
+        "Google Roadmap": googleRoadmap,
+        "Esri Satellite": esriSatellite
       }).addTo(map);
 
       const drawnItems = new L.FeatureGroup();
@@ -130,7 +158,7 @@ export default function GeofenceMap({ initialGeofence, onSave, onCancel }: Geofe
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`);
       const data = await res.json();
       if (data.length > 0 && mapInstance.current) {
-        mapInstance.current.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 20);
+        mapInstance.current.setView([parseFloat(data[0].lat), parseFloat(data[0].lon)], 18);
       } else {
         alert("Location not found");
       }
@@ -151,6 +179,54 @@ export default function GeofenceMap({ initialGeofence, onSave, onCancel }: Geofe
 
   return (
     <div className="bg-[#1c2130] border border-gray-700/50 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.6)] p-6 flex flex-col items-center justify-center w-[900px] max-w-[95vw]">
+      <style dangerouslySetInnerHTML={{ __html: `
+        /* Injected Leaflet Draw and Leaflet CDN Styles */
+        @import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css');
+
+        /* Leaflet Draw toolbar sprite override */
+        .leaflet-draw-toolbar a {
+          background-image: url('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/images/spritesheet.png') !important;
+          background-repeat: no-repeat !important;
+        }
+        .leaflet-retina .leaflet-draw-toolbar a {
+          background-image: url('https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/images/spritesheet-2x.png') !important;
+          background-size: 300px 30px !important;
+        }
+        
+        /* Premium custom styling for Leaflet controls and search */
+        .leaflet-container {
+          font-family: inherit;
+        }
+        .leaflet-draw-actions {
+          margin-left: 2px !important;
+        }
+        .leaflet-draw-actions a {
+          background-color: #374151 !important;
+          color: #f3f4f6 !important;
+          border-color: #4b5563 !important;
+        }
+        .leaflet-draw-actions a:hover {
+          background-color: #4b5563 !important;
+        }
+        .leaflet-bar {
+          border: 1px solid rgba(156, 163, 175, 0.2) !important;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        }
+        .leaflet-bar a {
+          background-color: #1f2937 !important;
+          border-bottom: 1px solid rgba(156, 163, 175, 0.1) !important;
+          color: #f3f4f6 !important;
+        }
+        .leaflet-bar a:hover {
+          background-color: #374151 !important;
+          color: #ffffff !important;
+        }
+        .leaflet-bar a.leaflet-disabled {
+          background-color: #111827 !important;
+          color: #4b5563 !important;
+        }
+      `}} />
       <div className="w-full flex items-center justify-between mb-4">
         <h3 className="text-[17px] font-semibold text-white">Configure Geofence</h3>
         <div className="flex gap-2 w-[400px]">
