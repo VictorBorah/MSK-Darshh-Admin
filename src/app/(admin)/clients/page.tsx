@@ -17,6 +17,7 @@ import {
 import toast from 'react-hot-toast';
 import ViewClientModal from './ViewClient';
 import EditClientModal from './EditClient';
+import ClientSettingsModal from './ClientSettings';
 
 interface Client {
   client_id: string;
@@ -40,6 +41,10 @@ export default function ClientsPage() {
   // Edit Client Profile State
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
+
+  // Client Settings Modal State
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsClient, setSettingsClient] = useState<Client | null>(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -438,7 +443,7 @@ export default function ClientsPage() {
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button 
-                        onClick={() => toast.success(`Configuration settings opened for client: ${client.client_name}`)}
+                        onClick={() => { setSettingsClient(client); setIsSettingsOpen(true); }}
                         className="px-3 py-1.5 text-[11px] bg-gray-600/20 text-gray-300 hover:bg-gray-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 font-medium whitespace-nowrap"
                       >
                         <Settings className="w-3 h-3" /> Settings
@@ -678,6 +683,13 @@ export default function ClientsPage() {
         onClose={() => { setIsEditOpen(false); setEditingClient(null); }}
         client={editingClient}
         onSuccess={() => fetchClientsList(currentPage)}
+      />
+
+      {/* Client Settings Modal */}
+      <ClientSettingsModal 
+        isOpen={isSettingsOpen}
+        onClose={() => { setIsSettingsOpen(false); setSettingsClient(null); }}
+        client={settingsClient}
       />
 
     </div>
