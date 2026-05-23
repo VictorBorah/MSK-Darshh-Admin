@@ -10,7 +10,6 @@ import {
   Users, 
   Box, 
   ShoppingCart,
-  TrendingUp,
   IndianRupee,
   Files,
   Blocks,
@@ -20,7 +19,8 @@ import {
   Clock,
   X,
   LayoutList,
-  ListChecks
+  ListChecks,
+  UserCheck
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -46,6 +46,7 @@ export default function Sidebar() {
       case 'user-groups': return <Users className={className} />;
       case 'menu-config': return <LayoutList className={className} />;
       case 'demands': return <ListChecks className={className} />;
+      case 'clients': return <UserCheck className={className} />;
       default: return <CircleDot className={className} />;
     }
   };
