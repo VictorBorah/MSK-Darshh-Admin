@@ -1,8 +1,19 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { AlertCircle } from 'lucide-react';
+
+export interface Project {
+  project_id: string;
+  project_name: string;
+  site_coordinates?: string;
+  site_address?: string;
+  start_date?: string;
+  status?: string;
+  geofence_ready?: string;
+  geofence_json?: unknown;
+}
 
 interface MenuItem {
   menu_type: string;
@@ -17,10 +28,21 @@ interface AuthContextType {
   } | null;
   menu: MenuItem[];
   frontendVersion: string | null;
+  projects: Project[];
+  defaultProject: string | null;
+  isLoadingAppData: boolean;
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, menu: [], frontendVersion: null, logout: () => {} });
+const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  menu: [], 
+  frontendVersion: null, 
+  projects: [], 
+  defaultProject: null, 
+  isLoadingAppData: true, 
+  logout: () => {} 
+});
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -30,16 +52,35 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<{ displayName: string; groupName: string } | null>(null);
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [frontendVersion, setFrontendVersion] = useState<string | null>(null);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [defaultProject, setDefaultProject] = useState<string | null>(null);
+  const [isLoadingAppData, setIsLoadingAppData] = useState<boolean>(true);
   const [isLoggedOutModal, setIsLoggedOutModal] = useState(false);
 
-  // Core validation function
-  const validateSession = async () => {
+  // Core logout function
+  const triggerLogout = useCallback(() => {
+    setIsLoggedOutModal(true);
+    localStorage.removeItem('u_x6yEui0t');
+    localStorage.removeItem('g_3b7z1kw');
+    localStorage.removeItem('at_ki8Xq1iV');
+    localStorage.removeItem('p_v7Ykz3ui9x');
+    
+    // Auto redirect after allowing user to process the message
+    setTimeout(() => {
+      setIsLoggedOutModal(false);
+      router.push('/');
+    }, 2500);
+  }, [router]);
+
+  // Core session validation function
+  const validateSession = useCallback(async () => {
     // 1. Check if tokens exist
     const token1 = localStorage.getItem('u_x6yEui0t');
     const token2 = localStorage.getItem('g_3b7z1kw');
     const token3 = localStorage.getItem('at_ki8Xq1iV');
 
     if (!token1 || !token2 || !token3) {
+      setIsLoadingAppData(false);
       triggerLogout();
       return;
     }
@@ -55,6 +96,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
+        setIsLoadingAppData(false);
         triggerLogout();
         return;
       }
@@ -63,7 +105,8 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       let dataArr;
       try {
           dataArr = JSON.parse(rawText);
-      } catch(e) {
+      } catch {
+         setIsLoadingAppData(false);
          triggerLogout();
          return;
       }
@@ -91,6 +134,21 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
           setFrontendVersion(data.System_Data.frontendVersion);
         }
 
+        // Set Projects & Default Project ID
+        if (data.My_Projects && Array.isArray(data.My_Projects)) {
+          setProjects(data.My_Projects);
+        } else {
+          setProjects([]);
+        }
+
+        if (data.System_Data && data.System_Data.default_project) {
+          setDefaultProject(String(data.System_Data.default_project));
+        } else {
+          setDefaultProject(null);
+        }
+
+        setIsLoadingAppData(false);
+
         // Store CSV requirement globally
         if(userData.projects_csv) {
           localStorage.setItem('p_v7Ykz3ui9x', userData.projects_csv);
@@ -102,28 +160,16 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         }
 
       } else {
+        setIsLoadingAppData(false);
         triggerLogout();
       }
 
     } catch (error) {
        console.error("Session Validation Error:", error);
+       setIsLoadingAppData(false);
        triggerLogout();
     }
-  };
-
-  const triggerLogout = () => {
-    setIsLoggedOutModal(true);
-    localStorage.removeItem('u_x6yEui0t');
-    localStorage.removeItem('g_3b7z1kw');
-    localStorage.removeItem('at_ki8Xq1iV');
-    localStorage.removeItem('p_v7Ykz3ui9x');
-    
-    // Auto redirect after allowing user to process the message
-    setTimeout(() => {
-      setIsLoggedOutModal(false);
-      router.push('/');
-    }, 2500);
-  };
+  }, [triggerLogout]);
 
   useEffect(() => {
     // Engage Auth guard on all protected routes (anything that isn't the / root login component)
@@ -135,7 +181,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       const token3 = localStorage.getItem('at_ki8Xq1iV');
 
       if (!token1 || !token2 || !token3) {
-        triggerLogout();
+        setTimeout(() => triggerLogout(), 0);
         return;
       }
 
@@ -158,11 +204,10 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
         document.removeEventListener('visibilitychange', handleVisibilityChange);
       };
     }
-  }, [pathname]);
-
+  }, [pathname, validateSession, triggerLogout]);
 
   return (
-    <AuthContext.Provider value={{ user, menu, frontendVersion, logout: triggerLogout }}>
+    <AuthContext.Provider value={{ user, menu, frontendVersion, projects, defaultProject, isLoadingAppData, logout: triggerLogout }}>
       {children}
       
       {/* Global Logout Modal Overlay */}

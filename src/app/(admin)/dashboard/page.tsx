@@ -1,132 +1,88 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, Calendar, RefreshCw, CheckSquare, Square, ChevronDown, HardHat, Package, CalendarDays, DollarSign, CreditCard, Landmark, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Search, Calendar, RefreshCw, CheckSquare, Square, ChevronDown, HardHat, Package, CalendarDays, IndianRupee, CreditCard, Landmark, CheckCircle, AlertTriangle, Loader2, RotateCcw } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
+import { useAuth, Project } from '@/components/providers/AuthProvider';
 
-// Dummy projects data
-const DUMMY_PROJECTS = [
-  {
-    id: '9',
-    name: 'GOGOI RESIDENCE',
-    location: 'Biswanath Chariali',
-    district: 'Biswanath',
-    coordinates: '12233545.4584545, 3232434545.54664656',
-    client: 'Simran Singh',
-    clientMobile: '7845124578',
-    clientEmail: 'simran@gmail.com',
-    contractAmount: '<Redacted>',
-    startDate: '12-06-2025',
-    currentStage: 'Plinth Construction',
-    totalExpenditure: '4,578,254.00',
-    budgetAmount: '5,478,215.30',
-    triggerAt: '450,000.00',
-    totalDays: '235',
-    targetDate: 'N/A',
-    metrics: {
-      purchases: '42,300.00',
-      payments: '7,200.00',
-      staff: 16,
-      workers: 129,
-      items: 354,
-      days: 235
-    },
-    pieData: { material: 78, nonMaterial: 22 },
-    barData: [
-      { label: 'Cement', value: 85, color: '#2dd4bf' },
-      { label: 'Steel', value: 72, color: '#fb923c' },
-      { label: 'Bricks', value: 55, color: '#f43f5e' },
-      { label: 'Sand', value: 68, color: '#ec4899' },
-      { label: 'Labor', value: 50, color: '#f59e0b' },
-      { label: 'Plumbing', value: 78, color: '#3b82f6' },
-      { label: 'Electrical', value: 60, color: '#06b6d4' },
-      { label: 'Finishing', value: 45, color: '#e11d48' }
-    ]
-  },
-  {
-    id: '13',
-    name: 'DIKRONG TOWER',
-    location: 'Beltola',
-    district: 'Kamrup Metro',
-    coordinates: '26.120123206348392, 91.76072828785053',
-    client: 'Victor Borah',
-    clientMobile: '9435012345',
-    clientEmail: 'victor.b@darshh.com',
-    contractAmount: '12,500,000.00',
-    startDate: '01-10-2025',
-    currentStage: 'Foundation Slab',
-    totalExpenditure: '8,245,610.00',
-    budgetAmount: '10,000,000.00',
-    triggerAt: '900,000.00',
-    totalDays: '120',
-    targetDate: '15-12-2026',
-    metrics: {
-      purchases: '154,200.00',
-      payments: '45,800.00',
-      staff: 8,
-      workers: 84,
-      items: 122,
-      days: 120
-    },
-    pieData: { material: 65, nonMaterial: 35 },
-    barData: [
-      { label: 'Cement', value: 92, color: '#2dd4bf' },
-      { label: 'Steel', value: 88, color: '#fb923c' },
-      { label: 'Bricks', value: 40, color: '#f43f5e' },
-      { label: 'Sand', value: 75, color: '#ec4899' },
-      { label: 'Labor', value: 85, color: '#f59e0b' },
-      { label: 'Plumbing', value: 20, color: '#3b82f6' },
-      { label: 'Electrical', value: 15, color: '#06b6d4' },
-      { label: 'Finishing', value: 10, color: '#e11d48' }
-    ]
-  },
-  {
-    id: '10',
-    name: 'DHEMAJI PLAZA',
-    location: 'Tezpur Road',
-    district: 'Tezpur',
-    coordinates: '26.6338, 92.7926',
-    client: 'Rajesh Kakati',
-    clientMobile: '8876599221',
-    clientEmail: 'r.kakati@tezpur.co.in',
-    contractAmount: '45,000,000.00',
-    startDate: '15-01-2026',
-    currentStage: 'Excavation & Piling',
-    totalExpenditure: '12,980,100.00',
-    budgetAmount: '38,000,000.00',
-    triggerAt: '3,000,000.00',
-    totalDays: '58',
-    targetDate: '01-06-2028',
-    metrics: {
-      purchases: '310,450.00',
-      payments: '112,000.00',
-      staff: 24,
-      workers: 210,
-      items: 418,
-      days: 58
-    },
-    pieData: { material: 82, nonMaterial: 18 },
-    barData: [
-      { label: 'Cement', value: 45, color: '#2dd4bf' },
-      { label: 'Steel', value: 95, color: '#fb923c' },
-      { label: 'Bricks', value: 15, color: '#f43f5e' },
-      { label: 'Sand', value: 30, color: '#ec4899' },
-      { label: 'Labor', value: 65, color: '#f59e0b' },
-      { label: 'Plumbing', value: 10, color: '#3b82f6' },
-      { label: 'Electrical', value: 8, color: '#06b6d4' },
-      { label: 'Finishing', value: 5, color: '#e11d48' }
-    ]
-  }
-];
+// 1. Define explicit TypeScript interfaces for strict Type safety
+interface BreakupItem {
+  category: string;
+  value: number;
+  percentage: number;
+  color: string;
+}
+
+interface BarItem {
+  label: string;
+  value: number;
+  color: string;
+}
+
+interface DashboardData {
+  project_info: {
+    project_id?: string;
+    project_name?: string;
+    project_code?: string;
+    site_address?: string;
+    district_id?: string;
+    district_name?: string;
+    client_id?: string;
+    client_name?: string;
+    client_mobile?: string;
+    client_email?: string;
+    site_coordinates?: string;
+    current_stage_id?: string;
+    current_stage?: string;
+    max_budget?: string;
+    contract_amount?: string;
+    budget_trigger?: string;
+    start_date?: string;
+    target_date?: string;
+    elapsed_days?: string;
+  };
+  card_statistics: {
+    total_purchases?: string;
+    total_payments?: string;
+    total_staff?: string;
+    total_workers?: string;
+    total_stock_items?: string;
+    elapsed_days?: string;
+  };
+  pie_data?: {
+    status?: string;
+    data?: {
+      total_expenditure?: number;
+      breakup?: BreakupItem[];
+    };
+  };
+  barchart_data?: {
+    status?: string;
+    data?: {
+      labels: string[];
+      datasets: Array<{
+        label: string;
+        values: number[];
+        colors: string[];
+      }>;
+    };
+  };
+}
 
 export default function Dashboard() {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // State Management
-  const [selectedProject, setSelectedProject] = useState(DUMMY_PROJECTS[0]);
-  const [isReloading, setIsReloading] = useState(false);
-  
+  // Consume projects, default project metadata from AuthContext
+  const { projects, defaultProject, isLoadingAppData } = useAuth();
+
+  // Dashboard API and Active state management
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [isReportsLoading, setIsReportsLoading] = useState<boolean>(false);
+  const [showWarningBanner, setShowWarningBanner] = useState<boolean>(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -135,19 +91,11 @@ export default function Dashboard() {
   // Date Range state
   const [dateRangeStr, setDateRangeStr] = useState('22-05-2026 to 29-05-2026');
   const [isDateOpen, setIsDateOpen] = useState(false);
-  const [applyDaterange, setApplyDaterange] = useState(true);
+  const [applyDaterange, setApplyDaterange] = useState(false);
   const [calMonth, setCalMonth] = useState(new Date(2026, 4)); // May 2026
   const [tempStart, setTempStart] = useState<Date | null>(new Date(2026, 4, 22));
   const [tempEnd, setTempEnd] = useState<Date | null>(new Date(2026, 4, 29));
   const dateRef = useRef<HTMLDivElement>(null);
-
-  // Reload Trigger
-  const handleReload = () => {
-    setIsReloading(true);
-    setTimeout(() => {
-      setIsReloading(false);
-    }, 650);
-  };
 
   // Close search & date picker popovers on outside clicks
   useEffect(() => {
@@ -163,12 +111,185 @@ export default function Dashboard() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Filter project list based on search query
-  const filteredProjects = DUMMY_PROJECTS.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.district.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Dismiss Toast auto-timer
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 3500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  // Sync Default Project on Initial Load
+  useEffect(() => {
+    if (!isLoadingAppData && projects) {
+      const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
+      
+      if (!hasDefaultProject && !activeProject) {
+        setShowWarningBanner(true);
+        setIsReportsLoading(false);
+      } else if (hasDefaultProject && !activeProject) {
+        // Find default project from loaded projects
+        const matched = projects.find((p: Project) => String(p.project_id) === String(defaultProject));
+        if (matched) {
+          setActiveProject(matched);
+          setShowWarningBanner(false);
+        } else {
+          setShowWarningBanner(true);
+        }
+      }
+    }
+  }, [isLoadingAppData, defaultProject, projects, activeProject]);
+
+  // REST API Reports Data Fetching
+  const fetchDashboardReportData = useCallback(async (projId: string) => {
+    if (!projId) return;
+    setIsReportsLoading(true);
+
+    const getFormattedDate = (d: Date | null) => {
+      if (!d) return '';
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}-${month}-${year}`;
+    };
+
+    const fromDate = applyDaterange && tempStart ? getFormattedDate(tempStart) : '';
+    const toDate = applyDaterange && tempEnd ? getFormattedDate(tempEnd) : '';
+
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const url = `${baseUrl}reports/fetchDashboardData?project_id=${projId}&from_date=${fromDate}&to_date=${toDate}`;
+
+      const res = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('API server returned connection error');
+      }
+
+      const rawText = await res.text();
+      let resDataArr;
+      try {
+        resDataArr = JSON.parse(rawText);
+      } catch {
+        throw new Error('Response payload parsing failed');
+      }
+
+      const resData = Array.isArray(resDataArr) ? resDataArr[0] : resDataArr;
+
+      if (resData) {
+        const isSuccess = String(resData.Status) === "1";
+        
+        setToast({
+          message: resData.Message || (isSuccess ? 'Dashboard statistics updated' : 'Reports fetch error'),
+          type: isSuccess ? 'success' : 'error'
+        });
+
+        if (isSuccess && resData.dashboard_data) {
+          setDashboardData(resData.dashboard_data);
+        } else {
+          setDashboardData(null);
+        }
+      }
+    } catch (error) {
+      const err = error as Error;
+      console.error("Dashboard Fetch Error:", err);
+      setToast({
+        message: err.message || 'Network connection failed. Could not reach server.',
+        type: 'error'
+      });
+      setDashboardData(null);
+    } finally {
+      setIsReportsLoading(false);
+    }
+  }, [applyDaterange, tempStart, tempEnd]);
+
+  // Re-fetch reports automatically on Project or Date filters toggling
+  useEffect(() => {
+    if (activeProject && activeProject.project_id) {
+      fetchDashboardReportData(activeProject.project_id);
+    }
+  }, [activeProject, fetchDashboardReportData]);
+
+  // Reload Manual Control
+  const handleReload = () => {
+    if (activeProject && activeProject.project_id) {
+      fetchDashboardReportData(activeProject.project_id);
+    } else {
+      setToast({
+        message: 'Please select a project first to reload reports',
+        type: 'error'
+      });
+    }
+  };
+
+  // Reset Manual Control
+  const handleReset = () => {
+    setApplyDaterange(false);
+    
+    const startDefault = new Date(2026, 4, 22);
+    const endDefault = new Date(2026, 4, 29);
+    setTempStart(startDefault);
+    setTempEnd(endDefault);
+    setDateRangeStr('22-05-2026 to 29-05-2026');
+    setCalMonth(new Date(2026, 4));
+
+    const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
+    if (hasDefaultProject && projects) {
+      const matched = projects.find((p: Project) => String(p.project_id) === String(defaultProject));
+      if (matched) {
+        setActiveProject(matched);
+        setShowWarningBanner(false);
+        // Force refresh directly if already active to bypass React state dependency check latency
+        if (activeProject && String(activeProject.project_id) === String(matched.project_id)) {
+          setIsReportsLoading(true);
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          fetch(`${baseUrl}reports/fetchDashboardData?project_id=${matched.project_id}&from_date=&to_date=`, {
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          })
+          .then(res => res.json())
+          .then(resDataArr => {
+            const resData = Array.isArray(resDataArr) ? resDataArr[0] : resDataArr;
+            if (resData && String(resData.Status) === "1" && resData.dashboard_data) {
+              setDashboardData(resData.dashboard_data);
+            }
+            setIsReportsLoading(false);
+          })
+          .catch(() => setIsReportsLoading(false));
+        }
+      } else {
+        setActiveProject(null);
+        setShowWarningBanner(true);
+        setDashboardData(null);
+      }
+    } else {
+      setActiveProject(null);
+      setShowWarningBanner(true);
+      setDashboardData(null);
+    }
+
+    setToast({
+      message: 'Dashboard settings reset to initial state',
+      type: 'success'
+    });
+  };
+
+  // Filter project list based on search query from live API projects
+  const filteredProjects = projects ? projects.filter((p: Project) =>
+    (p.project_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.site_address || '').toLowerCase().includes(searchQuery.toLowerCase())
+  ) : [];
 
   // Integrated Calendar Grid Generator
   const generateDaysForMonth = () => {
@@ -216,7 +337,7 @@ export default function Dashboard() {
     } else if (tempStart && !tempEnd) {
       if (date >= tempStart) {
         setTempEnd(date);
-        // Format both strings
+        
         const fmtStart = formatDate(tempStart);
         const fmtEnd = formatDate(date);
         setDateRangeStr(`${fmtStart} to ${fmtEnd}`);
@@ -247,17 +368,38 @@ export default function Dashboard() {
     return date > tempStart && date < tempEnd;
   };
 
-  // SVG Pie Chart calculations (Radius = 65)
+  // Safe dashboard statistics extraction with placeholders
+  const info = dashboardData?.project_info || {};
+  const stats = dashboardData?.card_statistics || {};
+
+  // Donut SVG Calculations (Radius = 65)
   const pieRadius = 65;
   const pieCircumference = 2 * Math.PI * pieRadius;
-  const matPercentage = selectedProject.pieData.material;
-  const nonMatPercentage = selectedProject.pieData.nonMaterial;
   
-  // Circumference calculations for dashboard stroke offsets
+  // Extract and calculate dynamic Pie data percentages from API breakup list
+  const breakupArray = dashboardData?.pie_data?.data?.breakup || [];
+  const matObj = breakupArray.find((item: BreakupItem) => item.category === 'Material');
+  const nonMatObj = breakupArray.find((item: BreakupItem) => 
+    item.category.includes('Non Material') || 
+    item.category.includes('Non-Material') || 
+    item.category === 'Non Material'
+  );
+
+  const matPercentage = matObj ? Number(matObj.percentage) : 0;
+  const nonMatPercentage = nonMatObj ? Number(nonMatObj.percentage) : 0;
+
   const matDashArray = `${(matPercentage / 100) * pieCircumference} ${pieCircumference}`;
   const nonMatDashOffset = -((matPercentage / 100) * pieCircumference);
 
-  // Border theme calculations based on isDark logic
+  // Dynamic Bar Chart Mappings
+  const barRaw = dashboardData?.barchart_data?.data || { labels: [], datasets: [{ values: [], colors: [] }] };
+  const mappedBarData = (barRaw.labels || []).map((label: string, index: number) => ({
+    label: label,
+    value: barRaw.datasets?.[0]?.values?.[index] || 0,
+    color: barRaw.datasets?.[0]?.colors?.[index] || '#3b82f6'
+  }));
+
+  // Border and container UI designs based on theme configurations
   const mainBorderClass = isDark 
     ? 'border border-gray-800/80 bg-[#161a25]/95 shadow-xl backdrop-blur-md rounded-xl p-[1px] bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-emerald-500/15'
     : 'border border-gray-200 bg-white shadow-md rounded-xl p-[1px]';
@@ -270,8 +412,47 @@ export default function Dashboard() {
     ? 'bg-gradient-to-br from-[#121727] via-[#0f121d] to-[#0c0e18] border border-blue-500/20 text-[#ccd6f6]'
     : 'bg-[#ffffff] border border-gray-200 text-gray-800';
 
+  // 5. Full Screen Sync Loader for initial app validations
+  if (isLoadingAppData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#0e121e] text-white">
+        <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
+        <span className="text-[14px] font-semibold text-gray-400">Loading App Configuration...</span>
+      </div>
+    );
+  }
+
   return (
     <div className={`p-6 md:p-8 min-h-screen ${isDark ? 'text-white' : 'text-slate-900'}`}>
+
+      {/* Warning Alert Banner for unset default project */}
+      {showWarningBanner && (
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/25 rounded-xl p-4 flex items-center gap-3.5 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
+          <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0 animate-pulse" />
+          <div className="flex flex-col">
+            <span className="text-[14.5px] font-bold text-amber-300">Default Project Not Set</span>
+            <span className="text-[13px] text-gray-300 mt-0.5">Please select a Project from the dropdown first to view real-time operations, telemetry, and financial analysis.</span>
+          </div>
+        </div>
+      )}
+
+      {/* Custom sliding glassmorphism toast popup */}
+      {toast && (
+        <div className="fixed bottom-5 right-5 z-[9999] animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl backdrop-blur-md ${
+            toast.type === 'success'
+              ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-400'
+              : 'bg-rose-950/80 border-rose-500/30 text-rose-400'
+          }`}>
+            {toast.type === 'success' ? (
+              <CheckCircle className="w-5 h-5 shrink-0 text-emerald-400" />
+            ) : (
+              <AlertTriangle className="w-5 h-5 shrink-0 text-rose-400" />
+            )}
+            <span className="text-[13.5px] font-semibold">{toast.message}</span>
+          </div>
+        </div>
+      )}
       
       {/* 1. Header Bar containing controls */}
       <div className={`flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8 p-4 rounded-xl border ${
@@ -293,7 +474,9 @@ export default function Dashboard() {
             >
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <Search className="w-4.5 h-4.5 text-blue-500 shrink-0" />
-                <span className="font-semibold text-[14px] truncate">{selectedProject.name}</span>
+                <span className="font-semibold text-[14px] truncate">
+                  {activeProject ? activeProject.project_name : 'Select a Project...'}
+                </span>
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isSearchOpen ? 'rotate-180' : ''}`} />
             </div>
@@ -304,7 +487,7 @@ export default function Dashboard() {
               }`}>
                 <input 
                   type="text" 
-                  placeholder="Search project, district..." 
+                  placeholder="Search project..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={`w-full px-3 py-2 text-[13px] rounded-lg border mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
@@ -314,23 +497,24 @@ export default function Dashboard() {
                 />
                 <div className="space-y-1">
                   {filteredProjects.length > 0 ? (
-                    filteredProjects.map((p) => (
+                    filteredProjects.map((p: Project) => (
                       <div 
-                        key={p.id}
+                        key={p.project_id}
                         onClick={() => {
-                          setSelectedProject(p);
+                          setActiveProject(p);
                           setIsSearchOpen(false);
                           setSearchQuery('');
+                          setShowWarningBanner(false);
                         }}
                         className={`px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all ${
-                          selectedProject.id === p.id 
+                          activeProject?.project_id === p.project_id 
                             ? 'bg-blue-600 text-white' 
                             : isDark ? 'text-gray-300 hover:bg-[#1f2536]' : 'text-slate-700 hover:bg-slate-100'
                         }`}
                       >
-                        <div className="font-semibold truncate">{p.name}</div>
-                        <div className={`text-[11px] mt-0.5 ${selectedProject.id === p.id ? 'text-blue-100' : 'text-gray-400'}`}>
-                          {p.location}, {p.district}
+                        <div className="font-semibold truncate">{p.project_name}</div>
+                        <div className={`text-[11px] mt-0.5 ${activeProject?.project_id === p.project_id ? 'text-blue-100' : 'text-gray-400'}`}>
+                          {p.site_address}
                         </div>
                       </div>
                     ))
@@ -343,7 +527,7 @@ export default function Dashboard() {
           </div>
 
           {/* Integrated Date Range Picker Dropdown */}
-          <div className="relative flex-grow md:max-w-md" ref={dateRef}>
+          <div className="relative flex-grow md:max-w-[400px] md:min-w-[360px]" ref={dateRef}>
             <div className="flex items-center gap-3">
               
               <div 
@@ -354,10 +538,10 @@ export default function Dashboard() {
                     : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300'
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-hidden shrink-0">
                   <Calendar className="w-4.5 h-4.5 text-blue-500 shrink-0" />
-                  <span className="text-[13.5px] font-medium text-gray-400">Date Range</span>
-                  <span className={`text-[13.5px] font-semibold ${isDark ? 'text-white' : 'text-slate-800'}`}>
+                  <span className="text-[13px] font-bold text-gray-400 hidden sm:inline whitespace-nowrap">Date Range:</span>
+                  <span className={`text-[13.5px] font-mono font-bold whitespace-nowrap ${isDark ? 'text-white' : 'text-slate-800'}`}>
                     {dateRangeStr}
                   </span>
                 </div>
@@ -446,27 +630,52 @@ export default function Dashboard() {
 
         </div>
 
-        {/* Right Side: Reload dashboard control */}
-        <button 
-          onClick={handleReload}
-          disabled={isReloading}
-          className={`flex items-center justify-center gap-2.5 px-5 py-2.5 rounded-lg border font-bold text-[13.5px] cursor-pointer transition-all self-end xl:self-auto ${
-            isReloading ? 'opacity-70 scale-95' : 'hover:scale-[1.02]'
-          } ${
-            isDark 
-              ? 'bg-[#181d2a] border-gray-800 text-blue-400 hover:border-gray-700 hover:text-blue-300' 
-              : 'bg-slate-50 border-slate-200 text-blue-600 hover:border-slate-300 hover:text-blue-700 shadow-sm'
-          }`}
-        >
-          <RefreshCw className={`w-4.5 h-4.5 text-blue-500 ${isReloading ? 'animate-spin' : ''}`} />
-          <span>Reload Dashboard</span>
-        </button>
+        {/* Right Side: Reload & Reset dashboard controls */}
+        <div className="flex items-center gap-3 self-end xl:self-auto">
+          
+          {/* Reset Button */}
+          <button 
+            onClick={handleReset}
+            disabled={isReportsLoading}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border font-bold text-[13px] cursor-pointer transition-all hover:scale-[1.02] ${
+              isReportsLoading ? 'opacity-70' : ''
+            } ${
+              isDark 
+                ? 'bg-[#181d2a]/80 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-gray-300' 
+                : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-700 shadow-sm'
+            }`}
+          >
+            <RotateCcw className="w-4 h-4 text-gray-400 shrink-0" />
+            <span>Reset</span>
+          </button>
+
+          {/* Reload Button */}
+          <button 
+            onClick={handleReload}
+            disabled={isReportsLoading}
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border font-bold text-[13px] cursor-pointer transition-all hover:scale-[1.02] ${
+              isReportsLoading ? 'opacity-70' : ''
+            } ${
+              isDark 
+                ? 'bg-[#181d2a] border-gray-800 text-blue-400 hover:border-gray-700 hover:text-blue-300' 
+                : 'bg-slate-50 border-slate-200 text-blue-600 hover:border-slate-300 hover:text-blue-700 shadow-sm'
+            }`}
+          >
+            {isReportsLoading ? (
+              <Loader2 className="w-4.5 h-4.5 text-blue-500 animate-spin shrink-0" />
+            ) : (
+              <RefreshCw className="w-4 h-4 text-blue-500 shrink-0" />
+            )}
+            <span>Reload</span>
+          </button>
+
+        </div>
 
       </div>
 
       {/* 2. 6 Large metrics cards row */}
       <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 xl:gap-5 mb-8 transition-all duration-500 ${
-        isReloading ? 'opacity-40 translate-y-2' : 'opacity-100'
+        isReportsLoading ? 'opacity-40 translate-y-2' : 'opacity-100'
       }`}>
         
         {/* Metric 1: Total Purchases */}
@@ -474,11 +683,11 @@ export default function Dashboard() {
           <div className={cardInnerClass}>
             <div className="flex items-center justify-between mb-3">
               <span className="text-[12px] font-bold uppercase tracking-wider text-gray-400">Total Purchases</span>
-              <DollarSign className="w-5 h-5 text-blue-500" />
+              <IndianRupee className="w-5 h-5 text-blue-500" />
             </div>
             <div className="mt-1">
-              <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none">
-                {selectedProject.metrics.purchases}
+              <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none flex items-center gap-0.5">
+                <span className="text-xl xl:text-2xl text-gray-400 font-normal">₹</span>{stats.total_purchases || '0.00'}
               </h2>
               <span className="text-[11px] text-gray-500 font-semibold mt-1 block">Live Material costs</span>
             </div>
@@ -493,8 +702,8 @@ export default function Dashboard() {
               <CreditCard className="w-5 h-5 text-emerald-500" />
             </div>
             <div className="mt-1">
-              <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none">
-                {selectedProject.metrics.payments}
+              <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none flex items-center gap-0.5">
+                <span className="text-xl xl:text-2xl text-gray-400 font-normal">₹</span>{stats.total_payments || '0.00'}
               </h2>
               <span className="text-[11px] text-gray-500 font-semibold mt-1 block">Allocated funds</span>
             </div>
@@ -510,7 +719,7 @@ export default function Dashboard() {
             </div>
             <div className="mt-1">
               <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none">
-                {selectedProject.metrics.staff}
+                {stats.total_staff || '0'}
               </h2>
               <span className="text-[11px] text-gray-500 font-semibold mt-1 block">Active management</span>
             </div>
@@ -526,7 +735,7 @@ export default function Dashboard() {
             </div>
             <div className="mt-1">
               <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none">
-                {selectedProject.metrics.workers}
+                {stats.total_workers || '0'}
               </h2>
               <span className="text-[11px] text-gray-500 font-semibold mt-1 block">On-site workforce</span>
             </div>
@@ -542,7 +751,7 @@ export default function Dashboard() {
             </div>
             <div className="mt-1">
               <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none">
-                {selectedProject.metrics.items}
+                {stats.total_stock_items || '0'}
               </h2>
               <span className="text-[11px] text-gray-500 font-semibold mt-1 block">Stock catalog count</span>
             </div>
@@ -558,7 +767,7 @@ export default function Dashboard() {
             </div>
             <div className="mt-1">
               <h2 className="text-2xl xl:text-3xl font-extrabold tracking-tight font-mono text-white leading-none">
-                {selectedProject.metrics.days}
+                {stats.elapsed_days || '0'}
               </h2>
               <span className="text-[11px] text-gray-500 font-semibold mt-1 block">Calendar elapsed</span>
             </div>
@@ -569,7 +778,7 @@ export default function Dashboard() {
 
       {/* 3. Grid area containing Project Information, Pie Chart, and Bar Chart */}
       <div className={`grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-8 transition-all duration-500 ${
-        isReloading ? 'opacity-40 translate-y-3' : 'opacity-100'
+        isReportsLoading ? 'opacity-40 translate-y-3' : 'opacity-100'
       }`}>
         
         {/* Project Information Details - Span 6 */}
@@ -589,24 +798,24 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <div>
                       <h4 className="text-[11px] font-extrabold uppercase text-gray-400 tracking-wider">Project Identity</h4>
-                      <p className="text-[15px] font-black text-blue-400 mt-1">{selectedProject.name}</p>
+                      <p className="text-[15px] font-black text-blue-400 mt-1">{info.project_name || 'N/A'}</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <h4 className="text-[11px] font-extrabold uppercase text-gray-400 tracking-wider">Location</h4>
-                        <p className="text-[13px] font-bold text-white mt-0.5">{selectedProject.location}</p>
+                        <p className="text-[13px] font-bold text-white mt-0.5">{info.site_address || 'N/A'}</p>
                       </div>
                       <div>
                         <h4 className="text-[11px] font-extrabold uppercase text-gray-400 tracking-wider">District</h4>
-                        <p className="text-[13px] font-bold text-white mt-0.5">{selectedProject.district}</p>
+                        <p className="text-[13px] font-bold text-white mt-0.5">{info.district_name || 'N/A'}</p>
                       </div>
                     </div>
 
                     <div>
                       <h4 className="text-[11px] font-extrabold uppercase text-gray-400 tracking-wider">GPS Coordinates</h4>
                       <p className="text-[11.5px] font-semibold text-gray-300 font-mono mt-0.5 select-all break-all bg-black/30 p-2 rounded-lg leading-relaxed">
-                        {selectedProject.coordinates}
+                        {info.site_coordinates || 'N/A'}
                       </p>
                     </div>
 
@@ -614,13 +823,13 @@ export default function Dashboard() {
                       <h4 className="text-[11px] font-extrabold uppercase text-gray-400 tracking-wider mb-2">Client Details</h4>
                       <div className="space-y-1.5 text-[12.5px]">
                         <p className="font-bold flex items-center justify-between text-white">
-                          <span className="text-gray-400 font-medium">Name:</span> {selectedProject.client}
+                          <span className="text-gray-400 font-medium">Name:</span> {info.client_name || 'N/A'}
                         </p>
                         <p className="font-bold flex items-center justify-between text-white">
-                          <span className="text-gray-400 font-medium">Mobile:</span> {selectedProject.clientMobile}
+                          <span className="text-gray-400 font-medium">Mobile:</span> {info.client_mobile || 'N/A'}
                         </p>
                         <p className="font-bold flex items-center justify-between text-white">
-                          <span className="text-gray-400 font-medium">Email:</span> {selectedProject.clientEmail}
+                          <span className="text-gray-400 font-medium">Email:</span> {info.client_email || 'N/A'}
                         </p>
                       </div>
                     </div>
@@ -632,43 +841,43 @@ export default function Dashboard() {
                       <h4 className="text-[10px] font-extrabold uppercase text-blue-400 tracking-wider">Current Active Stage</h4>
                       <p className="text-[13.5px] font-black text-emerald-400 mt-1 flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 shrink-0 text-emerald-400" />
-                        {selectedProject.currentStage}
+                        {info.current_stage || 'N/A'}
                       </p>
                     </div>
 
                     <div className="border-t border-gray-800/30 pt-3 space-y-2 text-[12.5px]">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400 font-semibold">Contract Amount</span>
-                        <span className="font-bold font-mono text-white">${selectedProject.contractAmount}</span>
+                        <span className="font-bold font-mono text-white">₹{info.contract_amount || '0.00'}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400 font-semibold">Total Expenditure</span>
-                        <span className="font-bold font-mono text-white">${selectedProject.totalExpenditure}</span>
+                        <span className="font-bold font-mono text-white">₹{dashboardData?.pie_data?.data?.total_expenditure || '0.00'}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400 font-semibold">Allocated Budget</span>
-                        <span className="font-bold font-mono text-white">${selectedProject.budgetAmount}</span>
+                        <span className="font-bold font-mono text-white">₹{info.max_budget || '0.00'}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-gray-400 font-semibold">Trigger Threshold</span>
-                        <span className="font-bold font-mono text-rose-400">${selectedProject.triggerAt}</span>
+                        <span className="font-bold font-mono text-rose-400">₹{info.budget_trigger || '0.00'}</span>
                       </div>
                     </div>
 
                     <div className="border-t border-gray-800/30 pt-3 grid grid-cols-2 gap-4 text-[12.5px]">
                       <div>
                         <h4 className="text-[10px] font-bold text-gray-400 uppercase">Start Date</h4>
-                        <p className="font-bold text-white mt-0.5 font-mono">{selectedProject.startDate}</p>
+                        <p className="font-bold text-white mt-0.5 font-mono">{info.start_date || 'N/A'}</p>
                       </div>
                       <div>
                         <h4 className="text-[10px] font-bold text-gray-400 uppercase">Elapsed Days</h4>
-                        <p className="font-bold text-white mt-0.5 font-mono">{selectedProject.totalDays} Days</p>
+                        <p className="font-bold text-white mt-0.5 font-mono">{info.elapsed_days || '0'} Days</p>
                       </div>
                     </div>
 
                     <div className="border-t border-gray-800/30 pt-3 flex justify-between items-center text-[12.5px]">
                       <span className="text-gray-400 font-semibold uppercase text-[10px] tracking-wider">Target Deadline</span>
-                      <span className="font-bold font-mono text-white">{selectedProject.targetDate}</span>
+                      <span className="font-bold font-mono text-white">{info.target_date || 'N/A'}</span>
                     </div>
                   </div>
 
@@ -794,37 +1003,41 @@ export default function Dashboard() {
                 </div>
 
                 {/* Bars flex list */}
-                <div className="relative z-10 w-full h-full flex items-end justify-between gap-1.5">
-                  {selectedProject.barData.map((bar, idx) => (
-                    <div 
-                      key={idx} 
-                      className="flex-grow flex flex-col items-center group cursor-pointer"
-                    >
-                      <div className="relative w-full flex justify-center items-end h-[100px]">
-                        
-                        {/* Bar Segment */}
-                        <div 
-                          style={{ height: `${bar.value}%`, backgroundColor: bar.color }}
-                          className="w-full rounded-t-[3px] transition-all duration-1000 ease-out group-hover:brightness-110 shadow-lg"
-                        />
+                <div className="relative z-10 w-full h-full flex items-end justify-between gap-1.5 animate-in fade-in duration-500">
+                  {mappedBarData.length > 0 ? (
+                    mappedBarData.map((bar: BarItem, idx: number) => (
+                      <div 
+                        key={idx} 
+                        className="flex-grow flex flex-col items-center group cursor-pointer"
+                      >
+                        <div className="relative w-full flex justify-center items-end h-[100px]">
+                          
+                          {/* Bar Segment */}
+                          <div 
+                            style={{ height: `${bar.value}%`, backgroundColor: bar.color }}
+                            className="w-full rounded-t-[3px] transition-all duration-1000 ease-out group-hover:brightness-110 shadow-lg"
+                          />
 
-                        {/* Tooltip on Hover */}
-                        <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50">
-                          <span className="px-2 py-1 bg-slate-900 border border-gray-800 rounded-md text-[10px] font-mono font-bold text-white shadow-xl">
-                            {bar.value}%
-                          </span>
-                          <span className="w-1.5 h-1.5 bg-slate-900 border-r border-b border-gray-800 rotate-45 -mt-1"></span>
+                          {/* Tooltip on Hover */}
+                          <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-50">
+                            <span className="px-2 py-1 bg-slate-900 border border-gray-800 rounded-md text-[10px] font-mono font-bold text-white shadow-xl">
+                              {bar.value}%
+                            </span>
+                            <span className="w-1.5 h-1.5 bg-slate-900 border-r border-b border-gray-800 rotate-45 -mt-1"></span>
+                          </div>
+
                         </div>
 
+                        {/* Bar label */}
+                        <span className="text-[8.5px] font-bold text-gray-400 mt-2.5 text-center truncate w-full tracking-tighter">
+                          {bar.label}
+                        </span>
+
                       </div>
-
-                      {/* Bar label */}
-                      <span className="text-[8.5px] font-bold text-gray-400 mt-2.5 text-center truncate w-full tracking-tighter">
-                        {bar.label}
-                      </span>
-
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="text-gray-400 text-center py-8 text-[11px] w-full">No active allocations</div>
+                  )}
                 </div>
 
               </div>
