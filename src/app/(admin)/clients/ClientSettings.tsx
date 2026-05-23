@@ -25,7 +25,7 @@ export default function ClientSettingsModal({ isOpen, onClose, client }: ClientS
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden w-[500px] max-w-[95vw] animate-in zoom-in-95 duration-200">
-        
+
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
           <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
@@ -45,9 +45,9 @@ export default function ClientSettingsModal({ isOpen, onClose, client }: ClientS
           <div className="w-14 h-14 rounded-full bg-amber-500/10 border-2 border-amber-500/20 text-amber-500 flex items-center justify-center shadow-lg shadow-amber-500/5 mb-2">
             <AlertCircle className="w-7 h-7 animate-bounce" style={{ animationDuration: '3s' }} />
           </div>
-          
+
           <p className="text-[13.5px] leading-relaxed text-gray-300 px-4">
-            Currently, Zyn Software doesn't support client modules and usergroups. Therefore, client settings are not supported.
+            Currently, Zyn Software doesn't support client modules and client based usergroups. Client settings and client app will be integrated in future versions.
           </p>
         </div>
 
