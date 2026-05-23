@@ -125,7 +125,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isLoadingAppData && projects) {
       const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
-      
+
       if (!hasDefaultProject && !activeProject) {
         setShowWarningBanner(true);
         setIsReportsLoading(false);
@@ -186,7 +186,7 @@ export default function Dashboard() {
 
       if (resData) {
         const isSuccess = String(resData.Status) === "1";
-        
+
         setToast({
           message: resData.Message || (isSuccess ? 'Dashboard statistics updated' : 'Reports fetch error'),
           type: isSuccess ? 'success' : 'error'
@@ -233,7 +233,7 @@ export default function Dashboard() {
   // Reset Manual Control
   const handleReset = () => {
     setApplyDaterange(false);
-    
+
     const startDefault = new Date(2026, 4, 22);
     const endDefault = new Date(2026, 4, 29);
     setTempStart(startDefault);
@@ -258,15 +258,15 @@ export default function Dashboard() {
               'Authorization': `Bearer ${token}`
             }
           })
-          .then(res => res.json())
-          .then(resDataArr => {
-            const resData = Array.isArray(resDataArr) ? resDataArr[0] : resDataArr;
-            if (resData && String(resData.Status) === "1" && resData.dashboard_data) {
-              setDashboardData(resData.dashboard_data);
-            }
-            setIsReportsLoading(false);
-          })
-          .catch(() => setIsReportsLoading(false));
+            .then(res => res.json())
+            .then(resDataArr => {
+              const resData = Array.isArray(resDataArr) ? resDataArr[0] : resDataArr;
+              if (resData && String(resData.Status) === "1" && resData.dashboard_data) {
+                setDashboardData(resData.dashboard_data);
+              }
+              setIsReportsLoading(false);
+            })
+            .catch(() => setIsReportsLoading(false));
         }
       } else {
         setActiveProject(null);
@@ -297,7 +297,7 @@ export default function Dashboard() {
     const month = calMonth.getMonth();
     const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sunday
     const totalDays = new Date(year, month + 1, 0).getDate();
-    
+
     const prevMonthDays = new Date(year, month, 0).getDate();
     const days = [];
 
@@ -337,7 +337,7 @@ export default function Dashboard() {
     } else if (tempStart && !tempEnd) {
       if (date >= tempStart) {
         setTempEnd(date);
-        
+
         const fmtStart = formatDate(tempStart);
         const fmtEnd = formatDate(date);
         setDateRangeStr(`${fmtStart} to ${fmtEnd}`);
@@ -375,13 +375,13 @@ export default function Dashboard() {
   // Donut SVG Calculations (Radius = 65)
   const pieRadius = 65;
   const pieCircumference = 2 * Math.PI * pieRadius;
-  
+
   // Extract and calculate dynamic Pie data percentages from API breakup list
   const breakupArray = dashboardData?.pie_data?.data?.breakup || [];
   const matObj = breakupArray.find((item: BreakupItem) => item.category === 'Material');
-  const nonMatObj = breakupArray.find((item: BreakupItem) => 
-    item.category.includes('Non Material') || 
-    item.category.includes('Non-Material') || 
+  const nonMatObj = breakupArray.find((item: BreakupItem) =>
+    item.category.includes('Non Material') ||
+    item.category.includes('Non-Material') ||
     item.category === 'Non Material'
   );
 
@@ -400,7 +400,7 @@ export default function Dashboard() {
   }));
 
   // Border and container UI designs based on theme configurations
-  const mainBorderClass = isDark 
+  const mainBorderClass = isDark
     ? 'border border-gray-800/80 bg-[#161a25]/95 shadow-xl backdrop-blur-md rounded-xl p-[1px] bg-gradient-to-br from-blue-500/15 via-indigo-500/10 to-emerald-500/15'
     : 'border border-gray-200 bg-white shadow-md rounded-xl p-[1px]';
 
@@ -438,12 +438,11 @@ export default function Dashboard() {
 
       {/* Custom sliding glassmorphism toast popup */}
       {toast && (
-        <div className="fixed bottom-5 right-5 z-[9999] animate-in fade-in slide-in-from-bottom-5 duration-300">
-          <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl backdrop-blur-md ${
-            toast.type === 'success'
+        <div className="fixed top-5 right-5 z-[9999] animate-in fade-in slide-in-from-top-5 duration-300">
+          <div className={`flex items-center gap-3 px-5 py-3 rounded-xl border shadow-2xl backdrop-blur-md ${toast.type === 'success'
               ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-400'
               : 'bg-rose-950/80 border-rose-500/30 text-rose-400'
-          }`}>
+            }`}>
             {toast.type === 'success' ? (
               <CheckCircle className="w-5 h-5 shrink-0 text-emerald-400" />
             ) : (
@@ -453,24 +452,22 @@ export default function Dashboard() {
           </div>
         </div>
       )}
-      
+
       {/* 1. Header Bar containing controls */}
-      <div className={`flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8 p-4 rounded-xl border ${
-        isDark ? 'bg-[#181d2a]/90 border-gray-800/70 shadow-lg' : 'bg-white border-gray-200/80 shadow-sm'
-      }`}>
-        
+      <div className={`flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-8 p-4 rounded-xl border ${isDark ? 'bg-[#181d2a]/90 border-gray-800/70 shadow-lg' : 'bg-white border-gray-200/80 shadow-sm'
+        }`}>
+
         {/* Left Side: Dynamic Selector & Datepicker */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 flex-grow max-w-4xl">
-          
+
           {/* Searchable Dropdown Selector */}
           <div className="relative flex-grow md:max-w-xs" ref={searchRef}>
-            <div 
+            <div
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className={`flex items-center justify-between px-4 py-2.5 rounded-lg border cursor-pointer select-none transition-all ${
-                isDark 
-                  ? 'bg-[#111522] border-gray-800 text-white hover:border-gray-700' 
+              className={`flex items-center justify-between px-4 py-2.5 rounded-lg border cursor-pointer select-none transition-all ${isDark
+                  ? 'bg-[#111522] border-gray-800 text-white hover:border-gray-700'
                   : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <Search className="w-4.5 h-4.5 text-blue-500 shrink-0" />
@@ -482,23 +479,21 @@ export default function Dashboard() {
             </div>
 
             {isSearchOpen && (
-              <div className={`absolute left-0 right-0 mt-2 z-50 rounded-xl border shadow-2xl p-2 max-h-72 overflow-y-auto ${
-                isDark ? 'bg-[#161a26] border-gray-800' : 'bg-white border-gray-200'
-              }`}>
-                <input 
-                  type="text" 
-                  placeholder="Search project..." 
+              <div className={`absolute left-0 right-0 mt-2 z-50 rounded-xl border shadow-2xl p-2 max-h-72 overflow-y-auto ${isDark ? 'bg-[#161a26] border-gray-800' : 'bg-white border-gray-200'
+                }`}>
+                <input
+                  type="text"
+                  placeholder="Search project..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`w-full px-3 py-2 text-[13px] rounded-lg border mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${
-                    isDark ? 'bg-[#111522] border-gray-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
-                  }`}
+                  className={`w-full px-3 py-2 text-[13px] rounded-lg border mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500 ${isDark ? 'bg-[#111522] border-gray-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-800'
+                    }`}
                   autoFocus
                 />
                 <div className="space-y-1">
                   {filteredProjects.length > 0 ? (
                     filteredProjects.map((p: Project) => (
-                      <div 
+                      <div
                         key={p.project_id}
                         onClick={() => {
                           setActiveProject(p);
@@ -506,11 +501,10 @@ export default function Dashboard() {
                           setSearchQuery('');
                           setShowWarningBanner(false);
                         }}
-                        className={`px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all ${
-                          activeProject?.project_id === p.project_id 
-                            ? 'bg-blue-600 text-white' 
+                        className={`px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all ${activeProject?.project_id === p.project_id
+                            ? 'bg-blue-600 text-white'
                             : isDark ? 'text-gray-300 hover:bg-[#1f2536]' : 'text-slate-700 hover:bg-slate-100'
-                        }`}
+                          }`}
                       >
                         <div className="font-semibold truncate">{p.project_name}</div>
                         <div className={`text-[11px] mt-0.5 ${activeProject?.project_id === p.project_id ? 'text-blue-100' : 'text-gray-400'}`}>
@@ -529,14 +523,13 @@ export default function Dashboard() {
           {/* Integrated Date Range Picker Dropdown */}
           <div className="relative flex-grow md:max-w-[400px] md:min-w-[360px]" ref={dateRef}>
             <div className="flex items-center gap-3">
-              
-              <div 
+
+              <div
                 onClick={() => setIsDateOpen(!isDateOpen)}
-                className={`flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border cursor-pointer select-none transition-all flex-grow ${
-                  isDark 
-                    ? 'bg-[#111522] border-gray-800 text-white hover:border-gray-700' 
+                className={`flex items-center justify-between gap-3 px-4 py-2.5 rounded-lg border cursor-pointer select-none transition-all flex-grow ${isDark
+                    ? 'bg-[#111522] border-gray-800 text-white hover:border-gray-700'
                     : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-slate-300'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2 overflow-hidden shrink-0">
                   <Calendar className="w-4.5 h-4.5 text-blue-500 shrink-0" />
@@ -550,9 +543,9 @@ export default function Dashboard() {
 
               {/* Apply checkbox */}
               <label className="flex items-center gap-2 cursor-pointer select-none shrink-0 py-2">
-                <input 
-                  type="checkbox" 
-                  checked={applyDaterange} 
+                <input
+                  type="checkbox"
+                  checked={applyDaterange}
                   onChange={(e) => setApplyDaterange(e.target.checked)}
                   className="hidden"
                 />
@@ -568,11 +561,10 @@ export default function Dashboard() {
 
             {/* Float Date Range Calendar Dropdown */}
             {isDateOpen && (
-              <div className={`absolute left-0 mt-2 z-50 rounded-2xl border shadow-2xl p-4 w-78 md:w-84 ${
-                isDark ? 'bg-[#161a26] border-gray-800 text-white' : 'bg-white border-gray-200 text-slate-800'
-              }`}>
+              <div className={`absolute left-0 mt-2 z-50 rounded-2xl border shadow-2xl p-4 w-78 md:w-84 ${isDark ? 'bg-[#161a26] border-gray-800 text-white' : 'bg-white border-gray-200 text-slate-800'
+                }`}>
                 <div className="flex items-center justify-between border-b border-gray-800/40 pb-3 mb-3">
-                  <button 
+                  <button
                     onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
                     className="p-1.5 rounded-lg border border-gray-800/60 hover:bg-gray-800/30 transition text-[13px]"
                   >
@@ -581,7 +573,7 @@ export default function Dashboard() {
                   <span className="text-[14px] font-extrabold uppercase tracking-wide">
                     {calMonth.toLocaleString('default', { month: 'long' })} {calMonth.getFullYear()}
                   </span>
-                  <button 
+                  <button
                     onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
                     className="p-1.5 rounded-lg border border-gray-800/60 hover:bg-gray-800/30 transition text-[13px]"
                   >
@@ -597,27 +589,25 @@ export default function Dashboard() {
                   {generateDaysForMonth().map((day, idx) => {
                     const isSelected = isSelectedRange(day.date);
                     const isInBetween = isBetweenRange(day.date);
-                    
+
                     return (
-                      <div 
+                      <div
                         key={idx}
                         onClick={() => handleDateClick(day.date)}
-                        className={`h-8 w-8 flex items-center justify-center rounded-lg text-[11px] font-bold cursor-pointer transition-all ${
-                          !day.isCurrentMonth ? 'text-gray-600 opacity-40' : ''
-                        } ${
-                          isSelected
+                        className={`h-8 w-8 flex items-center justify-center rounded-lg text-[11px] font-bold cursor-pointer transition-all ${!day.isCurrentMonth ? 'text-gray-600 opacity-40' : ''
+                          } ${isSelected
                             ? 'bg-blue-600 text-white rounded-lg shadow-md font-extrabold'
                             : isInBetween
                               ? 'bg-blue-500/20 text-blue-400 rounded-lg'
                               : isDark ? 'hover:bg-gray-800/60' : 'hover:bg-slate-100'
-                        }`}
+                          }`}
                       >
                         {day.date.getDate()}
                       </div>
                     );
                   })}
                 </div>
-                
+
                 <div className="mt-4 pt-3 border-t border-gray-800/40 flex justify-between items-center text-[11px]">
                   <span className="text-gray-400 font-medium">Selected Period</span>
                   <span className="text-blue-500 font-extrabold">
@@ -632,34 +622,30 @@ export default function Dashboard() {
 
         {/* Right Side: Reload & Reset dashboard controls */}
         <div className="flex items-center gap-3 self-end xl:self-auto">
-          
+
           {/* Reset Button */}
-          <button 
+          <button
             onClick={handleReset}
             disabled={isReportsLoading}
-            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border font-bold text-[13px] cursor-pointer transition-all hover:scale-[1.02] ${
-              isReportsLoading ? 'opacity-70' : ''
-            } ${
-              isDark 
-                ? 'bg-[#181d2a]/80 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-gray-300' 
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border font-bold text-[13px] cursor-pointer transition-all hover:scale-[1.02] ${isReportsLoading ? 'opacity-70' : ''
+              } ${isDark
+                ? 'bg-[#181d2a]/80 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-gray-300'
                 : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-700 shadow-sm'
-            }`}
+              }`}
           >
             <RotateCcw className="w-4 h-4 text-gray-400 shrink-0" />
             <span>Reset</span>
           </button>
 
           {/* Reload Button */}
-          <button 
+          <button
             onClick={handleReload}
             disabled={isReportsLoading}
-            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border font-bold text-[13px] cursor-pointer transition-all hover:scale-[1.02] ${
-              isReportsLoading ? 'opacity-70' : ''
-            } ${
-              isDark 
-                ? 'bg-[#181d2a] border-gray-800 text-blue-400 hover:border-gray-700 hover:text-blue-300' 
+            className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border font-bold text-[13px] cursor-pointer transition-all hover:scale-[1.02] ${isReportsLoading ? 'opacity-70' : ''
+              } ${isDark
+                ? 'bg-[#181d2a] border-gray-800 text-blue-400 hover:border-gray-700 hover:text-blue-300'
                 : 'bg-slate-50 border-slate-200 text-blue-600 hover:border-slate-300 hover:text-blue-700 shadow-sm'
-            }`}
+              }`}
           >
             {isReportsLoading ? (
               <Loader2 className="w-4.5 h-4.5 text-blue-500 animate-spin shrink-0" />
@@ -674,10 +660,9 @@ export default function Dashboard() {
       </div>
 
       {/* 2. 6 Large metrics cards row */}
-      <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 xl:gap-5 mb-8 transition-all duration-500 ${
-        isReportsLoading ? 'opacity-40 translate-y-2' : 'opacity-100'
-      }`}>
-        
+      <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 xl:gap-5 mb-8 transition-all duration-500 ${isReportsLoading ? 'opacity-40 translate-y-2' : 'opacity-100'
+        }`}>
+
         {/* Metric 1: Total Purchases */}
         <div className={mainBorderClass}>
           <div className={cardInnerClass}>
@@ -777,15 +762,14 @@ export default function Dashboard() {
       </div>
 
       {/* 3. Grid area containing Project Information, Pie Chart, and Bar Chart */}
-      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-8 transition-all duration-500 ${
-        isReportsLoading ? 'opacity-40 translate-y-3' : 'opacity-100'
-      }`}>
-        
+      <div className={`grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-8 transition-all duration-500 ${isReportsLoading ? 'opacity-40 translate-y-3' : 'opacity-100'
+        }`}>
+
         {/* Project Information Details - Span 6 */}
         <div className="lg:col-span-6 flex flex-col">
           <div className={`${mainBorderClass} h-full flex flex-col`}>
             <div className={`${cardInnerClass} flex-grow flex flex-col p-6`}>
-              
+
               <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-800/40">
                 <Landmark className="w-5 h-5 text-blue-500" />
                 <h3 className="text-blue-500 font-black text-[16px] uppercase tracking-wider">Project Information</h3>
@@ -793,7 +777,7 @@ export default function Dashboard() {
 
               <div className={`rounded-xl p-5 flex-grow shadow-inner ${infoGradientClass}`}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
+
                   {/* Left Column: Identity, Location, GPS & Client Details */}
                   <div className="space-y-4">
                     <div>
@@ -892,7 +876,7 @@ export default function Dashboard() {
         <div className="lg:col-span-3 flex flex-col">
           <div className={`${mainBorderClass} h-full flex flex-col`}>
             <div className={`${cardInnerClass} flex-grow flex flex-col p-6 items-center justify-between`}>
-              
+
               <div className="w-full flex items-center gap-3 mb-4 pb-3 border-b border-gray-800/40">
                 <Landmark className="w-5 h-5 text-blue-500" />
                 <h3 className="text-blue-500 font-black text-[15px] uppercase tracking-wider">Expenses Breakup</h3>
@@ -923,7 +907,7 @@ export default function Dashboard() {
                     strokeDasharray={matDashArray}
                     className="transition-all duration-1000 ease-out hover:opacity-90 cursor-pointer"
                   />
-                  
+
                   {/* Segment 2: Non-Material */}
                   <circle
                     cx="100"
@@ -951,10 +935,9 @@ export default function Dashboard() {
 
               {/* Chart Legends */}
               <div className="w-full space-y-2">
-                
-                <div className={`p-2.5 rounded-lg flex items-center justify-between border ${
-                  isDark ? 'bg-black/20 border-gray-800/40' : 'bg-slate-50 border-slate-100'
-                }`}>
+
+                <div className={`p-2.5 rounded-lg flex items-center justify-between border ${isDark ? 'bg-black/20 border-gray-800/40' : 'bg-slate-50 border-slate-100'
+                  }`}>
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-lg shrink-0"></span>
                     <span className={`text-[11.5px] font-bold ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>Material</span>
@@ -964,9 +947,8 @@ export default function Dashboard() {
                   </span>
                 </div>
 
-                <div className={`p-2.5 rounded-lg flex items-center justify-between border ${
-                  isDark ? 'bg-black/20 border-gray-800/40' : 'bg-slate-50 border-slate-100'
-                }`}>
+                <div className={`p-2.5 rounded-lg flex items-center justify-between border ${isDark ? 'bg-black/20 border-gray-800/40' : 'bg-slate-50 border-slate-100'
+                  }`}>
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shadow-lg shrink-0"></span>
                     <span className={`text-[11.5px] font-bold ${isDark ? 'text-gray-300' : 'text-slate-700'}`}>Non-Material</span>
@@ -986,7 +968,7 @@ export default function Dashboard() {
         <div className="lg:col-span-3 flex flex-col">
           <div className={`${mainBorderClass} h-full flex flex-col`}>
             <div className={`${cardInnerClass} flex-grow flex flex-col p-6 justify-between`}>
-              
+
               <div className="w-full flex items-center gap-3 mb-4 pb-3 border-b border-gray-800/40">
                 <Landmark className="w-5 h-5 text-blue-500" />
                 <h3 className="text-blue-500 font-black text-[15px] uppercase tracking-wider">Budget Breakup</h3>
@@ -994,7 +976,7 @@ export default function Dashboard() {
 
               {/* Bar Chart Container */}
               <div className="relative w-full flex-grow flex flex-col justify-end min-h-[130px] px-1 py-2">
-                
+
                 {/* Horizontal grid ticks */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none select-none opacity-10">
                   <div className="w-full border-t border-white border-dashed text-[8px] font-mono text-gray-500 pt-0.5">100%</div>
@@ -1006,14 +988,14 @@ export default function Dashboard() {
                 <div className="relative z-10 w-full h-full flex items-end justify-between gap-1.5 animate-in fade-in duration-500">
                   {mappedBarData.length > 0 ? (
                     mappedBarData.map((bar: BarItem, idx: number) => (
-                      <div 
-                        key={idx} 
+                      <div
+                        key={idx}
                         className="flex-grow flex flex-col items-center group cursor-pointer"
                       >
                         <div className="relative w-full flex justify-center items-end h-[100px]">
-                          
+
                           {/* Bar Segment */}
-                          <div 
+                          <div
                             style={{ height: `${bar.value}%`, backgroundColor: bar.color }}
                             className="w-full rounded-t-[3px] transition-all duration-1000 ease-out group-hover:brightness-110 shadow-lg"
                           />
@@ -1043,11 +1025,10 @@ export default function Dashboard() {
               </div>
 
               {/* Under-bar analytics summary */}
-              <div className={`p-2.5 rounded-lg border mt-3 ${
-                isDark ? 'bg-black/20 border-gray-800/40' : 'bg-slate-50 border-slate-100'
-              }`}>
+              <div className={`p-2.5 rounded-lg border mt-3 ${isDark ? 'bg-black/20 border-gray-800/40' : 'bg-slate-50 border-slate-100'
+                }`}>
                 <p className="text-[10.5px] font-medium text-gray-400 leading-normal text-center">
-                  Expenditure values relative to allocated thresholds.
+                  Expenditure values relative to budget heads.
                 </p>
               </div>
 
