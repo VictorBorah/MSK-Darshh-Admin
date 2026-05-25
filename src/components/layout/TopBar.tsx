@@ -30,10 +30,10 @@ export default function TopBar() {
   // Determine Breadcrumbs dynamically based on current route
   const pathSegments = pathname?.split('/').filter(Boolean) || [];
   const rootSegment = pathSegments[0] || '';
-  const currentMenuItem = menu.find(m => m.slug === rootSegment);
+  const currentMenuItem = menu.find(m => String(m.slug) === rootSegment);
   
-  const category = currentMenuItem ? (currentMenuItem.menu_type === "1" ? "Local" : "Master") : (rootSegment === 'home' ? '' : 'Navigate');
-  let pageName = currentMenuItem ? currentMenuItem.menu_item : (rootSegment.charAt(0).toUpperCase() + rootSegment.slice(1));
+  const category = currentMenuItem ? (String(currentMenuItem.menu_type) === "1" ? "Local" : "Master") : (rootSegment === 'home' ? '' : 'Navigate');
+  let pageName = currentMenuItem ? String(currentMenuItem.menu_item) : (rootSegment.charAt(0).toUpperCase() + rootSegment.slice(1));
   
   if (pageName === 'Procurements') {
     pageName = 'Purchases';

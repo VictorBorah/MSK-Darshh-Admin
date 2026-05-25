@@ -15,10 +15,10 @@ export interface Project {
   geofence_json?: unknown;
 }
 
-interface MenuItem {
-  menu_type: string;
-  menu_item: string;
-  slug: string;
+export interface MenuItem {
+  menu_type: string | number | boolean;
+  menu_item: string | boolean;
+  slug: string | boolean;
 }
 
 interface AuthContextType {
