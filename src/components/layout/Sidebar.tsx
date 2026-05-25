@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/components/providers/AuthProvider';
+import { useAuth, MenuItem } from '@/components/providers/AuthProvider';
 import { useLayoutState } from '@/components/providers/LayoutProvider';
 import { 
   Home, 
@@ -52,12 +52,12 @@ export default function Sidebar() {
   };
 
   // Split menus into categories
-  const localMenu = menu.filter((item) => item.menu_type === "1");
-  const masterMenu = menu.filter((item) => item.menu_type === "2");
+  const localMenu = menu.filter((item) => String(item.menu_type) === "1");
+  const masterMenu = menu.filter((item) => String(item.menu_type) === "2");
 
   // Helper to render individual menu items dynamically
-  const renderMenuItem = (item: {slug: string, menu_item: string, menu_type: string}) => {
-    const isActive = pathname === `/${item.slug}`;
+  const renderMenuItem = (item: MenuItem) => {
+    const isActive = pathname === `/${String(item.slug)}`;
     
     // Active / Inactive Base Styles
     const baseClasses = "group relative flex items-center gap-3 px-3 py-2 rounded-md transition-colors w-full";
@@ -67,17 +67,17 @@ export default function Sidebar() {
 
     return (
       <Link 
-        key={item.slug} 
-        href={`/${item.slug}`} 
+        key={String(item.slug)} 
+        href={`/${String(item.slug)}`} 
         onClick={() => setSidebarOpen(false)}
         className={`${baseClasses} ${activeClasses}`}
       >
-        {getIconForSlug(item.slug)}
-        <span className={`truncate ${sidebarOpen ? '' : 'md:hidden'}`}>{item.menu_item}</span>
+        {getIconForSlug(String(item.slug))}
+        <span className={`truncate ${sidebarOpen ? '' : 'md:hidden'}`}>{String(item.menu_item)}</span>
 
         {/* Hover Tooltip */}
         <div className={`absolute left-full ml-4 px-2.5 py-1.5 bg-[#1f2536] text-white text-xs rounded-md shadow-xl border border-gray-700 opacity-0 ${sidebarOpen ? '' : 'md:group-hover:opacity-100'} pointer-events-none transition-opacity duration-200 z-50 whitespace-nowrap`}>
-          {item.menu_item}
+          {String(item.menu_item)}
         </div>
       </Link>
     );

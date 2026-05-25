@@ -2,6 +2,8 @@
     {
         "Error": false,
         "Status": "1",
+        "usrGRP_ID": 5,
+        "my_groups_csv": "9,10,11,12",
         "pagination_size": "10",
         "file_max_size": "2",
         "send_Email": "1",
@@ -65,28 +67,28 @@
                                 "coordinates": [
                                     [
                                         [
-                                            91.771543,
-                                            26.144395
+                                            93.149534,
+                                            26.744344
                                         ],
                                         [
-                                            91.771392,
-                                            26.145055
+                                            93.149685,
+                                            26.742245
                                         ],
                                         [
-                                            91.771908,
-                                            26.14531
+                                            93.151423,
+                                            26.742485
                                         ],
                                         [
-                                            91.77261,
-                                            26.145064
+                                            93.151144,
+                                            26.745263
                                         ],
                                         [
-                                            91.772063,
-                                            26.144294
+                                            93.149502,
+                                            26.74533
                                         ],
                                         [
-                                            91.771543,
-                                            26.144395
+                                            93.149534,
+                                            26.744344
                                         ]
                                     ]
                                 ]
@@ -96,35 +98,33 @@
                 },
                 "site_coordinates": "26.13656362054904, 91.77032768726349",
                 "site_address": "KAHILIPARA",
-                "start_date": "19-02-2026",
+                "start_date": "20-10-2025",
                 "status": "Ongoing",
                 "geofence_ready": "No"
             }
         ],
         "usergroups_data": [
             {
-                "id": "11",
-                "group_name": "Labourer",
-                "permissions_csv": null,
-                "privileges_csv": null,
-                "has_ui": "0",
-                "labour_staff": "1",
-				"is_contractor": "0",
-                "login_revoked": "0",
-                "active": "1",
-                "cKey": "1"
+                "id": "9",
+                "group_name": "Contractor",
+                "permissions_csv": "",
+                "privileges_csv": "",
+                "managing_groups_csv": "",
+                "labour_staff": "",
+                "is_contractor": "1",
+                "login_revoked": "",
+                "active": "1"
             },
             {
-                "id": "12",
-                "group_name": "Daily Wager",
-                "permissions_csv": null,
-                "privileges_csv": null,
-                "has_ui": "0",
+                "id": "10",
+                "group_name": "Mistry",
+                "permissions_csv": "",
+                "privileges_csv": "",
+                "managing_groups_csv": "",
                 "labour_staff": "1",
-				"is_contractor": "0",
-                "login_revoked": "0",
-                "active": "1",
-                "cKey": "1"
+                "is_contractor": "",
+                "login_revoked": "",
+                "active": "1"
             }
         ],
         "Menu_Data": [
@@ -138,6 +138,19 @@
                     "demands_summary",
                     "deliveries_summary",
                     "payments_summary"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -149,6 +162,19 @@
                     "projects_info",
                     "gps_location",
                     "geofence_coordinates"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -160,6 +186,19 @@
                     "demands_summary",
                     "make_demand",
                     "view_demands"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -172,6 +211,19 @@
                     "recieve_item",
                     "view_deliveries",
                     "gps_photo"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -182,7 +234,22 @@
                 "widgets": [
                     "workforce_summary",
                     "add_worker",
-                    "view_workers"
+                    "view_workers",
+                    "Worker Attendance ",
+                    "Worker Payments"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -193,6 +260,19 @@
                 "widgets": [
                     "stock-sumamry",
                     "view_stock"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -203,6 +283,19 @@
                 "widgets": [
                     "profile_details",
                     "edit_profile"
+                ],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
                 ]
             },
             {
@@ -210,7 +303,40 @@
                 "menu_type": false,
                 "menu_item": false,
                 "slug": false,
-                "widgets": []
+                "widgets": [],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
+                ]
+            },
+            {
+                "master_menu_id": "3",
+                "menu_type": "1",
+                "menu_item": "Staff",
+                "slug": "staff",
+                "widgets": [],
+                "privileges_array": [
+                    {
+                        "demand_verify": "0",
+                        "demand_complete": "1",
+                        "view_payment_records": "0",
+                        "attendance": "1",
+                        "view_staff": "1",
+                        "manage_staff_button": "1",
+                        "make_demands": "1",
+                        "view_site_geofence": "1",
+                        "record_staff_payments": "1"
+                    }
+                ]
             }
         ],
         "User_Data": [
@@ -220,7 +346,7 @@
                 "grp_id": 5,
                 "grp_name": "Site Supervisor",
                 "username": "karan_b26",
-                "projects_csv": "13,9,10,8",
+                "projects_csv": "13,9,10,8,16",
                 "auth_email": "my.den2010@gmail.com",
                 "email2": "",
                 "mobile_1": "1234512345",
@@ -262,21 +388,21 @@
         ],
         "System_Data": {
             "appName": "ZYN Construction Network",
-            "apiVersion": "1.00",
+            "apiVersion": "1.0.0",
             "curSession": "1",
             "curSession_txt": "2026-27",
-            "androidVersion": "1.00",
-            "frontendVersion": "1.01",
+            "androidVersion": "1.0.0",
+            "frontendVersion": "1.0.0",
             "bucketHost": "digital-ocean-cloud",
             "default_gst": "18.00",
             "default_sgst_rate": "9",
             "default_cgst_rate": "9",
             "gst_inclusive": "1",
-            "s3BucketBasePath": "https://doca.blr1.digitaloceanspaces.com",
+            "s3BucketBasePath": "https://zyn-app.sgp1.digitaloceanspaces.com",
             "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
-            "s3BucketName": "doca",
-            "s3BucketKey": "DO00XLCD7FPRXXBX28HQ",
-            "s3Region": "blr1",
+            "s3BucketName": "zyn-app",
+            "s3BucketKey": "DO00VYV63W4VR6MFXWAT",
+            "s3Region": "sgp1",
             "appLogo": "",
             "webAppLogo": "Logo.png",
             "smsPEId": "1205165992846067265",
@@ -297,7 +423,8 @@
             "payment_budget_head": "1",
             "auto_create_demands_from_diff": "1",
             "showDemandsInAdmin": "1",
-			"enableBackDates": "1"
+            "enableBackDates": "1",
+            "default_project": "9"
         },
         "districts": [
             {
