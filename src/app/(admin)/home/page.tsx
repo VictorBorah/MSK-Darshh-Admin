@@ -38,36 +38,36 @@ export default function Home() {
               <span className="text-gray-400 line-through">Provision Domains for API Web Services and Frontend Application</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Configure Linux Droplet Server on DigitalOcean Cloud</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Configure Linux Droplet Server on DigitalOcean Cloud</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
               <span className="text-gray-400 line-through">Set up Shared Hosting Environment on Hostinger for Frontend App</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Deploy and Secure Decentralized Database Cluster on DigitalOcean</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Deploy and Secure Decentralized Database Cluster on DigitalOcean</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
               <span className="text-gray-400 line-through">Reconfigure GitHub CI/CD Pipelines with New Host Secrets</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Initialize Cloud Object Storage for File Management</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Initialize Cloud Object Storage for File Management</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Verify Global DNS Propagation and Routing</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Verify Global DNS Propagation and Routing</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Issue and Bind SSL/TLS Certificates (HTTPS) for all domains</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Issue and Bind SSL/TLS Certificates (HTTPS) for all domains</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
-              <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
-              <span>Inject Production Environment Variables and API Credentials</span>
+              <CheckSquare className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">Inject Production Environment Variables and API Credentials</span>
             </li>
             <li className="flex items-start gap-3 text-[13px] text-[#ccd6f6]">
               <Square className="w-4 h-4 text-gray-500 shrink-0 mt-0.5" />
@@ -116,12 +116,13 @@ export default function Home() {
               <span className="text-gray-400 line-through">28 April - 10 May 2026: Design and build the Staff PWA App</span>
             </li>
             <li className="flex items-start gap-3">
-              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>17 May - 19 May 2026: Deploy to Production (Digital Ocean Cloud)</span>
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">17 May - 19 May 2026: Deploy to Production (Digital Ocean Cloud)</span>
             </li>
-            <li className="flex items-start gap-3">
-              <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />
-              <span>20 May - 24 May 2026: Design and build the Admin Dashboard & Settings Page</span>
+            <li className="flex items-start 
+            gap-3">
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <span className="text-gray-400 line-through">20 May - 24 May 2026: Design and build the Admin Dashboard & Settings Page</span>
             </li>
             <li className="flex items-start gap-3">
               <Square className="w-5 h-5 text-gray-600 shrink-0 mt-0.5" />

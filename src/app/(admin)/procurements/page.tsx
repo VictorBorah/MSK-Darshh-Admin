@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, Printer } from 'lucide-react';
+import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, Printer, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MakeDemandModal from './MakeDemandModal';
 import DemandDetailModal from './DemandDetailModal';
@@ -530,28 +530,41 @@ export default function ProcurementsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {demandsList.map((row, idx) => (
-                <tr key={row.demand_id || row.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 text-white text-center font-medium">{(demPage - 1) * 10 + idx + 1}</td>
-                  <td className="px-4 py-3 text-white">{row.demand_date || '-'}</td>
-                  <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
-                  <td className="px-4 py-3 text-white">{row.item_name || '-'}</td>
-                  <td className="px-4 py-3 text-white">{row.quantity_txt || row.quantity || '-'}</td>
-                  <td className="px-4 py-3 text-white text-xs">
-                    <span className={`px-2 py-1 rounded-sm shadow border ${(row.priority_txt || '').toLowerCase() === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (row.priority_txt || '').toLowerCase() === 'medium' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
-                      {row.priority_txt || '-'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => setSelectedDemandNo(String(row.demand_no))}
-                      className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {demandsList.map((row, idx) => {
+                const isLocked = String(row.is_locked) === '1' || row.is_locked === 1;
+                return (
+                  <tr 
+                    key={row.demand_id || row.id} 
+                    className={`transition-colors ${isLocked ? 'bg-red-950/40 hover:bg-red-950/50' : 'hover:bg-white/5'}`}
+                  >
+                    <td className="px-4 py-3 text-white text-center font-medium">{(demPage - 1) * 10 + idx + 1}</td>
+                    <td className="px-4 py-3 text-white">
+                      <div className="flex items-center gap-1.5">
+                        {row.demand_date || '-'}
+                        {isLocked && (
+                          <Lock className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
+                    <td className="px-4 py-3 text-white">{row.item_name || '-'}</td>
+                    <td className="px-4 py-3 text-white">{row.quantity_txt || row.quantity || '-'}</td>
+                    <td className="px-4 py-3 text-white text-xs">
+                      <span className={`px-2 py-1 rounded-sm shadow border ${(row.priority_txt || '').toLowerCase() === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (row.priority_txt || '').toLowerCase() === 'medium' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
+                        {row.priority_txt || '-'}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => setSelectedDemandNo(String(row.demand_no))}
+                        className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
               {demandsList.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-4 py-8 text-center text-gray-500">No demands found.</td>
