@@ -10,6 +10,7 @@
 		"base_amount": "100.00",
 		"gross_amount": "100.00",        
         "tds_option": "1",       
+        "staff_id": "21",       
 		"txn_file_uploaded": "1",
         "txn_file_string": "66934734438734-kqzhxgfh46677.pdf",
         "transaction_no": "AXCBIF-232343549103434",

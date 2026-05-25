@@ -424,7 +424,7 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         tdsOptionValue = "-2";
       }
 
-      return {
+      const payloadObj: any = {
         item_id: item.item_id || "",
         payment_mode: item.mode_id || "",
         demand_id: item.demand_id || "",
@@ -439,6 +439,12 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         transaction_no: item.transaction_number || "",
         comment: item.comment || ""
       };
+
+      if (item.staff_id) {
+        payloadObj.staff_id = String(item.staff_id);
+      }
+
+      return payloadObj;
     });
 
     const payment_json = JSON.stringify({ payment_data });

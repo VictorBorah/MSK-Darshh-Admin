@@ -73,6 +73,12 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
                         <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">TDS Amount ({itemRow.tds_option === '-1' ? 'N/A' : `${itemRow.tds_rate}%`})</span>
                         <span className="text-[13px] text-white font-medium flex items-center"><IndianRupee className="w-3.5 h-3.5 text-gray-400 mr-0.5" /> {parseFloat(itemRow.tds_amount || 0).toFixed(2)}</span>
                      </div>
+                     {itemRow.worker_name && (
+                        <div className="flex flex-col gap-1 col-span-2 border-t border-gray-700/50 pt-3 mt-1">
+                           <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Paid to Staff</span>
+                           <span className="text-[13px] text-white font-medium break-words">{itemRow.worker_name} (ID: {itemRow.worker_id})</span>
+                        </div>
+                     )}
                   </div>
 
                   {itemRow.has_txn_file === '1' && itemRow.presigned_transaction_file_url && (
