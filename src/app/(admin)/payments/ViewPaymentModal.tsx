@@ -168,6 +168,12 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
                             <div className="text-blue-300 mb-0.5">{row.item_name || 'N/A'}</div>
                             <div className="text-[11px] text-gray-400 font-normal italic leading-relaxed line-clamp-2" title={row.purchase_title}>{row.purchase_title || 'No Title'}</div>
                             <div className="mt-1 text-[10px] uppercase text-gray-500 font-semibold">{row.budget_head_name || ''}</div>
+                            {row.worker_name && (
+                              <div className="mt-2.5 flex items-center gap-1.5 bg-blue-950/40 border border-blue-500/20 px-2 py-1 rounded text-[11px] font-medium text-blue-300 w-fit">
+                                <span className="text-gray-400">Paid to:</span>
+                                <span className="font-semibold">{row.worker_name}</span>
+                              </div>
+                            )}
                           </td>
                           <td className="px-3 py-3 text-gray-300 font-medium border-r border-gray-700/30 align-top">{row.payment_mode_txt || '-'}</td>
                           <td className="px-3 py-3 text-gray-300 font-medium border-r border-gray-700/30 align-top break-words max-w-[140px]">{row.voucher_number || '-'}</td>

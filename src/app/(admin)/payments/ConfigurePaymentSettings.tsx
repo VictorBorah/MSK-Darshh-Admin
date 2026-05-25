@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimize2, HelpCircle, Trash2 } from 'lucide-react';
+import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimize2, HelpCircle, Trash2, Search, User } from 'lucide-react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '@/components/WarningAlertModal';
@@ -54,6 +54,17 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
   const [isManuallyEdited, setIsManuallyEdited] = useState(false);
   const skipNextFetchRef = useRef(false);
 
+  // Pay to Staff States
+  const [selectedStaffId, setSelectedStaffId] = useState<string | null>(null);
+  const [selectedStaffName, setSelectedStaffName] = useState<string>('');
+  const [staffSearchQuery, setStaffSearchQuery] = useState('');
+  const [staffSearchResults, setStaffSearchResults] = useState<any[]>([]);
+  const [isSearchingStaff, setIsSearchingStaff] = useState(false);
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
+
+  const staffSearchRef = useRef<HTMLDivElement>(null);
+  const staffAbortControllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
     if (isOpen && item) {
       setPaymentMode(item.mode_id || '');
@@ -74,6 +85,13 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
       setShowDeleteInvoiceWarning(false);
       setIsDeletingInvoice(false);
       setIsManuallyEdited(false);
+
+      setSelectedStaffId(item.staff_id || null);
+      setSelectedStaffName(item.staff_name || '');
+      setStaffSearchQuery('');
+      setStaffSearchResults([]);
+      setIsSearchingStaff(false);
+      setShowStaffDropdown(false);
 
       setTdsData(item.tdsData || null);
 
@@ -236,6 +254,76 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
     }
   };
 
+  // Staff search effects
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (staffSearchRef.current && !staffSearchRef.current.contains(event.target as Node)) {
+        setShowStaffDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (staffSearchQuery.length === 0) {
+      setStaffSearchResults([]);
+      setShowStaffDropdown(false);
+      return;
+    }
+
+    if (staffSearchQuery.length < 3) {
+      setStaffSearchResults([]);
+      setShowStaffDropdown(false);
+      return;
+    }
+
+    const performStaffSearch = async () => {
+      if (staffAbortControllerRef.current) staffAbortControllerRef.current.abort();
+
+      const controller = new AbortController();
+      staffAbortControllerRef.current = controller;
+
+      setIsSearchingStaff(true);
+
+      try {
+        const token = localStorage.getItem('at_ki8Xq1iV');
+        const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/searchStaff?query_str=${encodeURIComponent(staffSearchQuery)}`;
+
+        const res = await fetch(endpoint, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal
+        });
+
+        const rawText = await res.text();
+        let arr;
+        try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON'); }
+        const data = Array.isArray(arr) ? arr[0] : arr;
+
+        if (data && String(data.Status) === '1' && data.staff_data) {
+          setStaffSearchResults(data.staff_data);
+          setShowStaffDropdown(true);
+        } else {
+          setStaffSearchResults([]);
+          setShowStaffDropdown(true);
+        }
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          setStaffSearchResults([]);
+        }
+      } finally {
+        setIsSearchingStaff(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      performStaffSearch();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [staffSearchQuery]);
+
   useEffect(() => {
     if (!isOpen || isLoading || !isManuallyEdited) return;
 
@@ -372,6 +460,83 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
     } finally {
       setIsDeletingInvoice(false);
     }
+  };
+
+  const renderPayToStaff = () => {
+    return (
+      <div className="flex flex-col gap-1.5" ref={staffSearchRef}>
+        <label className="text-[12px] text-gray-400 font-medium tracking-wide">Pay to staff</label>
+        {selectedStaffId ? (
+          <div className="flex items-center justify-between bg-[#11141e] border border-gray-600/50 rounded-md p-2 animate-in fade-in">
+            <div className="flex items-center gap-2">
+              <div className="bg-[#2d3a6c] p-1.5 rounded text-blue-200">
+                <User className="w-4 h-4" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[13px] text-white font-medium">{selectedStaffName}</span>
+                <span className="text-[10px] text-gray-500 font-semibold tracking-wide">ID: {selectedStaffId}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedStaffId(null);
+                setSelectedStaffName('');
+                setStaffSearchQuery('');
+                setStaffSearchResults([]);
+              }}
+              className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors shrink-0"
+              title="Remove Staff"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="relative">
+            <input
+              type="text"
+              value={staffSearchQuery}
+              onChange={(e) => setStaffSearchQuery(e.target.value)}
+              placeholder="Search staff..."
+              className="w-full bg-[#11141e] border border-gray-600 rounded pl-9 pr-8 py-2 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500"
+            />
+            <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
+
+            <div className="absolute right-2 top-2.5 flex items-center gap-2">
+              {isSearchingStaff && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+            </div>
+
+            {showStaffDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-[#191e2b] border border-gray-700 rounded shadow-2xl z-[150] max-h-[200px] overflow-y-auto">
+                {staffSearchResults.length === 0 ? (
+                  <div className="px-4 py-3 text-[13px] text-gray-400 text-center italic">No staff found</div>
+                ) : (
+                  <ul className="py-1">
+                    {staffSearchResults.map((staff: any) => (
+                      <li
+                        key={staff.staff_id}
+                        onClick={() => {
+                          setSelectedStaffId(staff.staff_id);
+                          setSelectedStaffName(staff.staff_name);
+                          setShowStaffDropdown(false);
+                          setStaffSearchQuery('');
+                        }}
+                        className="px-4 py-2 hover:bg-[#11141e] cursor-pointer text-[13px] text-gray-300 border-b border-gray-700/50 last:border-0 transition-colors flex justify-between items-center"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-white">{staff.staff_name}</span>
+                          <span className="text-[11px] text-gray-500">{staff.group_name} &bull; {staff.userName || 'N/A'}</span>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
   };
 
   const isApplyDisabled = hasTransactionFile && !uploadedInvoiceFilename;
@@ -584,7 +749,7 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                         menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                       />
                     </div>
-                    {tdsOptionId === 'other' && (
+                    {tdsOptionId === 'other' ? (
                       <div className="flex flex-col gap-1.5 animate-in fade-in zoom-in duration-200">
                         <label className="text-[12px] text-blue-400 font-medium tracking-wide">Custom TDS Rate (%)</label>
                         <input
@@ -599,6 +764,14 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                           placeholder="Enter rate..."
                           className="w-full bg-[#11141e] border border-blue-500 rounded-md px-3 py-2 text-white text-[13px] focus:outline-none focus:ring-1 focus:ring-blue-500 transition-colors"
                         />
+                      </div>
+                    ) : (
+                      renderPayToStaff()
+                    )}
+
+                    {tdsOptionId === 'other' && (
+                      <div className="col-span-2">
+                        {renderPayToStaff()}
                       </div>
                     )}
 
@@ -803,7 +976,9 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                   transaction_file: uploadedInvoiceFilename,
                   transaction_url: uploadedInvoiceUrl,
                   amount: tdsData?.gross_amount ? String(tdsData.gross_amount).replace(/[^0-9.]/g, '') : item?.amount,
-                  tdsData: tdsData
+                  tdsData: tdsData,
+                  staff_id: selectedStaffId,
+                  staff_name: selectedStaffName
                 });
                 onClose();
               }}
