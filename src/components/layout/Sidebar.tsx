@@ -20,7 +20,8 @@ import {
   X,
   LayoutList,
   ListChecks,
-  UserCheck
+  UserCheck,
+  ClipboardList
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -47,20 +48,33 @@ export default function Sidebar() {
       case 'menu-config': return <LayoutList className={className} />;
       case 'demands': return <ListChecks className={className} />;
       case 'clients': return <UserCheck className={className} />;
+      case 'budget-heads': return <ClipboardList className={className} />;
       default: return <CircleDot className={className} />;
     }
   };
 
-  // Split menus into categories
-  const localMenu = menu.filter((item) => String(item.menu_type) === "1");
-  const masterMenu = menu.filter((item) => String(item.menu_type) === "2");
+  // Helper to safely sort menu items by order_id ascending
+  const sortMenuByOrder = (a: MenuItem, b: MenuItem) => {
+    const orderA = a.order_id !== undefined && a.order_id !== null ? parseInt(String(a.order_id), 10) : 9999;
+    const orderB = b.order_id !== undefined && b.order_id !== null ? parseInt(String(b.order_id), 10) : 9999;
+    return orderA - orderB;
+  };
+
+  // Split menus into categories and sort them by order_id ascending
+  const localMenu = menu
+    .filter((item) => String(item.menu_type) === "1")
+    .sort(sortMenuByOrder);
+
+  const masterMenu = menu
+    .filter((item) => String(item.menu_type) === "2")
+    .sort(sortMenuByOrder);
 
   // Helper to render individual menu items dynamically
   const renderMenuItem = (item: MenuItem) => {
     const isActive = pathname === `/${String(item.slug)}`;
     
     // Active / Inactive Base Styles
-    const baseClasses = "group relative flex items-center gap-3 px-3 py-2 rounded-md transition-colors w-full";
+    const baseClasses = "group relative flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors w-full";
     const activeClasses = isActive 
       ? "bg-[#2d3a6c]/40 text-blue-400 border-l-2 border-blue-500" 
       : "hover:bg-gray-800 text-gray-400";
@@ -117,13 +131,13 @@ export default function Sidebar() {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 flex flex-col gap-1 text-sm font-medium">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-4 px-3 flex flex-col gap-1 text-[13px] font-medium">
           
           {/* Root Dashboard Navigation */}
           <Link 
              href="/home" 
              onClick={() => setSidebarOpen(false)}
-             className={`group relative flex items-center gap-3 px-3 py-2 rounded-md transition-colors w-full ${
+             className={`group relative flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors w-full ${
                pathname === '/home' 
                 ? 'bg-[#2d3a6c]/40 text-blue-400 border-l-2 border-blue-500' 
                 : 'hover:bg-gray-800 text-gray-400'
@@ -154,7 +168,7 @@ export default function Sidebar() {
           {/* Dynamic Category 1: Local */}
           {user && localMenu.length > 0 && (
             <>
-              <div className={`mt-4 mb-2 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
+              <div className={`mt-3 mb-1.5 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
                 <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Local</span>
                 <span className={`hidden ${sidebarOpen ? '' : 'md:inline'} text-gray-600`}>--</span>
               </div>
@@ -165,7 +179,7 @@ export default function Sidebar() {
           {/* Dynamic Category 2: Master */}
           {user && masterMenu.length > 0 && (
             <>
-              <div className={`mt-4 mb-2 px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
+              <div className={`mt-3 mb-1.5 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
                 <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Master</span>
                 <span className={`hidden ${sidebarOpen ? '' : 'md:inline'} text-gray-600`}>--</span>
               </div>

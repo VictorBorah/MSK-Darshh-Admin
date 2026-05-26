@@ -1,0 +1,80 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "dashboard_data": {
+            "project_info": {
+                "project_id": "9",
+                "project_name": "GOGOI RESIDENCE",
+                "project_code": "EG",
+                "site_address": "KAHILIPARA",
+                "district_id": "17",
+                "district_name": "KAMRUP METRO",
+                "client_id": "4",
+                "client_name": "Raghav Bordoloi",
+                "client_mobile": "",
+                "client_email": "",
+                "site_coordinates": "26.13656362054904, 91.77032768726349",
+                "current_stage_id": "21",
+                "current_stage": "Civil Repairing",
+                "max_budget": "8000000.00",
+                "contract_amount": "0.00",
+                "budget_trigger": "0.00",
+                "start_date": "20-10-2025",
+                "target_date": "01-09-2026",
+                "elapsed_days": "215"
+            },
+            "card_statistics": {
+                "total_purchases": "17781.50",
+                "total_payments": "1500.00",
+                "total_staff": "07",
+                "total_workers": "02",
+                "total_stock_items": "01",
+                "elapsed_days": "215"
+            },
+            "pie_data": {
+                "status": "success",
+                "data": {
+                    "total_expenditure": 19281.5,
+                    "breakup": [
+                        {
+                            "category": "Material",
+                            "value": 17781.5,
+                            "percentage": 92,
+                            "color": "#3b82f6"
+                        },
+                        {
+                            "category": "Non Material",
+                            "value": 1500,
+                            "percentage": 8,
+                            "color": "#f97316"
+                        }
+                    ]
+                }
+            },
+            "barchart_data": {
+                "status": "success",
+                "data": {
+                    "labels": [
+                        "Electricity Bill",
+                        "Material Purchase"
+                    ],
+                    "datasets": [
+                        {
+                            "label": "Budget Allocation",
+                            "values": [
+                                5.32,
+                                94.68
+                            ],
+                            "colors": [
+                                "#2dd4bf",
+                                "#fb923c"
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "Message": "Dashboard Data Fetched"
+    }
+]

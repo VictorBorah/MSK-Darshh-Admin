@@ -19,6 +19,7 @@ export interface MenuItem {
   menu_type: string | number | boolean;
   menu_item: string | boolean;
   slug: string | boolean;
+  order_id?: string | number;
 }
 
 interface AuthContextType {

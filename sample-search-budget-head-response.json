@@ -1,0 +1,18 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "heads_data": [
+            {
+                "id": "3",
+                "head": "Transportation Charges",
+                "default_gst": "0.00",
+                "has_vendor": "0",
+                "active": "1"
+            }
+        ],
+        "total_rows": 1,
+        "pagination_size": 10,
+        "Message": "Fetched item categories"
+    }
+]
