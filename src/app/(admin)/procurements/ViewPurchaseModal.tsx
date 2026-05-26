@@ -326,6 +326,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
         isOpen={isItemModalOpen}
         onClose={() => setIsItemModalOpen(false)}
         itemRow={selectedItem}
+        voucherNumber={purchaseDetails?.voucher_number}
         onDemandAction={(row) => {
           setIsItemModalOpen(false);
           setIsConnectDemandOpen(true);

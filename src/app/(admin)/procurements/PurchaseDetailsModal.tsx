@@ -1,6 +1,6 @@
-import { X, Box, FileText, Anchor, Printer, Info } from 'lucide-react';
+import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
-import { useRef } from 'react';
+import { useState, useRef } from 'react';
 import { generatePdfFromElement } from '@/utils/pdfGenerator';
 
 interface PurchaseDetailsModalProps {
@@ -9,11 +9,84 @@ interface PurchaseDetailsModalProps {
    itemRow: any;
    onDemandAction: (row: any) => void;
    isClosed?: boolean;
+   voucherNumber?: string;
 }
 
-export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false }: PurchaseDetailsModalProps) {
+export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false, voucherNumber }: PurchaseDetailsModalProps) {
    useModalEscape(isOpen, onClose, 300);
    const itemDetailsRef = useRef<HTMLDivElement>(null);
+
+   const [isShareOpen, setIsShareOpen] = useState(false);
+   const [copied, setCopied] = useState(false);
+
+   const getShareText = () => {
+      if (!itemRow) return '';
+      const gst = parseFloat(itemRow.gst_rate || 0).toFixed(0);
+      const cgst = parseFloat(itemRow.cgst_rate || 0).toFixed(0);
+      const sgst = parseFloat(itemRow.sgst_rate || 0).toFixed(0);
+      const amountInc = parseFloat(itemRow.amount_inc_gst || 0).toFixed(2);
+      const unitPrice = parseFloat(itemRow.unit_price || 0).toFixed(2);
+      const amountExc = parseFloat(itemRow.amount_exc_gst || 0).toFixed(2);
+      const gstAmt = parseFloat(itemRow.gst_amount || 0).toFixed(2);
+      const cgstAmt = parseFloat(itemRow.cgst_amount || 0).toFixed(2);
+      const sgstAmt = parseFloat(itemRow.sgst_amount || 0).toFixed(2);
+      const igstAmt = parseFloat(itemRow.igst_amount || 0).toFixed(2);
+      const dateVal = itemRow.purchase_date || (itemRow.created_on ? itemRow.created_on.split(' ')[0] : 'N/A');
+      const orderIdVal = voucherNumber || itemRow.voucher_no || itemRow.voucher_number || 'N/A';
+
+      return `--- ORDERED ITEM DETAILS ---
+Order ID        : ${orderIdVal}
+Item Name       : ${itemRow.item_name || 'N/A'}
+Item ID         : ${itemRow.item_id || 'N/A'}
+Purchase Date   : ${dateVal}
+Quantity        : ${itemRow.qnty || '0'}
+Unit Price      : ₹ ${unitPrice}
+Total Base      : ₹ ${amountExc}
+Total GST (${gst}%)  : ₹ ${gstAmt}
+CGST (${cgst}%)     : ₹ ${cgstAmt}
+SGST (${sgst}%)     : ₹ ${sgstAmt}
+IGST (${gst}%)     : ₹ ${igstAmt}
+------------------------------
+Total Amount    : ₹ ${amountInc} (Inclusive of GST)
+------------------------------`;
+   };
+
+   const handleCopy = () => {
+      const text = getShareText();
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+   };
+
+   const handleShareClick = () => {
+      const text = getShareText();
+      navigator.clipboard.writeText(text);
+      setIsShareOpen(!isShareOpen);
+   };
+
+   const shareViaWhatsApp = () => {
+      const text = getShareText();
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+      setIsShareOpen(false);
+   };
+
+   const shareViaTelegram = () => {
+      const text = getShareText();
+      window.open(`https://t.me/share/url?url=&text=${encodeURIComponent(text)}`, '_blank');
+      setIsShareOpen(false);
+   };
+
+   const shareViaGmail = () => {
+      const text = getShareText();
+      window.open(`mailto:?subject=${encodeURIComponent(`Purchase Details: ${itemRow.item_name}`)}&body=${encodeURIComponent(text)}`, '_blank');
+      setIsShareOpen(false);
+   };
+
+   const shareViaSMS = () => {
+      const text = getShareText();
+      window.open(`sms:?body=${encodeURIComponent(text)}`, '_blank');
+      setIsShareOpen(false);
+   };
 
    if (!isOpen || !itemRow) return null;
 
@@ -96,15 +169,95 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
                         </div>
                      )}
 
-                     <div className="col-span-2 flex justify-end mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
-                        <button
-                           onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${itemRow.item_name}.pdf`)}
-                           className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
-                           title="Download as PDF"
-                        >
-                           <Printer className="w-3.5 h-3.5" /> Print to PDF
-                        </button>
-                     </div>
+                      <div className="col-span-2 flex justify-end gap-2.5 mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
+                         
+                         {/* Share Popover Wrapper */}
+                         <div className="relative">
+                            <button
+                               onClick={handleShareClick}
+                               className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
+                               title="Share Details"
+                            >
+                               <Share2 className="w-3.5 h-3.5" /> Share
+                            </button>
+
+                            {isShareOpen && (
+                               <>
+                                  {/* Transparent Backdrop to capture close events */}
+                                  <div 
+                                     className="fixed inset-0 z-40 cursor-default" 
+                                     onClick={() => setIsShareOpen(false)} 
+                                  />
+                                  
+                                  {/* Dropdown Menu popover */}
+                                  <div className="absolute right-0 bottom-full mb-2 w-48 bg-[#1f2536] border border-gray-700 rounded-lg shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150 flex flex-col">
+                                     <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-700/50 pb-1.5 mb-1 select-none">
+                                        Share Details Via
+                                     </div>
+                                     
+                                     <button
+                                        onClick={shareViaWhatsApp}
+                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-emerald-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                     >
+                                        <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                        WhatsApp
+                                     </button>
+
+                                     <button
+                                        onClick={shareViaTelegram}
+                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-blue-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                     >
+                                        <Send className="w-4 h-4 text-blue-400 shrink-0" />
+                                        Telegram
+                                     </button>
+
+                                     <button
+                                        onClick={shareViaGmail}
+                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-red-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                     >
+                                        <Mail className="w-4 h-4 text-red-400 shrink-0" />
+                                        Gmail
+                                     </button>
+
+                                     <button
+                                        onClick={shareViaSMS}
+                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-orange-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                     >
+                                        <MessageSquare className="w-4 h-4 text-orange-400 shrink-0" />
+                                        Text Message
+                                     </button>
+
+                                     <div className="h-px bg-gray-700/50 my-1" />
+
+                                     <button
+                                        onClick={handleCopy}
+                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-white hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                     >
+                                        {copied ? (
+                                           <>
+                                              <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
+                                              <span className="text-emerald-500 font-bold">Copied!</span>
+                                           </>
+                                        ) : (
+                                           <>
+                                              <Copy className="w-4 h-4 text-gray-400 shrink-0" />
+                                              Copy as Text
+                                           </>
+                                        )}
+                                     </button>
+                                  </div>
+                               </>
+                            )}
+                         </div>
+
+                         <button
+                            onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${itemRow.item_name}.pdf`)}
+                            className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
+                            title="Download as PDF"
+                         >
+                            <Printer className="w-3.5 h-3.5" /> Print to PDF
+                         </button>
+                      </div>
                   </div>
                </div>
 
