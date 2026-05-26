@@ -1,0 +1,56 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "client_data": [
+            {
+                "client_id": "5",
+                "client_name": "John Cena",
+                "client_address": "Test Address",
+                "client_mobile_1": "9954871105",
+                "client_mobile_2": "4512021478",
+                "client_email": "test@domain.com",
+                "added_on": "23-05-2026 07:56:30 PM"
+            },
+            {
+                "client_id": "4",
+                "client_name": "Raghav Bordoloi",
+                "client_address": null,
+                "client_mobile_1": "",
+                "client_mobile_2": "",
+                "client_email": "",
+                "added_on": "21-03-2026 11:10:29 PM"
+            },
+            {
+                "client_id": "3",
+                "client_name": "Manjit Borah",
+                "client_address": null,
+                "client_mobile_1": "",
+                "client_mobile_2": "",
+                "client_email": "",
+                "added_on": "21-03-2026 11:10:29 PM"
+            },
+            {
+                "client_id": "2",
+                "client_name": "Simran Singh",
+                "client_address": "Biswanath Chariali",
+                "client_mobile_1": "7002140258",
+                "client_mobile_2": "",
+                "client_email": "simran@gmail.com",
+                "added_on": "18-03-2026 03:08:52 PM"
+            },
+            {
+                "client_id": "1",
+                "client_name": "Aryan Borah",
+                "client_address": "Tezpur",
+                "client_mobile_1": "9987412202",
+                "client_mobile_2": "",
+                "client_email": "test@gmail.com",
+                "added_on": "18-03-2026 03:08:52 PM"
+            }
+        ],
+        "total_rows": "5",
+        "pagination_size": "10",
+        "Message": "System ready to proceed"
+    }
+]
