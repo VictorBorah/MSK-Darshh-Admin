@@ -612,8 +612,10 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                           <div className="flex items-center justify-center gap-2">
                             <button
                               onClick={() => {
-                                setTaxationItem(row);
-                                setShowTaxationModal(true);
+                                if (row) {
+                                  setTaxationItem(row);
+                                  setShowTaxationModal(true);
+                                }
                               }}
                               className="text-gray-400 hover:text-blue-400 p-1.5 hover:bg-white/10 rounded transition-colors"
                               title="Taxation Configuration"
