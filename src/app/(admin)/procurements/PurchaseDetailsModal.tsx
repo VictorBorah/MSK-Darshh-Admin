@@ -9,9 +9,10 @@ interface PurchaseDetailsModalProps {
    itemRow: any;
    onDemandAction: (row: any) => void;
    isClosed?: boolean;
+   voucherNumber?: string;
 }
 
-export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false }: PurchaseDetailsModalProps) {
+export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false, voucherNumber }: PurchaseDetailsModalProps) {
    useModalEscape(isOpen, onClose, 300);
    const itemDetailsRef = useRef<HTMLDivElement>(null);
 
@@ -31,8 +32,10 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       const sgstAmt = parseFloat(itemRow.sgst_amount || 0).toFixed(2);
       const igstAmt = parseFloat(itemRow.igst_amount || 0).toFixed(2);
       const dateVal = itemRow.purchase_date || (itemRow.created_on ? itemRow.created_on.split(' ')[0] : 'N/A');
+      const orderIdVal = voucherNumber || itemRow.voucher_no || itemRow.voucher_number || 'N/A';
 
       return `--- ORDERED ITEM DETAILS ---
+Order ID        : ${orderIdVal}
 Item Name       : ${itemRow.item_name || 'N/A'}
 Item ID         : ${itemRow.item_id || 'N/A'}
 Purchase Date   : ${dateVal}
