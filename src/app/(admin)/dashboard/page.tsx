@@ -391,12 +391,24 @@ export default function Dashboard() {
   const matDashArray = `${(matPercentage / 100) * pieCircumference} ${pieCircumference}`;
   const nonMatDashOffset = -((matPercentage / 100) * pieCircumference);
 
+  // Curated palette of 8 distinct premium colors designed for readability on both light and dark themes:
+  const BAR_COLORS = [
+    '#3b82f6', // Vibrant Indigo/Blue
+    '#10b981', // Emerald Green
+    '#f97316', // Warm Tangerine
+    '#8b5cf6', // Rich Purple
+    '#06b6d4', // Bright Cyan
+    '#ec4899', // Elegant Rose Pink
+    '#f59e0b', // Golden Amber
+    '#14b8a6', // Deep Teal
+  ];
+
   // Dynamic Bar Chart Mappings
   const barRaw = dashboardData?.barchart_data?.data || { labels: [], datasets: [{ values: [], colors: [] }] };
   const mappedBarData = (barRaw.labels || []).map((label: string, index: number) => ({
     label: label,
     value: barRaw.datasets?.[0]?.values?.[index] || 0,
-    color: barRaw.datasets?.[0]?.colors?.[index] || '#3b82f6'
+    color: BAR_COLORS[index % BAR_COLORS.length]
   }));
 
   // Border and container UI designs based on theme configurations
@@ -872,8 +884,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Expenses Breakup Pie Chart - Span 3 */}
-        <div className="lg:col-span-3 flex flex-col">
+        {/* Expenses Breakup Pie Chart - Span 2 */}
+        <div className="lg:col-span-2 flex flex-col">
           <div className={`${mainBorderClass} h-full flex flex-col`}>
             <div className={`${cardInnerClass} flex-grow flex flex-col p-6 items-center justify-between`}>
 
@@ -964,8 +976,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Budget Breakup Bar Chart - Span 3 */}
-        <div className="lg:col-span-3 flex flex-col">
+        {/* Budget Breakup Bar Chart - Span 4 */}
+        <div className="lg:col-span-4 flex flex-col">
           <div className={`${mainBorderClass} h-full flex flex-col`}>
             <div className={`${cardInnerClass} flex-grow flex flex-col p-6 justify-between`}>
 
@@ -990,7 +1002,7 @@ export default function Dashboard() {
                     mappedBarData.map((bar: BarItem, idx: number) => (
                       <div
                         key={idx}
-                        className="flex-grow flex flex-col items-center group cursor-pointer"
+                        className="flex-grow min-w-0 flex flex-col items-center group cursor-pointer"
                       >
                         <div className="relative w-full flex justify-center items-end h-[100px]">
 
