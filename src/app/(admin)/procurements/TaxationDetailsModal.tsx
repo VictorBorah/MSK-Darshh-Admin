@@ -83,6 +83,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   }, [isOpen, item]);
 
   const fetchInitialData = async () => {
+    if (!item) return;
     setIsLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
@@ -190,7 +191,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   };
 
   useEffect(() => {
-    if (!isOpen || isLoading || !isManuallyEdited) return;
+    if (!isOpen || isLoading || !isManuallyEdited || !item) return;
 
     if (skipNextFetchRef.current) {
       skipNextFetchRef.current = false;
@@ -198,10 +199,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
     }
 
     const timer = setTimeout(() => {
-      fetchTaxation(buyingVendor, item?.item_id, quantity, isGstInclusive ? '1' : '0', unitPrice, gstRate, false);
+      fetchTaxation(buyingVendor, item.item_id, quantity, isGstInclusive ? '1' : '0', unitPrice, gstRate, false);
     }, 600);
     return () => clearTimeout(timer);
-  }, [unitPrice, gstRate, quantity, buyingVendor, isManuallyEdited, isGstInclusive]);
+  }, [unitPrice, gstRate, quantity, buyingVendor, isManuallyEdited, isGstInclusive, item]);
 
 
   useEffect(() => {
@@ -318,7 +319,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
 
   const isApplyDisabled = hasGstInvoice && !uploadedInvoiceFilename;
 
-  if (!isOpen) return null;
+  if (!isOpen || !item) return null;
 
   return (
     <>

@@ -19,6 +19,9 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [isShareOpen, setIsShareOpen] = useState(false);
    const [copied, setCopied] = useState(false);
 
+   // Double-layered Safety: Early return immediately after hook declarations
+   if (!isOpen || !itemRow) return null;
+
    const getShareText = () => {
       if (!itemRow) return '';
       const gst = parseFloat(itemRow.gst_rate || 0).toFixed(0);
@@ -78,7 +81,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 
    const shareViaGmail = () => {
       const text = getShareText();
-      window.open(`mailto:?subject=${encodeURIComponent(`Purchase Details: ${itemRow.item_name}`)}&body=${encodeURIComponent(text)}`, '_blank');
+      window.open(`mailto:?subject=${encodeURIComponent(`Purchase Details: ${itemRow?.item_name || 'N/A'}`)}&body=${encodeURIComponent(text)}`, '_blank');
       setIsShareOpen(false);
    };
 
@@ -88,10 +91,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
       setIsShareOpen(false);
    };
 
-   if (!isOpen || !itemRow) return null;
-
    // Evaluate Demand connection status
-   const demandInfo = itemRow.connected_demand_info;
+   const demandInfo = itemRow?.connected_demand_info;
    const isConnected = demandInfo && Object.keys(demandInfo).length > 0 && demandInfo.demand_id;
 
    return (
@@ -114,11 +115,11 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                <div ref={itemDetailsRef} className="bg-[#1b202c] p-4 rounded-lg border border-gray-700 flex flex-col gap-3">
                   <div className="flex items-start justify-between">
                      <div>
-                        <h3 className="text-white font-bold text-[15px]">{itemRow.item_name || 'N/A'}</h3>
-                        <span className="text-[11px] text-gray-400 font-medium tracking-wide">ID: {itemRow.item_id || 'N/A'}</span>
+                        <h3 className="text-white font-bold text-[15px]">{itemRow?.item_name || 'N/A'}</h3>
+                        <span className="text-[11px] text-gray-400 font-medium tracking-wide">ID: {itemRow?.item_id || 'N/A'}</span>
                      </div>
                      <div className="text-right">
-                        <div className="text-emerald-400 font-bold text-[15px]">₹ {parseFloat(itemRow.amount_inc_gst || 0).toFixed(2)}</div>
+                        <div className="text-emerald-400 font-bold text-[15px]">₹ {parseFloat(itemRow?.amount_inc_gst || 0).toFixed(2)}</div>
                         <span className="text-[11px] text-gray-500 font-medium whitespace-nowrap">Inclusive of GST</span>
                      </div>
                   </div>
@@ -126,44 +127,44 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                   <div className="grid grid-cols-2 gap-4 mt-2 border-t border-gray-700/50 pt-3">
                      <div className="flex flex-col gap-0.5">
                         <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Quantity</span>
-                        <span className="text-[13px] text-white font-medium">{itemRow.qnty || '0'}</span>
+                        <span className="text-[13px] text-white font-medium">{itemRow?.qnty || '0'}</span>
                      </div>
                      <div className="flex flex-col gap-0.5">
                         <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Unit Price</span>
-                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.unit_price || 0).toFixed(2)}</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.unit_price || 0).toFixed(2)}</span>
                      </div>
                      <div className="flex flex-col gap-0.5">
                         <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Total Base</span>
-                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.amount_exc_gst || 0).toFixed(2)}</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.amount_exc_gst || 0).toFixed(2)}</span>
                      </div>
                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Total GST ({itemRow.gst_rate || 0}%)</span>
-                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.gst_amount || 0).toFixed(2)}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Total GST ({itemRow?.gst_rate || 0}%)</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.gst_amount || 0).toFixed(2)}</span>
                      </div>
                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">CGST ({itemRow.cgst_rate || 0}%)</span>
-                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.cgst_amount || 0).toFixed(2)}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">CGST ({itemRow?.cgst_rate || 0}%)</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.cgst_amount || 0).toFixed(2)}</span>
                      </div>
                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">SGST ({itemRow.sgst_rate || 0}%)</span>
-                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.sgst_amount || 0).toFixed(2)}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">SGST ({itemRow?.sgst_rate || 0}%)</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.sgst_amount || 0).toFixed(2)}</span>
                      </div>
                      <div className="flex flex-col gap-0.5">
-                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">IGST ({itemRow.gst_rate || 0}%)</span>
-                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow.igst_amount || 0).toFixed(2)}</span>
+                        <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">IGST ({itemRow?.gst_rate || 0}%)</span>
+                        <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.igst_amount || 0).toFixed(2)}</span>
                      </div>
 
-                     {String(itemRow.demand_diff) === '1' && (
+                     {String(itemRow?.demand_diff) === '1' && (
                         <div className="col-span-2 mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-md flex flex-col gap-1.5">
                            <h4 className="text-[11px] font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
                               <Info className="w-3.5 h-3.5" /> Purchase Information
                            </h4>
                            <div className="flex flex-col gap-1 mt-0.5">
                               <div className="text-[12px] text-gray-300">
-                                 <span className="font-semibold text-gray-400">Difference in Qnty. :</span> {itemRow.diff_qnty}
+                                 <span className="font-semibold text-gray-400">Difference in Qnty. :</span> {itemRow?.diff_qnty}
                               </div>
                               <div className="text-[12px] text-gray-300">
-                                 <span className="font-semibold text-gray-400">Message :</span> {itemRow.diff_qnty_msg}
+                                 <span className="font-semibold text-gray-400">Message :</span> {itemRow?.diff_qnty_msg}
                               </div>
                            </div>
                         </div>
@@ -251,7 +252,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                          </div>
 
                          <button
-                            onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${itemRow.item_name}.pdf`)}
+                            onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${itemRow?.item_name || 'Item'}.pdf`)}
                             className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
                             title="Download as PDF"
                          >
@@ -266,7 +267,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                {/* Connected Demand Info */}
                <div className="flex flex-col gap-3">
                   <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                     <Anchor className="w-3.5 h-3.5" /> Demand Connection {isConnected ? `: Connected to: #D-${demandInfo.demand_id}` : ''}
+                     <Anchor className="w-3.5 h-3.5" /> Demand Connection {isConnected ? `: Connected to: #D-${demandInfo?.demand_id}` : ''}
                   </h4>
 
                   {!isConnected ? (
@@ -293,33 +294,33 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         <div className="grid grid-cols-2 gap-y-3 gap-x-4 pl-2">
                            <div className="col-span-2 flex flex-col gap-0.5 pb-1">
                               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Demand Title</span>
-                              <span className="text-[13px] text-white font-medium italic line-clamp-2">{demandInfo.auto_title || 'N/A'}</span>
+                              <span className="text-[13px] text-white font-medium italic line-clamp-2">{demandInfo?.auto_title || 'N/A'}</span>
                            </div>
 
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Demand No</span>
-                              <span className="text-[13px] text-white font-bold">{demandInfo.demand_no || 'N/A'}</span>
+                              <span className="text-[13px] text-white font-bold">{demandInfo?.demand_no || 'N/A'}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Priority</span>
-                              <span className="text-[13px] text-blue-400 font-bold">{demandInfo.priority_txt || 'Normal'}</span>
+                              <span className="text-[13px] text-blue-400 font-bold">{demandInfo?.priority_txt || 'Normal'}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Delivery Confirmed</span>
-                              <span className={`text-[13px] font-bold ${demandInfo.delivery_confirmed === 'Yes' ? 'text-emerald-400' : 'text-gray-300'}`}>
-                                 {demandInfo.delivery_confirmed || 'No'}
+                              <span className={`text-[13px] font-bold ${demandInfo?.delivery_confirmed === 'Yes' ? 'text-emerald-400' : 'text-gray-300'}`}>
+                                 {demandInfo?.delivery_confirmed || 'No'}
                               </span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Fulfillment</span>
-                              <span className={`text-[13px] font-bold ${demandInfo.is_fulfilled === 'Yes' ? 'text-emerald-400' : 'text-gray-300'}`}>
-                                 {demandInfo.is_fulfilled || 'No'}
+                              <span className={`text-[13px] font-bold ${demandInfo?.is_fulfilled === 'Yes' ? 'text-emerald-400' : 'text-gray-300'}`}>
+                                 {demandInfo?.is_fulfilled || 'No'}
                               </span>
                            </div>
 
                            <div className="col-span-2 flex flex-col gap-0.5 mt-1 border-t border-gray-700/50 pt-2">
                               <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Status</span>
-                              <span className="text-[12px] text-gray-300">{demandInfo.procurement_txt || 'N/A'}</span>
+                              <span className="text-[12px] text-gray-300">{demandInfo?.procurement_txt || 'N/A'}</span>
                            </div>
                         </div>
 
