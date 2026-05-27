@@ -19,6 +19,14 @@ import toast from 'react-hot-toast';
 import ViewClientModal from './ViewClient';
 import EditClientModal from './EditClient';
 import ClientSettingsModal from './ClientSettings';
+import ClientPaymentModal from './ClientPayment';
+
+interface ClientProject {
+  project_id: string;
+  project_name: string;
+  project_code?: string;
+  site_address?: string | null;
+}
 
 interface Client {
   client_id: string;
@@ -29,6 +37,7 @@ interface Client {
   client_mobile_2: string;
   client_email: string;
   added_on: string;
+  projects_data?: ClientProject[];
 }
 
 export default function ClientsPage() {
@@ -47,6 +56,10 @@ export default function ClientsPage() {
   // Client Settings Modal State
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsClient, setSettingsClient] = useState<Client | null>(null);
+
+  // Client Payments Modal State
+  const [isPaymentsOpen, setIsPaymentsOpen] = useState(false);
+  const [paymentsClient, setPaymentsClient] = useState<Client | null>(null);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -401,6 +414,7 @@ export default function ClientsPage() {
                 <th className="px-6 py-4 w-32">Mobile</th>
                 <th className="px-6 py-4 w-48">Email</th>
                 <th className="px-6 py-4 w-64">Address</th>
+                <th className="px-6 py-4 w-24 text-center">Payments</th>
                 <th className="px-6 py-4 w-24 text-center">View</th>
                 <th className="px-6 py-4 w-24 text-center">Settings</th>
                 <th className="px-6 py-4 w-24 text-center">Edit</th>
@@ -409,14 +423,14 @@ export default function ClientsPage() {
             <tbody className="divide-y divide-gray-800 bg-[#161a25]">
               {isLoading ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-500">
+                  <td colSpan={8} className="py-12 text-center text-gray-500">
                     <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />
                     Loading Clients Directory...
                   </td>
                 </tr>
               ) : clientList.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-500">
+                  <td colSpan={8} className="py-12 text-center text-gray-500">
                     No clients found matching the search criteria.
                   </td>
                 </tr>
@@ -437,6 +451,14 @@ export default function ClientsPage() {
                     </td>
                     <td className="px-6 py-4 text-gray-400 truncate max-w-xs">
                       {client.client_address || '-'}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button 
+                        onClick={() => { setPaymentsClient(client); setIsPaymentsOpen(true); }}
+                        className="px-3 py-1.5 text-[11px] bg-indigo-600/15 text-indigo-400 hover:bg-indigo-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 font-medium whitespace-nowrap"
+                      >
+                        <IndianRupee className="w-3.5 h-3.5" /> Payments
+                      </button>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <button 
@@ -711,6 +733,13 @@ export default function ClientsPage() {
         isOpen={isSettingsOpen}
         onClose={() => { setIsSettingsOpen(false); setSettingsClient(null); }}
         client={settingsClient}
+      />
+
+      {/* Client Payments Modal */}
+      <ClientPaymentModal 
+        isOpen={isPaymentsOpen}
+        onClose={() => { setIsPaymentsOpen(false); setPaymentsClient(null); }}
+        client={paymentsClient}
       />
 
     </div>

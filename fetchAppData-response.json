@@ -392,6 +392,43 @@
         ],
         "tasks_data": [],
         "Txn_Summary": [],
+		"paymentmodes_Arr": [
+            {
+                "id": "1",
+                "mode": "Cash",
+                "txn_reference": null
+            },
+            {
+                "id": "2",
+                "mode": "UPI",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "3",
+                "mode": "IMPS",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "4",
+                "mode": "NEFT",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "5",
+                "mode": "RTGS",
+                "txn_reference": "Transaction ID"
+            },
+            {
+                "id": "6",
+                "mode": "Demand Draft",
+                "txn_reference": "Draft Number"
+            },
+            {
+                "id": "7",
+                "mode": "Cheque",
+                "txn_reference": "Cheque Number"
+            }
+        ],
         "item_categories_data": [
             {
                 "master_category_id": "2",
