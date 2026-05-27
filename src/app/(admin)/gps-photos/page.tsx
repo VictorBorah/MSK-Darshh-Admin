@@ -251,14 +251,76 @@ export default function GpsPhotos() {
       }
 
       const rawText = await response.text();
-      let resDataArr;
-      try {
-        resDataArr = JSON.parse(rawText);
-      } catch {
-        throw new Error('Response payload parsing failed');
+      
+      // 1. Handle completely empty response body
+      if (!rawText || rawText.trim() === '') {
+        if (!append) {
+          setPhotos([]);
+          setTotalRows(0);
+        }
+        setToast({
+          message: 'No photos found for this selection',
+          type: 'success'
+        });
+        return;
       }
 
-      const resData = Array.isArray(resDataArr) ? resDataArr[0] : resDataArr;
+      let resDataArr;
+      try {
+        const cleanText = rawText.trim();
+        // Check if the response is double-JSON-encoded by the backend (starts and ends with quotes)
+        if (cleanText.startsWith('"') && cleanText.endsWith('"')) {
+          const unescapedStr = JSON.parse(cleanText);
+          resDataArr = typeof unescapedStr === 'string' ? JSON.parse(unescapedStr) : unescapedStr;
+        } else {
+          resDataArr = JSON.parse(cleanText);
+        }
+      } catch (err) {
+        // Fallback: If it's a double-encoded string with escaped quotes or slashes that standard JSON.parse fails on,
+        // we manually unescape it and attempt to parse it.
+        try {
+          let manualText = rawText.trim();
+          if (manualText.startsWith('"') && manualText.endsWith('"')) {
+            manualText = manualText.substring(1, manualText.length - 1);
+          }
+          // Replace escaped quotes \" with "
+          manualText = manualText.replaceAll('\\"', '"');
+          // Replace escaped slashes \/ with /
+          manualText = manualText.replaceAll('\\/', '/');
+          // Replace escaped backslashes \\ with \
+          manualText = manualText.replaceAll('\\\\', '\\');
+          
+          resDataArr = JSON.parse(manualText);
+        } catch (manualErr) {
+          console.warn("Failed to parse JSON response:", rawText, manualErr);
+          if (!append) {
+            setPhotos([]);
+            setTotalRows(0);
+          }
+          setToast({
+            message: 'Failed to process server response',
+            type: 'error'
+          });
+          return;
+        }
+      }
+
+      // 2. Handle parsed array check
+      const resData = Array.isArray(resDataArr) 
+        ? (resDataArr.length > 0 ? resDataArr[0] : null) 
+        : resDataArr;
+
+      if (!resData) {
+        if (!append) {
+          setPhotos([]);
+          setTotalRows(0);
+        }
+        setToast({
+          message: 'No photos available',
+          type: 'success'
+        });
+        return;
+      }
 
       if (resData) {
         const isSuccess = String(resData.Status) === "1" || resData.Status === 1;
