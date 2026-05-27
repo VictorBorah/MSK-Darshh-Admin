@@ -12,7 +12,9 @@ import {
   ChevronDown, 
   Loader2, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
 
@@ -64,6 +66,7 @@ export default function GpsPhotos() {
   const [tempStart, setTempStart] = useState<Date | null>(null);
   const [tempEnd, setTempEnd] = useState<Date | null>(null);
   
+  const [applyDateRange, setApplyDateRange] = useState<boolean>(false);
   const [activePhoto, setActivePhoto] = useState<Photo | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
@@ -232,11 +235,13 @@ export default function GpsPhotos() {
       if (selectedStageId) {
         url += `&stage_id=${selectedStageId}`;
       }
-      if (fromDate) {
-        url += `&from_date=${convertInputToApiDate(fromDate)}`;
-      }
-      if (toDate) {
-        url += `&to_date=${convertInputToApiDate(toDate)}`;
+      if (applyDateRange) {
+        if (fromDate) {
+          url += `&from_date=${convertInputToApiDate(fromDate)}`;
+        }
+        if (toDate) {
+          url += `&to_date=${convertInputToApiDate(toDate)}`;
+        }
       }
 
       const response = await fetch(url, {
@@ -366,14 +371,14 @@ export default function GpsPhotos() {
       setIsLoadingPhotos(false);
       setIsLoadMoreLoading(false);
     }
-  }, [selectedProject, selectedStageId, fromDate, toDate]);
+  }, [selectedProject, selectedStageId, fromDate, toDate, applyDateRange]);
 
   // Load photos immediately on project selection or filter changes
   useEffect(() => {
     if (selectedProject) {
       fetchPhotos(1, false);
     }
-  }, [selectedProject, selectedStageId, fromDate, toDate, fetchPhotos]);
+  }, [selectedProject, selectedStageId, fromDate, toDate, applyDateRange, fetchPhotos]);
 
   // Change project handler
   const handleProjectSelect = (project: any) => {
@@ -385,6 +390,7 @@ export default function GpsPhotos() {
     setSelectedStageId('');
     setFromDate('');
     setToDate('');
+    setApplyDateRange(false);
     setTempStart(null);
     setTempEnd(null);
     setPhotos([]);
@@ -682,6 +688,27 @@ export default function GpsPhotos() {
               </div>
             )}
           </div>
+
+          {/* Apply Date Range Checkbox */}
+          <label className={`flex items-center gap-2 cursor-pointer select-none shrink-0 py-2 ${
+            !selectedProject ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
+          }`}>
+            <input
+              type="checkbox"
+              checked={applyDateRange}
+              disabled={!selectedProject}
+              onChange={(e) => setApplyDateRange(e.target.checked)}
+              className="hidden"
+            />
+            {applyDateRange ? (
+              <CheckSquare className="w-5 h-5 text-emerald-500 shrink-0" />
+            ) : (
+              <Square className="w-5 h-5 text-gray-400 shrink-0" />
+            )}
+            <span className="text-[13.5px] font-bold text-gray-300 whitespace-nowrap">
+              Apply Date Range
+            </span>
+          </label>
 
         </div>
 
