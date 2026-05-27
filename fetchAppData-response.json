@@ -4,9 +4,9 @@
         "Status": "1",
         "usrGRP_ID": 1,
         "my_groups_csv": null,
-        "pagination_size": 10,
-        "file_max_size": 2,
-        "send_Email": 1,
+        "pagination_size": "10",
+        "file_max_size": "2",
+        "send_Email": "1",
         "My_Projects": [
             {
                 "project_id": "1",
@@ -51,7 +51,40 @@
                 "site_address": "",
                 "start_date": "",
                 "status": "Ongoing",
-                "geofence_ready": "No"
+                "geofence_ready": "Yes",
+                "current_stage": "8",
+                "stages_data": [
+                    {
+                        "stage_id": "2",
+                        "stage_name": "Foundation Initiation",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "8",
+                        "stage_name": "Brick Layering",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "4",
+                        "stage_name": "Plinth Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "14",
+                        "stage_name": "Test Stage",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "6",
+                        "stage_name": "Beam Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "17",
+                        "stage_name": "My New Stage",
+                        "active": "1"
+                    }
+                ]
             },
             {
                 "project_id": "2",
@@ -92,665 +125,172 @@
                 "site_address": "",
                 "start_date": "",
                 "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "3",
-                "project_name": "TEST Project 12234",
-                "geofence_json": "",
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "4",
-                "project_name": "RICHARD ENCLAVE",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            94.560255,
-                                            27.472718
-                                        ],
-                                        [
-                                            94.56011,
-                                            27.47229
-                                        ],
-                                        [
-                                            94.560233,
-                                            27.472252
-                                        ],
-                                        [
-                                            94.560405,
-                                            27.472656
-                                        ],
-                                        [
-                                            94.560255,
-                                            27.472718
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "5",
-                "project_name": "SAIKIA HUT",
-                "geofence_json": "",
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "6",
-                "project_name": "BRAHMAPUTRA HEIGHTS",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            94.560277,
-                                            27.472709
-                                        ],
-                                        [
-                                            94.560116,
-                                            27.47229
-                                        ],
-                                        [
-                                            94.56024,
-                                            27.472257
-                                        ],
-                                        [
-                                            94.560395,
-                                            27.472652
-                                        ],
-                                        [
-                                            94.560277,
-                                            27.472709
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "7",
-                "project_name": "ELIZA ENCLAVE",
-                "geofence_json": "",
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "8",
-                "project_name": "SUPERNOVA",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            91.780214,
-                                            26.12859
-                                        ],
-                                        [
-                                            91.778154,
-                                            26.12127
-                                        ],
-                                        [
-                                            91.789225,
-                                            26.11996
-                                        ],
-                                        [
-                                            91.788281,
-                                            26.128899
-                                        ],
-                                        [
-                                            91.780214,
-                                            26.12859
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "9",
-                "project_name": "GOGOI RESIDENCE",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            93.149534,
-                                            26.744344
-                                        ],
-                                        [
-                                            93.149685,
-                                            26.742245
-                                        ],
-                                        [
-                                            93.151423,
-                                            26.742485
-                                        ],
-                                        [
-                                            93.151144,
-                                            26.745263
-                                        ],
-                                        [
-                                            93.149502,
-                                            26.74533
-                                        ],
-                                        [
-                                            93.149534,
-                                            26.744344
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "10",
-                "project_name": "SHELTON",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            94.560229,
-                                            27.472737
-                                        ],
-                                        [
-                                            94.560073,
-                                            27.472333
-                                        ],
-                                        [
-                                            94.560293,
-                                            27.472238
-                                        ],
-                                        [
-                                            94.560417,
-                                            27.472675
-                                        ],
-                                        [
-                                            94.560229,
-                                            27.472737
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "11",
-                "project_name": "Matrix Apartments",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            91.756825,
-                                            26.124999
-                                        ],
-                                        [
-                                            91.757404,
-                                            26.124922
-                                        ],
-                                        [
-                                            91.757533,
-                                            26.124324
-                                        ],
-                                        [
-                                            91.756739,
-                                            26.124401
-                                        ],
-                                        [
-                                            91.756825,
-                                            26.124999
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "12",
-                "project_name": "SIANG VALLEY HOUSING",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            94.111693,
-                                            27.254624
-                                        ],
-                                        [
-                                            94.111891,
-                                            27.254748
-                                        ],
-                                        [
-                                            94.112004,
-                                            27.254643
-                                        ],
-                                        [
-                                            94.111805,
-                                            27.254519
-                                        ],
-                                        [
-                                            94.111693,
-                                            27.254624
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "13",
-                "project_name": "DIKRONG TOWER",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            76.889231,
-                                            20.447385
-                                        ],
-                                        [
-                                            76.889322,
-                                            20.447224
-                                        ],
-                                        [
-                                            76.889413,
-                                            20.447305
-                                        ],
-                                        [
-                                            76.889301,
-                                            20.447436
-                                        ],
-                                        [
-                                            76.889231,
-                                            20.447385
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "14",
-                "project_name": "HAZARIKA KUTIR",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            91.759344,
-                                            26.125211
-                                        ],
-                                        [
-                                            91.759301,
-                                            26.124748
-                                        ],
-                                        [
-                                            91.75988,
-                                            26.124729
-                                        ],
-                                        [
-                                            91.759816,
-                                            26.125288
-                                        ],
-                                        [
-                                            91.759344,
-                                            26.125211
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "15",
-                "project_name": "RUNTIME TEST",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            91.728763,
-                                            26.214568
-                                        ],
-                                        [
-                                            91.728824,
-                                            26.214482
-                                        ],
-                                        [
-                                            91.729001,
-                                            26.21448
-                                        ],
-                                        [
-                                            91.729006,
-                                            26.214583
-                                        ],
-                                        [
-                                            91.728767,
-                                            26.214598
-                                        ],
-                                        [
-                                            91.728763,
-                                            26.214568
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "16",
-                "project_name": "HILTON",
-                "geofence_json": {
-                    "type": "FeatureCollection",
-                    "features": [
-                        {
-                            "type": "Feature",
-                            "properties": [],
-                            "geometry": {
-                                "type": "Polygon",
-                                "coordinates": [
-                                    [
-                                        [
-                                            93.150107,
-                                            26.743569
-                                        ],
-                                        [
-                                            93.150316,
-                                            26.742218
-                                        ],
-                                        [
-                                            93.151137,
-                                            26.742352
-                                        ],
-                                        [
-                                            93.150837,
-                                            26.743765
-                                        ],
-                                        [
-                                            93.150107,
-                                            26.743569
-                                        ]
-                                    ]
-                                ]
-                            }
-                        }
-                    ]
-                },
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "17",
-                "project_name": "TEST",
-                "geofence_json": "",
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            },
-            {
-                "project_id": "18",
-                "project_name": "EUREKA RESIDENCE",
-                "geofence_json": "",
-                "site_coordinates": "",
-                "site_address": "",
-                "start_date": "",
-                "status": "Ongoing",
-                "geofence_ready": "No"
-            }
+                "geofence_ready": "Yes",
+                "current_stage": "8",
+                "stages_data": [
+                    {
+                        "stage_id": "1",
+                        "stage_name": "Land Clearing",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "2",
+                        "stage_name": "Foundation Initiation",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "3",
+                        "stage_name": "Foundation Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "4",
+                        "stage_name": "Plinth Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "5",
+                        "stage_name": "Column Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "6",
+                        "stage_name": "Beam Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "7",
+                        "stage_name": "Shed Construction",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "8",
+                        "stage_name": "Brick Layering",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "9",
+                        "stage_name": "Electrical Fixtures",
+                        "active": "1"
+                    },
+                    {
+                        "stage_id": "10",
+                        "stage_name": "Plastering ",
+                        "active": "1"
+                    }
+                ]
+            }        
+            
         ],
         "usergroups_data": [],
         "Menu_Data": [
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Dashboard",
                 "slug": "dashboard",
-                "order_id": 1
+                "order_id": "1"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Projects",
                 "slug": "projects",
-                "order_id": 3
+                "order_id": "2"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Staff",
                 "slug": "staff",
-                "order_id": 7
+                "order_id": "6"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Purchases",
                 "slug": "procurements",
-                "order_id": 4
+                "order_id": "3"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Payments",
                 "slug": "payments",
-                "order_id": 5
+                "order_id": "4"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Supply Ledger",
                 "slug": "supply-ledger",
-                "order_id": 9
+                "order_id": "9"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Stock Inventory",
                 "slug": "stock-inventory",
-                "order_id": 8
+                "order_id": "8"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "Item Categories",
                 "slug": "item-categories",
-                "order_id": 11
+                "order_id": "12"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "Item Master",
                 "slug": "item-master",
-                "order_id": 12
+                "order_id": "13"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "Vendor Master",
                 "slug": "vendor-master",
-                "order_id": 14
+                "order_id": "15"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "Settings",
                 "slug": "system-settings",
-                "order_id": 16
+                "order_id": "17"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "System Log",
                 "slug": "sys-log",
-                "order_id": 17
+                "order_id": "18"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "User Groups",
                 "slug": "user-groups",
-                "order_id": 13
+                "order_id": "14"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Demands",
                 "slug": "demands",
-                "order_id": 6
+                "order_id": "5"
             },
             {
-                "menu_type": 2,
+                "menu_type": "2",
                 "menu_item": "Menu Config",
                 "slug": "menu-config",
-                "order_id": 15
+                "order_id": "16"
             },
             {
-                "menu_type": 1,
+                "menu_type": "1",
                 "menu_item": "Clients",
                 "slug": "clients",
-                "order_id": 2
+                "order_id": "7"
             },
             {
-                "menu_type": 2,
-                "menu_item": "Budget Heads",
-                "slug": "budget-heads",
-                "order_id": 10
+                "menu_type": "1",
+                "menu_item": "GPS Photos",
+                "slug": "gps-photos",
+                "order_id": "10"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "budget-heads",
+                "slug": "",
+                "order_id": "11"
             }
         ],
         "User_Data": [
@@ -772,105 +312,96 @@
                 "district_id": "3",
                 "district_name": "BISWANATH",
                 "pincode": "787057",
-                "marital_status": 1,
+                "marital_status": "1",
                 "marital_status_txt": "Married",
                 "father_name": null,
                 "mother_name": null,
-                "sex_key": 1,
+                "sex_key": "1",
                 "sex_txt": "Male",
                 "pan_file": null,
                 "aadhaar_file": null,
                 "emergency_mobile_no": null,
                 "emergency_contact_person": null,
-                "kyc_approved": 1,
-                "is_suspended": 0
+                "kyc_approved": "1",
+                "is_suspended": "0"
             }
         ],
         "priority_data": [
             {
-                "id": 1,
+                "id": "1",
                 "priority": "High"
             },
             {
-                "id": 2,
+                "id": "2",
                 "priority": "Medium"
             },
             {
-                "id": 3,
+                "id": "3",
                 "priority": "Low"
             }
         ],
         "System_Data": {
             "appName": "ZYN Construction Network",
             "apiVersion": "1.0.0",
-            "curSession": 1,
+            "curSession": "1",
             "curSession_txt": "2026-27",
             "androidVersion": "1.0.0",
-            "frontendVersion": "1.0.2",
+            "frontendVersion": "1.0.0",
             "bucketHost": "digital-ocean-cloud",
             "default_gst": "18.00",
-            "default_sgst_rate": 9,
-            "default_cgst_rate": 9,
-            "gst_inclusive": 1,
+            "default_sgst_rate": "9",
+            "default_cgst_rate": "9",
+            "gst_inclusive": "1",
             "s3BucketBasePath": "https://zyn-app.sgp1.digitaloceanspaces.com",
-            "s3CdnBasePath": "https://zyn-app.sgp1.cdn.digitaloceanspaces.com",
+            "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "zyn-app",
             "s3BucketKey": "DO00VYV63W4VR6MFXWAT",
             "s3Region": "sgp1",
             "appLogo": "",
             "webAppLogo": "Logo.png",
             "smsPEId": "1205165992846067265",
-            "hostName": "www.zyncore.in",
-            "appBaseUrl": "www.zyncore.in/webservices/v1",
-            "frontEndBaseUrl": "zynapp.in",
-            "fileMaxSize": 2,
-            "maxStorage": 524300000,
-            "ticketFileMaxSize": 2,
-            "dpFileMaxSize": 2,
-            "paginationRowNum": 10,
-            "reports_rownum": 500,
-            "sendTicketmails": 0,
-            "tds_percent1": 3,
-            "tds_percent2": 4,
-            "sendEmail": 1,
-            "purchase_budget_head": 2,
-            "payment_budget_head": 1,
-            "auto_create_demands_from_diff": 1,
-            "showDemandsInAdmin": 1,
-            "enableBackDates": 1,
-            "default_project": 9
+            "hostName": "api.zlabz.space",
+            "appBaseUrl": "api.zlabz.space/webservices/v1",
+            "frontEndBaseUrl": "zlabz.space",
+            "fileMaxSize": "2",
+            "maxStorage": "524300000",
+            "ticketFileMaxSize": "2",
+            "dpFileMaxSize": "2",
+            "paginationRowNum": "10",
+            "reports_rownum": "500",
+            "sendTicketmails": "0",
+            "tds_percent1": "3",
+            "tds_percent2": "4",
+            "sendEmail": "1",
+            "purchase_budget_head": "2",
+            "payment_budget_head": "1",
+            "auto_create_demands_from_diff": "1",
+            "showDemandsInAdmin": "1",
+            "enableBackDates": "1",
+            "default_project": "9"
         },
         "districts": [
             {
-                "id": 1,
+                "id": "1",
                 "district": "BAKSA"
             },
             {
-                "id": 2,
+                "id": "2",
                 "district": "BARPETA"
-            },
-            {
-                "id": 3,
-                "district": "BISWANATH"
             }
         ],
         "tasks_data": [],
         "Txn_Summary": [],
         "item_categories_data": [
             {
-                "master_category_id": 2,
+                "master_category_id": "2",
                 "master_category_name": "Aggregates",
-                "is_material": 1
+                "is_material": "1"
             },
             {
-                "master_category_id": 3,
+                "master_category_id": "3",
                 "master_category_name": "Bricks & Blocks",
-                "is_material": 1
-            },
-            {
-                "master_category_id": 1,
-                "master_category_name": "Cement & Concrete",
-                "is_material": 1
+                "is_material": "1"
             }
         ],
         "Message": "App Data Fetched Successfully"

@@ -21,7 +21,8 @@ import {
   LayoutList,
   ListChecks,
   UserCheck,
-  ClipboardList
+  ClipboardList,
+  Camera
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -49,6 +50,7 @@ export default function Sidebar() {
       case 'demands': return <ListChecks className={className} />;
       case 'clients': return <UserCheck className={className} />;
       case 'budget-heads': return <ClipboardList className={className} />;
+      case 'gps-photos': return <Camera className={className} />;
       default: return <CircleDot className={className} />;
     }
   };
