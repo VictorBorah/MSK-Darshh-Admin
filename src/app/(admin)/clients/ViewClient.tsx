@@ -9,13 +9,15 @@ import {
   MapPin,
   Calendar,
   ShieldCheck,
-  Building
+  Building,
+  IndianRupee
 } from 'lucide-react';
 
 interface Client {
   client_id: string;
   client_name: string;
   client_address: string | null;
+  contract_amount?: string;
   client_mobile_1: string;
   client_mobile_2: string;
   client_email: string;
@@ -95,8 +97,9 @@ export default function ViewClientModal({ isOpen, onClose, client }: ViewClientM
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Email Address" value={client.client_email} icon={Mail} />
               <Field label="Primary Mobile" value={client.client_mobile_1} icon={Phone} />
+              <Field label="Secondary Mobile" value={client.client_mobile_2} icon={Phone} />
+              <Field label="Contract Amount" value={client.contract_amount ? `₹ ${parseFloat(client.contract_amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '₹ 0.00'} icon={IndianRupee} />
             </div>
-            <Field label="Secondary Mobile" value={client.client_mobile_2} icon={Phone} />
 
             <div className="flex items-start gap-3 p-3 rounded-lg bg-[#161a25]/60 border border-gray-800/40 hover:border-gray-700/40 transition-colors w-full mt-1">
               <MapPin className={`w-4 h-4 mt-0.5 shrink-0 ${client.client_address ? 'text-red-400' : 'text-gray-600'}`} />

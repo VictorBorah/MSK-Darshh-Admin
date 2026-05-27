@@ -7,6 +7,7 @@ interface Client {
   client_id: string;
   client_name: string;
   client_address: string | null;
+  contract_amount?: string;
   client_mobile_1: string;
   client_mobile_2: string;
   client_email: string;
