@@ -41,7 +41,7 @@ export default function GpsPhotos() {
   const [stages, setStages] = useState<Stage[]>([]);
   const [selectedStageId, setSelectedStageId] = useState<string>('');
   
-  // Date states (formatted as YYYY-MM-DD for native input inputs)
+  // Date states (formatted as YYYY-MM-DD for native matching)
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
 
@@ -52,19 +52,36 @@ export default function GpsPhotos() {
   const [isLoadingPhotos, setIsLoadingPhotos] = useState<boolean>(false);
   const [isLoadMoreLoading, setIsLoadMoreLoading] = useState<boolean>(false);
 
-  // Popovers & UI
+  // Popovers & UI Search states
   const [isProjectDropdownOpen, setIsProjectDropdownOpen] = useState<boolean>(false);
+  const [isStageDropdownOpen, setIsStageDropdownOpen] = useState<boolean>(false);
+  const [isDateOpen, setIsDateOpen] = useState<boolean>(false);
+  
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [stageSearchQuery, setStageSearchQuery] = useState<string>('');
+  
+  const [calMonth, setCalMonth] = useState<Date>(new Date(2026, 4)); // Initialize to May 2026 as per mockup
+  const [tempStart, setTempStart] = useState<Date | null>(null);
+  const [tempEnd, setTempEnd] = useState<Date | null>(null);
+  
   const [activePhoto, setActivePhoto] = useState<Photo | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-  const searchRef = useRef<HTMLDivElement>(null);
+  const projectSearchRef = useRef<HTMLDivElement>(null);
+  const stageSearchRef = useRef<HTMLDivElement>(null);
+  const dateRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown on click outside
+  // Close dropdowns on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (projectSearchRef.current && !projectSearchRef.current.contains(event.target as Node)) {
         setIsProjectDropdownOpen(false);
+      }
+      if (stageSearchRef.current && !stageSearchRef.current.contains(event.target as Node)) {
+        setIsStageDropdownOpen(false);
+      }
+      if (dateRef.current && !dateRef.current.contains(event.target as Node)) {
+        setIsDateOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -97,7 +114,7 @@ export default function GpsPhotos() {
     }
   }, [isLoadingAppData, defaultProject, projects, selectedProject]);
 
-  // Helper: Convert YYYY-MM-DD native date string to API expected DD-MM-YYYY
+  // Helper: Convert YYYY-MM-DD date string to API expected DD-MM-YYYY
   const convertInputToApiDate = (dateStr: string) => {
     if (!dateStr) return '';
     const parts = dateStr.split('-'); // [YYYY, MM, DD]
@@ -107,13 +124,89 @@ export default function GpsPhotos() {
     return '';
   };
 
-  // Helper: Get today's date in YYYY-MM-DD format to disable future dates
-  const getTodayDateString = () => {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
+  // Helper: Convert Date object to YYYY-MM-DD string
+  const formatDateToInputString = (d: Date) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
     return `${yyyy}-${mm}-${dd}`;
+  };
+
+  // Helper: Convert YYYY-MM-DD input date string to display DD-MM-YYYY
+  const formatDisplayDateString = (dateStr: string) => {
+    if (!dateStr) return '';
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    }
+    return '';
+  };
+
+  // Helper: Check if a date is in the future to disable it
+  const isFutureDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date > today;
+  };
+
+  // Generate day slots for current active calendar month view (standard 6-row / 42-slot grid)
+  const generateDaysForMonth = () => {
+    const year = calMonth.getFullYear();
+    const month = calMonth.getMonth();
+    const firstDayIndex = new Date(year, month, 1).getDay(); // 0 is Sunday
+    const totalDays = new Date(year, month + 1, 0).getDate();
+
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    const days = [];
+
+    // Pad with previous month's ending days
+    for (let i = firstDayIndex - 1; i >= 0; i--) {
+      days.push({
+        date: new Date(year, month - 1, prevMonthDays - i),
+        isCurrentMonth: false
+      });
+    }
+
+    // Current month days
+    for (let i = 1; i <= totalDays; i++) {
+      days.push({
+        date: new Date(year, month, i),
+        isCurrentMonth: true
+      });
+    }
+
+    // Pad with next month's beginning days
+    const totalSlots = 42;
+    const nextPad = totalSlots - days.length;
+    for (let i = 1; i <= nextPad; i++) {
+      days.push({
+        date: new Date(year, month + 1, i),
+        isCurrentMonth: false
+      });
+    }
+
+    return days;
+  };
+
+  // Date picker selection handler
+  const handleDateClick = (date: Date) => {
+    if (isFutureDate(date)) return;
+
+    if (!tempStart || (tempStart && tempEnd)) {
+      setTempStart(date);
+      setTempEnd(null);
+      setFromDate(formatDateToInputString(date));
+      setToDate('');
+    } else if (tempStart && !tempEnd) {
+      if (date >= tempStart) {
+        setTempEnd(date);
+        setToDate(formatDateToInputString(date));
+        setIsDateOpen(false); // Close calendar range popover when choice is fully made
+      } else {
+        setTempStart(date);
+        setFromDate(formatDateToInputString(date));
+      }
+    }
   };
 
   // REST API Gallery Fetching
@@ -225,7 +318,13 @@ export default function GpsPhotos() {
     setSelectedProject(project);
     const projectStages = project.stages_data || [];
     setStages(projectStages);
+    
+    // Reset stages, dates, and gallery values on project switch
     setSelectedStageId('');
+    setFromDate('');
+    setToDate('');
+    setTempStart(null);
+    setTempEnd(null);
     setPhotos([]);
     setTotalRows(0);
     setIsProjectDropdownOpen(false);
@@ -234,7 +333,6 @@ export default function GpsPhotos() {
 
   // Lightbox Button Actions
   const handleMarkAsRead = (photo: Photo) => {
-    // API Call verification logic
     setToast({
       message: `Photo "${photo.file_name}" marked as read successfully!`,
       type: 'success'
@@ -243,22 +341,25 @@ export default function GpsPhotos() {
   };
 
   const handleDelete = (photo: Photo) => {
-    // API Call verification logic
     setToast({
       message: `Photo "${photo.file_name}" deleted successfully!`,
       type: 'success'
     });
-    // Remove from local array to display responsive immediate update
+    // Update local grid immediately
     setPhotos(prev => prev.filter(p => p.photo_id !== photo.photo_id));
     setTotalRows(prev => Math.max(0, prev - 1));
     setActivePhoto(null);
   };
 
-  // Filter projects list for dropdown search
+  // Filter lists for dropdown search boxes
   const filteredProjects = projects ? projects.filter((p: any) =>
     (p.project_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.site_address || '').toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];
+
+  const filteredStages = stages.filter((stage) =>
+    (stage.stage_name || '').toLowerCase().includes(stageSearchQuery.toLowerCase())
+  );
 
   if (isLoadingAppData) {
     return (
@@ -296,12 +397,12 @@ export default function GpsPhotos() {
         <span className="text-gray-200 font-medium">GPS Photos</span>
       </div>
 
-      {/* Top Filter & Control Panel */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-4 mb-8 rounded-xl border border-gray-800/80 bg-[#181d2a]/95 shadow-xl backdrop-blur-md">
+      {/* Top Filter & Control Panel - absolute z-[45] added to elevate above photos grid layout */}
+      <div className="relative z-[45] flex flex-col xl:flex-row xl:items-center justify-between gap-4 p-4 mb-8 rounded-xl border border-gray-800/80 bg-[#181d2a]/95 shadow-xl backdrop-blur-md">
         <div className="flex flex-col lg:flex-row lg:items-center gap-4 flex-grow max-w-6xl">
           
           {/* Custom Searchable Project Select Dropdown */}
-          <div className="relative flex-grow lg:max-w-xs" ref={searchRef}>
+          <div className="relative flex-grow lg:max-w-xs" ref={projectSearchRef}>
             <div
               onClick={() => setIsProjectDropdownOpen(!isProjectDropdownOpen)}
               className="flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-800 bg-[#111522] text-white hover:border-gray-700 cursor-pointer select-none transition-all"
@@ -351,44 +452,173 @@ export default function GpsPhotos() {
             )}
           </div>
 
-          {/* Stage Dropdown Select */}
-          <div className="relative flex-grow lg:max-w-xs">
-            <select
-              value={selectedStageId}
-              disabled={!selectedProject}
-              onChange={(e) => setSelectedStageId(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-800 bg-[#111522] text-white focus:outline-none focus:ring-1 focus:ring-blue-500 hover:border-gray-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed text-[13.5px] font-medium transition-all"
+          {/* Custom Searchable Stage Select Dropdown */}
+          <div className="relative flex-grow lg:max-w-xs" ref={stageSearchRef}>
+            <div
+              onClick={() => selectedProject && setIsStageDropdownOpen(!isStageDropdownOpen)}
+              className={`flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-800 bg-[#111522] text-white hover:border-gray-700 cursor-pointer select-none transition-all ${
+                !selectedProject ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              <option value="">Select Stage</option>
-              {stages.map((stage) => (
-                <option key={stage.stage_id} value={stage.stage_id}>
-                  {stage.stage_name}
-                </option>
-              ))}
-            </select>
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <span className="font-semibold text-[13.5px] truncate">
+                  {selectedStageId 
+                    ? (stages.find(s => String(s.stage_id) === String(selectedStageId))?.stage_name || 'Select Stage') 
+                    : 'Select Stage'}
+                </span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isStageDropdownOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            {isStageDropdownOpen && (
+              <div className="absolute left-0 right-0 mt-2 z-50 rounded-xl border border-gray-800 bg-[#161a26] shadow-2xl p-2 max-h-72 overflow-y-auto">
+                <input
+                  type="text"
+                  placeholder="Search stage..."
+                  value={stageSearchQuery}
+                  onChange={(e) => setStageSearchQuery(e.target.value)}
+                  className="w-full px-3 py-2 text-[13px] rounded-lg border border-gray-800 bg-[#111522] text-white focus:outline-none focus:ring-1 focus:ring-blue-500 mb-2"
+                  autoFocus
+                />
+                <div className="space-y-1">
+                  <div
+                    onClick={() => {
+                      setSelectedStageId('');
+                      setIsStageDropdownOpen(false);
+                      setStageSearchQuery('');
+                    }}
+                    className={`px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all ${
+                      selectedStageId === ''
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-300 hover:bg-[#1f2536]'
+                    }`}
+                  >
+                    All Stages
+                  </div>
+                  {filteredStages.length > 0 ? (
+                    filteredStages.map((stage) => (
+                      <div
+                        key={stage.stage_id}
+                        onClick={() => {
+                          setSelectedStageId(stage.stage_id);
+                          setIsStageDropdownOpen(false);
+                          setStageSearchQuery('');
+                        }}
+                        className={`px-3 py-2.5 rounded-lg text-[13px] font-medium cursor-pointer transition-all ${
+                          String(selectedStageId) === String(stage.stage_id)
+                            ? 'bg-blue-600 text-white'
+                            : 'text-gray-300 hover:bg-[#1f2536]'
+                        }`}
+                      >
+                        <div className="font-semibold truncate">{stage.stage_name}</div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-gray-400 text-center py-4 text-[12px]">No stages found</div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Premium Date Range Pickers (Disabled future dates) */}
-          <div className="flex items-center gap-2 bg-[#111522] border border-gray-800 rounded-lg px-3 py-1.5 flex-grow lg:max-w-md w-full">
-            <Calendar className="w-4.5 h-4.5 text-blue-500 shrink-0" />
-            <span className="text-[11px] font-extrabold text-gray-500 uppercase whitespace-nowrap">Date Range</span>
-            <input
-              type="date"
-              value={fromDate}
-              max={getTodayDateString()}
-              onChange={(e) => setFromDate(e.target.value)}
-              disabled={!selectedProject}
-              className="bg-transparent text-white text-[13px] font-mono focus:outline-none w-full disabled:opacity-40"
-            />
-            <span className="text-gray-600 font-bold px-0.5">-</span>
-            <input
-              type="date"
-              value={toDate}
-              max={getTodayDateString()}
-              onChange={(e) => setToDate(e.target.value)}
-              disabled={!selectedProject}
-              className="bg-transparent text-white text-[13px] font-mono focus:outline-none w-full disabled:opacity-40"
-            />
+          {/* Premium Date Range Picker Dropdown (future dates disabled) */}
+          <div className="relative flex-grow lg:max-w-xs" ref={dateRef}>
+            <div
+              onClick={() => selectedProject && setIsDateOpen(!isDateOpen)}
+              className={`flex items-center justify-between px-4 py-2.5 rounded-lg border border-gray-800 bg-[#111522] text-white hover:border-gray-700 cursor-pointer select-none transition-all ${
+                !selectedProject ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              <div className="flex items-center gap-2.5 overflow-hidden">
+                <Calendar className="w-4.5 h-4.5 text-blue-500 shrink-0" />
+                <span className="text-[13px] font-bold text-gray-400 whitespace-nowrap">Date Range:</span>
+                <span className="text-[13px] font-mono text-white whitespace-nowrap truncate max-w-[120px]">
+                  {fromDate && toDate 
+                    ? `${formatDisplayDateString(fromDate)} to ${formatDisplayDateString(toDate)}` 
+                    : fromDate 
+                      ? `${formatDisplayDateString(fromDate)} to ...`
+                      : 'Select range...'}
+                </span>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isDateOpen ? 'rotate-180' : ''}`} />
+            </div>
+
+            {isDateOpen && (
+              <div className="absolute left-0 mt-2 z-50 rounded-2xl border border-gray-800 bg-[#161a26] text-white shadow-2xl p-4 w-78 md:w-84">
+                <div className="flex items-center justify-between border-b border-gray-800/40 pb-3 mb-3">
+                  <button
+                    onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() - 1))}
+                    className="p-1.5 rounded-lg border border-gray-800 hover:bg-gray-800/30 transition text-[13px]"
+                  >
+                    &larr;
+                  </button>
+                  <span className="text-[13px] font-extrabold uppercase tracking-wide">
+                    {calMonth.toLocaleString('default', { month: 'long' })} {calMonth.getFullYear()}
+                  </span>
+                  <button
+                    onClick={() => setCalMonth(new Date(calMonth.getFullYear(), calMonth.getMonth() + 1))}
+                    className="p-1.5 rounded-lg border border-gray-800 hover:bg-gray-800/30 transition text-[13px]"
+                  >
+                    &rarr;
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-gray-400 uppercase mb-2">
+                  <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1">
+                  {generateDaysForMonth().map((day, idx) => {
+                    const isFuture = isFutureDate(day.date);
+                    const isSelected = tempStart && (
+                      (tempStart.getTime() === day.date.getTime()) ||
+                      (tempEnd && tempEnd.getTime() === day.date.getTime()) ||
+                      (tempEnd && day.date > tempStart && day.date < tempEnd)
+                    );
+                    const isInBetween = tempStart && tempEnd && day.date > tempStart && day.date < tempEnd;
+
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => !isFuture && handleDateClick(day.date)}
+                        className={`h-8 w-8 flex items-center justify-center rounded-lg text-[11px] font-bold transition-all ${
+                          isFuture 
+                            ? 'text-gray-600 opacity-20 cursor-not-allowed bg-transparent' 
+                            : !day.isCurrentMonth 
+                              ? 'text-gray-600 opacity-40 hover:bg-gray-800/40 cursor-pointer' 
+                              : 'text-white hover:bg-gray-800 cursor-pointer'
+                        } ${
+                          isSelected && !isFuture
+                            ? 'bg-blue-600 text-white rounded-lg shadow-md font-extrabold'
+                            : isInBetween && !isFuture
+                              ? 'bg-blue-500/20 text-blue-400 rounded-lg'
+                              : ''
+                        }`}
+                      >
+                        {day.date.getDate()}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-gray-800/40 flex justify-between items-center text-[11px]">
+                  <button 
+                    onClick={() => {
+                      setTempStart(null);
+                      setTempEnd(null);
+                      setFromDate('');
+                      setToDate('');
+                    }}
+                    className="text-gray-400 hover:text-white underline cursor-pointer"
+                  >
+                    Clear Filter
+                  </button>
+                  <span className="text-blue-500 font-extrabold text-right truncate max-w-[140px]">
+                    {tempStart ? formatDisplayDateString(formatDateToInputString(tempStart)) : ''} {tempEnd ? `to ${formatDisplayDateString(formatDateToInputString(tempEnd))}` : tempStart ? 'to ...' : ''}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
 
         </div>
