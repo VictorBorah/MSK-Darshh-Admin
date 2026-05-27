@@ -5,7 +5,8 @@ import {
   X, 
   UserCheck, 
   Loader2, 
-  AlertTriangle 
+  AlertTriangle,
+  IndianRupee
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -13,6 +14,7 @@ interface Client {
   client_id: string;
   client_name: string;
   client_address: string | null;
+  contract_amount?: string;
   client_mobile_1: string;
   client_mobile_2: string;
   client_email: string;
@@ -31,6 +33,7 @@ export default function EditClientModal({ isOpen, onClose, client, onSuccess }: 
   const [email, setEmail] = useState('');
   const [mobile1, setMobile1] = useState('');
   const [mobile2, setMobile2] = useState('');
+  const [contractAmount, setContractAmount] = useState('0.00');
   const [address, setAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,12 +44,14 @@ export default function EditClientModal({ isOpen, onClose, client, onSuccess }: 
       setEmail(client.client_email || '');
       setMobile1(client.client_mobile_1 || '');
       setMobile2(client.client_mobile_2 || '');
+      setContractAmount(client.contract_amount || '0.00');
       setAddress(client.client_address || '');
     } else {
       setClientName('');
       setEmail('');
       setMobile1('');
       setMobile2('');
+      setContractAmount('0.00');
       setAddress('');
     }
   }, [isOpen, client]);
@@ -77,6 +82,7 @@ export default function EditClientModal({ isOpen, onClose, client, onSuccess }: 
         email: email.trim(),
         mobile1: mobile1.trim(),
         mobile2: mobile2.trim(),
+        contract_amount: contractAmount.trim() || '0.00',
         address: address.trim()
       };
 
@@ -185,6 +191,22 @@ export default function EditClientModal({ isOpen, onClose, client, onSuccess }: 
                 onChange={(e) => setMobile2(e.target.value)}
                 placeholder="e.g. 4512021478"
                 className="w-full bg-[#161a25] border border-gray-600 focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-[13px] text-white focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Contract Amount (Optional) */}
+          <div className="space-y-1">
+            <label className="text-[12px] text-gray-400 block font-semibold">Contract Amount</label>
+            <div className="relative">
+              <IndianRupee className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input 
+                type="number" 
+                step="0.01"
+                value={contractAmount}
+                onChange={(e) => setContractAmount(e.target.value)}
+                placeholder="e.g. 548000.00"
+                className="w-full bg-[#161a25] border border-gray-600 focus:border-blue-500 rounded-lg pl-10 pr-3.5 py-2.5 text-[13px] text-white focus:outline-none transition-colors"
               />
             </div>
           </div>
