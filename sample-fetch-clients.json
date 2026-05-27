@@ -4,6 +4,48 @@
         "Status": "1",
         "client_data": [
             {
+                "client_id": "8",
+                "client_name": "Random Person",
+                "client_address": "Dhemaji, Assam\nPIN 787057\nIndia",
+                "contract_amount": "1200.00",
+                "client_mobile_1": "7845125478",
+                "client_mobile_2": "",
+                "client_email": "ranbdom@gmail.com",
+                "added_on": "27-05-2026 12:44:34 PM",
+                "projects_data": [
+                    {
+                        "project_id": "5",
+                        "project_name": "SAIKIA HUT",
+                        "project_code": "BRAH-007",
+                        "site_address": null
+                    }
+                ]
+            },
+            {
+                "client_id": "7",
+                "client_name": "Aryan Borah",
+                "client_address": "Tezpur, Assam",
+                "contract_amount": "4557870.50",
+                "client_mobile_1": "9954712254",
+                "client_mobile_2": "",
+                "client_email": "aryan.21@gmail.com",
+                "added_on": "27-05-2026 12:35:43 PM",
+                "projects_data": [
+                    {
+                        "project_id": "3",
+                        "project_name": "TEST Project 12234",
+                        "project_code": "TST-1234",
+                        "site_address": null
+                    },
+                    {
+                        "project_id": "15",
+                        "project_name": "RUNTIME TEST",
+                        "project_code": "RUNTST",
+                        "site_address": "TEST ADDRESS"
+                    }
+                ]
+            },
+            {
                 "client_id": "6",
                 "client_name": "Tiger Singh",
                 "client_address": "Guwahati,\nAssam",
@@ -11,7 +53,21 @@
                 "client_mobile_1": "8874512457",
                 "client_mobile_2": "4510021478",
                 "client_email": "tigersingh@zynapp.in",
-                "added_on": "23-05-2026 09:01:01 PM"
+                "added_on": "23-05-2026 09:01:01 PM",
+                "projects_data": [
+                    {
+                        "project_id": "11",
+                        "project_name": "Matrix Apartments",
+                        "project_code": "MAT-009",
+                        "site_address": "Test Address"
+                    },
+                    {
+                        "project_id": "14",
+                        "project_name": "HAZARIKA KUTIR",
+                        "project_code": "XX-1234",
+                        "site_address": "TEST"
+                    }
+                ]
             },
             {
                 "client_id": "5",
@@ -21,7 +77,15 @@
                 "client_mobile_1": "9954871105",
                 "client_mobile_2": "4512021478",
                 "client_email": "test@domain.com",
-                "added_on": "23-05-2026 07:56:30 PM"
+                "added_on": "23-05-2026 07:56:30 PM",
+                "projects_data": [
+                    {
+                        "project_id": "16",
+                        "project_name": "HILTON",
+                        "project_code": "HILT-24",
+                        "site_address": "DHEMAJI TOWN"
+                    }
+                ]
             },
             {
                 "client_id": "4",
@@ -31,7 +95,21 @@
                 "client_mobile_1": "",
                 "client_mobile_2": "",
                 "client_email": "",
-                "added_on": "21-03-2026 11:10:29 PM"
+                "added_on": "21-03-2026 11:10:29 PM",
+                "projects_data": [
+                    {
+                        "project_id": "1",
+                        "project_name": "MIRA FLATS",
+                        "project_code": "TST-001",
+                        "site_address": "NEW YORK"
+                    },
+                    {
+                        "project_id": "4",
+                        "project_name": "RICHARD ENCLAVE",
+                        "project_code": "TST",
+                        "site_address": "Dhemaji, Ward 4"
+                    }
+                ]
             },
             {
                 "client_id": "3",
@@ -41,7 +119,33 @@
                 "client_mobile_1": "",
                 "client_mobile_2": "",
                 "client_email": "",
-                "added_on": "21-03-2026 11:10:29 PM"
+                "added_on": "21-03-2026 11:10:29 PM",
+                "projects_data": [
+                    {
+                        "project_id": "2",
+                        "project_name": "SINGH RESIDENCY",
+                        "project_code": "TST213",
+                        "site_address": "test address"
+                    },
+                    {
+                        "project_id": "9",
+                        "project_name": "GOGOI RESIDENCE",
+                        "project_code": "EG",
+                        "site_address": "KAHILIPARA"
+                    },
+                    {
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "project_code": "TST 312",
+                        "site_address": "KAHILIPARA, GUWAHATI"
+                    },
+                    {
+                        "project_id": "12",
+                        "project_name": "SIANG VALLEY HOUSING",
+                        "project_code": "SIANG-K",
+                        "site_address": "North Lakhimpur"
+                    }
+                ]
             },
             {
                 "client_id": "2",
@@ -51,20 +155,48 @@
                 "client_mobile_1": "7002140258",
                 "client_mobile_2": "",
                 "client_email": "simran@gmail.com",
-                "added_on": "18-03-2026 03:08:52 PM"
+                "added_on": "18-03-2026 03:08:52 PM",
+                "projects_data": [
+                    {
+                        "project_id": "6",
+                        "project_name": "BRAHMAPUTRA HEIGHTS",
+                        "project_code": "BRAH-007",
+                        "site_address": "TEST ADDRESS"
+                    },
+                    {
+                        "project_id": "7",
+                        "project_name": "ELIZA ENCLAVE",
+                        "project_code": "TST 123",
+                        "site_address": null
+                    }
+                ]
             },
             {
                 "client_id": "1",
-                "client_name": "Aryan Borah",
+                "client_name": "Manash Borah",
                 "client_address": "Tezpur",
-                "contract_amount": "0.00",
+                "contract_amount": "12000.00",
                 "client_mobile_1": "9987412202",
                 "client_mobile_2": "",
                 "client_email": "test@gmail.com",
-                "added_on": "18-03-2026 03:08:52 PM"
+                "added_on": "18-03-2026 03:08:52 PM",
+                "projects_data": [
+                    {
+                        "project_id": "8",
+                        "project_name": "SUPERNOVA",
+                        "project_code": "VIC TST",
+                        "site_address": "TEST ADDRESS"
+                    },
+                    {
+                        "project_id": "13",
+                        "project_name": "DIKRONG TOWER",
+                        "project_code": "HTX-H",
+                        "site_address": "BELTOLA"
+                    }
+                ]
             }
         ],
-        "total_rows": "6",
+        "total_rows": "8",
         "pagination_size": "10",
         "Message": "System ready to proceed"
     }
