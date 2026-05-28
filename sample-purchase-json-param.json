@@ -1,0 +1,40 @@
+{  
+    "item_data": [
+      {
+        "item_id": "1",
+        "vendor_id": "1",
+        "demand_id": "1",
+        "qnty": "10",
+        "gst_rate": "18",
+        "gst_amount": "15.25",
+        "sgst_amount": "15.25",
+        "cgst_amount": "0.00",
+        "unit_price": "100.00",
+        "total_price_inc_gst": "100.00",
+        "total_price_exc_gst": "69.49",
+        "tax_inc": "0",
+        "utility_tag": "5",
+		"invoice_uploaded": "1",
+        "invoice_file_string": "66934734438734-kqzhxgfh46677.pdf",
+        "tax_inv_no": "AS/12-09345"
+      },
+      {
+       "item_id": "12",
+        "vendor_id": "5",
+        "demand_id": "",
+        "qnty": "10",
+        "gst_rate": "18",
+        "gst_amount": "15.25",
+        "sgst_amount": "15.25",
+        "cgst_amount": "0.00",
+        "unit_price": "100.00",
+        "total_price_inc_gst": "100.00",
+        "total_price_exc_gst": "69.49",
+        "tax_inc": "0",
+		"utility_tag": "8",
+		"invoice_uploaded": "1",
+        "invoice_file_string": "66934734438734-kqzhxgfh46677.pdf",
+        "tax_inv_no": "AS/12-09345"
+      }
+    ]
+  }

@@ -700,6 +700,22 @@
                 "cKey": "1"
             }
         ],
+		"utility_tags": [           
+            {
+                "id": "1",
+                "utility": "TMT Bar for pilon",
+                "description_txt": "TMT Bar for pilon",
+                "active": "1",
+                "cKey": "1"
+            },
+            {
+                "id": "2",
+                "utility": "Floor Cement",
+                "description_txt": "Cement for Floor Construction",
+                "active": "1",
+                "cKey": "1"
+            }
+        ],
         "Message": "Obtained system config"
     }
 ]

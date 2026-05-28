@@ -154,6 +154,13 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         <span className="text-[13px] text-white font-medium">₹ {parseFloat(itemRow?.igst_amount || 0).toFixed(2)}</span>
                      </div>
 
+                     {itemRow?.utility_tag_name && (
+                        <div className="flex flex-col gap-0.5">
+                           <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Utility Tag</span>
+                           <span className="text-[13px] text-blue-400 font-bold">{itemRow.utility_tag_name}</span>
+                        </div>
+                     )}
+
                      {String(itemRow?.demand_diff) === '1' && (
                         <div className="col-span-2 mt-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-md flex flex-col gap-1.5">
                            <h4 className="text-[11px] font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -170,95 +177,95 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         </div>
                      )}
 
-                      <div className="col-span-2 flex justify-end gap-2.5 mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
-                         
-                         {/* Share Popover Wrapper */}
-                         <div className="relative">
-                            <button
-                               onClick={handleShareClick}
-                               className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
-                               title="Share Details"
-                            >
-                               <Share2 className="w-3.5 h-3.5" /> Share
-                            </button>
+                     <div className="col-span-2 flex justify-end gap-2.5 mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
 
-                            {isShareOpen && (
-                               <>
-                                  {/* Transparent Backdrop to capture close events */}
-                                  <div 
-                                     className="fixed inset-0 z-40 cursor-default" 
-                                     onClick={() => setIsShareOpen(false)} 
-                                  />
-                                  
-                                  {/* Dropdown Menu popover */}
-                                  <div className="absolute right-0 bottom-full mb-2 w-48 bg-[#1f2536] border border-gray-700 rounded-lg shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150 flex flex-col">
-                                     <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-700/50 pb-1.5 mb-1 select-none">
-                                        Share Details Via
-                                     </div>
-                                     
-                                     <button
-                                        onClick={shareViaWhatsApp}
-                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-emerald-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                     >
-                                        <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                                        WhatsApp
-                                     </button>
+                        {/* Share Popover Wrapper */}
+                        <div className="relative">
+                           <button
+                              onClick={handleShareClick}
+                              className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
+                              title="Share Details"
+                           >
+                              <Share2 className="w-3.5 h-3.5" /> Share
+                           </button>
 
-                                     <button
-                                        onClick={shareViaTelegram}
-                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-blue-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                     >
-                                        <Send className="w-4 h-4 text-blue-400 shrink-0" />
-                                        Telegram
-                                     </button>
+                           {isShareOpen && (
+                              <>
+                                 {/* Transparent Backdrop to capture close events */}
+                                 <div
+                                    className="fixed inset-0 z-40 cursor-default"
+                                    onClick={() => setIsShareOpen(false)}
+                                 />
 
-                                     <button
-                                        onClick={shareViaGmail}
-                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-red-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                     >
-                                        <Mail className="w-4 h-4 text-red-400 shrink-0" />
-                                        Gmail
-                                     </button>
+                                 {/* Dropdown Menu popover */}
+                                 <div className="absolute right-0 bottom-full mb-2 w-48 bg-[#1f2536] border border-gray-700 rounded-lg shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150 flex flex-col">
+                                    <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-700/50 pb-1.5 mb-1 select-none">
+                                       Share Details Via
+                                    </div>
 
-                                     <button
-                                        onClick={shareViaSMS}
-                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-orange-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                     >
-                                        <MessageSquare className="w-4 h-4 text-orange-400 shrink-0" />
-                                        Text Message
-                                     </button>
+                                    <button
+                                       onClick={shareViaWhatsApp}
+                                       className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-emerald-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                    >
+                                       <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                       WhatsApp
+                                    </button>
 
-                                     <div className="h-px bg-gray-700/50 my-1" />
+                                    <button
+                                       onClick={shareViaTelegram}
+                                       className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-blue-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                    >
+                                       <Send className="w-4 h-4 text-blue-400 shrink-0" />
+                                       Telegram
+                                    </button>
 
-                                     <button
-                                        onClick={handleCopy}
-                                        className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-white hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                     >
-                                        {copied ? (
-                                           <>
-                                              <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
-                                              <span className="text-emerald-500 font-bold">Copied!</span>
-                                           </>
-                                        ) : (
-                                           <>
-                                              <Copy className="w-4 h-4 text-gray-400 shrink-0" />
-                                              Copy as Text
-                                           </>
-                                        )}
-                                     </button>
-                                  </div>
-                               </>
-                            )}
-                         </div>
+                                    <button
+                                       onClick={shareViaGmail}
+                                       className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-red-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                    >
+                                       <Mail className="w-4 h-4 text-red-400 shrink-0" />
+                                       Gmail
+                                    </button>
 
-                         <button
-                            onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${itemRow?.item_name || 'Item'}.pdf`)}
-                            className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
-                            title="Download as PDF"
-                         >
-                            <Printer className="w-3.5 h-3.5" /> Print to PDF
-                         </button>
-                      </div>
+                                    <button
+                                       onClick={shareViaSMS}
+                                       className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-orange-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                    >
+                                       <MessageSquare className="w-4 h-4 text-orange-400 shrink-0" />
+                                       Text Message
+                                    </button>
+
+                                    <div className="h-px bg-gray-700/50 my-1" />
+
+                                    <button
+                                       onClick={handleCopy}
+                                       className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-white hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                    >
+                                       {copied ? (
+                                          <>
+                                             <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
+                                             <span className="text-emerald-500 font-bold">Copied!</span>
+                                          </>
+                                       ) : (
+                                          <>
+                                             <Copy className="w-4 h-4 text-gray-400 shrink-0" />
+                                             Copy as Text
+                                          </>
+                                       )}
+                                    </button>
+                                 </div>
+                              </>
+                           )}
+                        </div>
+
+                        <button
+                           onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${itemRow?.item_name || 'Item'}.pdf`)}
+                           className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
+                           title="Download as PDF"
+                        >
+                           <Printer className="w-3.5 h-3.5" /> Print to PDF
+                        </button>
+                     </div>
                   </div>
                </div>
 

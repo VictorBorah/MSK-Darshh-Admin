@@ -22,7 +22,8 @@ import {
   ListChecks,
   UserCheck,
   ClipboardList,
-  Camera
+  Camera,
+  Tag
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -51,6 +52,7 @@ export default function Sidebar() {
       case 'clients': return <UserCheck className={className} />;
       case 'budget-heads': return <ClipboardList className={className} />;
       case 'gps-photos': return <Camera className={className} />;
+      case 'utility-tags': return <Tag className={className} />;
       default: return <CircleDot className={className} />;
     }
   };

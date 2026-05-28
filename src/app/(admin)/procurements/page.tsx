@@ -104,6 +104,7 @@ export default function ProcurementsPage() {
   const [procStatusOptions, setProcStatusOptions] = useState<any[]>([]);
   const [demandStatusOptions, setDemandStatusOptions] = useState<any[]>([]);
   const [priorityOptions, setPriorityOptions] = useState<any[]>([]);
+  const [utilityTagsOptions, setUtilityTagsOptions] = useState<any[]>([]);
 
   const todayStr = new Date().toISOString().split('T')[0];
   const thirtyDaysAgo = new Date();
@@ -146,6 +147,7 @@ export default function ProcurementsPage() {
       setProcStatusOptions(configData.procurement_status_options || []);
       setDemandStatusOptions(configData.demands_status_options || []);
       setPriorityOptions(configData.priority_data || []);
+      setUtilityTagsOptions(configData.utility_tags || []);
       return { success: true, message: configData.Message };
     } else {
       return { success: false, message: configData.Message || 'System config error' };
@@ -640,6 +642,7 @@ export default function ProcurementsPage() {
         projects={projectsOptions}
         vendors={vendorsOptions}
         demands={demandsList}
+        utilityTags={utilityTagsOptions}
         onSuccess={() => {
           const token = localStorage.getItem('at_ki8Xq1iV');
           if (token) fetchProcurementsData(token);

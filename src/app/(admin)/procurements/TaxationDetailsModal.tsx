@@ -11,10 +11,11 @@ interface TaxationDetailsModalProps {
   item: any;
   vendors: any[];
   demands: any[];
+  utilityTags?: any[];
   onApply: (data: any) => void;
 }
 
-export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, demands, onApply }: TaxationDetailsModalProps) {
+export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, demands, utilityTags = [], onApply }: TaxationDetailsModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isTaxLoading, setIsTaxLoading] = useState(false);
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
@@ -27,6 +28,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   const [connectDemand, setConnectDemand] = useState('');
 
   const [unitPrice, setUnitPrice] = useState('');
+  const [selectedTag, setSelectedTag] = useState('');
   const [gstRate, setGstRate] = useState('');
   const [quantity, setQuantity] = useState('');
 
@@ -78,6 +80,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setIsGstInclusive(false);
       setShowMathModal(false);
       setIsManuallyEdited(false);
+      setSelectedTag(item.utility_tag || '');
       fetchInitialData();
     }
   }, [isOpen, item]);
@@ -635,6 +638,28 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                       />
                     </div>
                   </div>
+
+                  <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
+                    <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Add a tag</label>
+                    <Select
+                      options={utilityTags?.map((tag: any) => ({ value: String(tag.id || tag.tag_id || ''), label: tag.utility || tag.utility_tag || '' })) || []}
+                      value={utilityTags?.find(tag => String(tag.id || tag.tag_id) === selectedTag) ? { value: selectedTag, label: utilityTags.find((tag: any) => String(tag.id || tag.tag_id) === selectedTag)?.utility || utilityTags.find((tag: any) => String(tag.id || tag.tag_id) === selectedTag)?.utility_tag } : null}
+                      onChange={(val: any) => {
+                        setSelectedTag(val ? val.value : '');
+                      }}
+                      placeholder="Select Utility Tag..."
+                      isClearable
+                      styles={{
+                        control: (base) => ({ ...base, backgroundColor: '#11141e', borderColor: '#4b5563', minHeight: '38px', borderRadius: '6px', color: '#fff', fontSize: '13px' }),
+                        menuPortal: base => ({ ...base, zIndex: 99999 }),
+                        menu: base => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #4b5563', borderRadius: '6px' }),
+                        option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#11141e' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
+                        singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                        input: base => ({ ...base, color: '#fff' })
+                      }}
+                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-4 flex justify-end">
@@ -789,7 +814,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                 invoice_file: uploadedInvoiceFilename,
                 invoice_url: uploadedInvoiceUrl,
                 amount: taxData?.final_amount ? String(taxData.final_amount).replace(/[^0-9.]/g, '') : item?.amount,
-                taxData: taxData
+                taxData: taxData,
+                utility_tag: selectedTag
               });
               onClose();
             }}
