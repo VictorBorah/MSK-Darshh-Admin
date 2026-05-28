@@ -14,10 +14,11 @@ interface PurchaseModalProps {
   projects: any[];
   vendors: any[];
   demands: any[];
+  utilityTags?: any[];
   onSuccess?: () => void;
 }
 
-export default function PurchaseModal({ isOpen, onClose, projects, vendors, demands, onSuccess }: PurchaseModalProps) {
+export default function PurchaseModal({ isOpen, onClose, projects, vendors, demands, utilityTags = [], onSuccess }: PurchaseModalProps) {
   const [selectedProject, setSelectedProject] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -28,6 +29,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   const [showWarning, setShowWarning] = useState(false);
   const [showProjectChangeWarning, setShowProjectChangeWarning] = useState(false);
   const [pendingProjectChange, setPendingProjectChange] = useState<string | null>(null);
+  const [showVendorRequiredWarning, setShowVendorRequiredWarning] = useState(false);
   const [tableItems, setTableItems] = useState<any[]>([]);
 
   const [showTaxationModal, setShowTaxationModal] = useState(false);
@@ -364,6 +366,13 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       />
 
       <WarningAlertModal
+        isOpen={showVendorRequiredWarning}
+        onClose={() => setShowVendorRequiredWarning(false)}
+        title="Vendor Required"
+        content="Select a vendor first"
+      />
+
+      <WarningAlertModal
         isOpen={showProjectChangeWarning}
         onClose={() => {
           setShowProjectChangeWarning(false);
@@ -613,6 +622,10 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                             <button
                               onClick={() => {
                                 if (row) {
+                                  if (!row.vendor_id) {
+                                    setShowVendorRequiredWarning(true);
+                                    return;
+                                  }
                                   setTaxationItem(row);
                                   setShowTaxationModal(true);
                                 }
@@ -696,6 +709,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         item={taxationItem}
         vendors={vendors}
         demands={demands}
+        utilityTags={utilityTags}
         onApply={(updatedData) => {
           if (taxationItem) {
             setTableItems(prev => prev.map(r => r.id === taxationItem.id ? { ...r, ...updatedData } : r));
@@ -730,7 +744,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                 tax_inc: String(row.tax_inc !== undefined ? row.tax_inc : defaultGstInclusive),
                 invoice_uploaded: row.has_gst_invoice === '1' ? "1" : "0",
                 invoice_file_string: row.invoice_file || "",
-                tax_inv_no: row.invoice_number || ""
+                tax_inv_no: row.invoice_number || "",
+                utility_tag: String(row.utility_tag || "")
               };
             });
 
