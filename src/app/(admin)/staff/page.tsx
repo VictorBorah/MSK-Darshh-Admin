@@ -90,8 +90,14 @@ export default function StaffPage() {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const text = await res.text();
+        const cleanedText = text.replace(/[\u0000-\u001f]/g, (ch) => {
+          if (ch === '\n') return '\\n';
+          if (ch === '\r') return '\\r';
+          if (ch === '\t') return '\\t';
+          return '';
+        });
         let data;
-        try { data = JSON.parse(text); } catch (e) { }
+        try { data = JSON.parse(cleanedText); } catch (e) { }
         data = Array.isArray(data) ? data[0] : data;
 
         if (data && String(data.Status) === '1') {

@@ -76,7 +76,14 @@ export default function DemandsPage() {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        const data = await res.json();
+        const text = await res.text();
+        const cleanedText = text.replace(/[\u0000-\u001f]/g, (ch) => {
+          if (ch === '\n') return '\\n';
+          if (ch === '\r') return '\\r';
+          if (ch === '\t') return '\\t';
+          return '';
+        });
+        const data = JSON.parse(cleanedText);
         const configData = Array.isArray(data) ? data[0] : data;
 
         if (configData && String(configData.Status) === '1') {

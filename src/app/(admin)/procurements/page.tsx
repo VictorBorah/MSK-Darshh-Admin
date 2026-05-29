@@ -137,7 +137,14 @@ export default function ProcurementsPage() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error('Failed to fetch system config');
-    const data = await res.json();
+    const text = await res.text();
+    const cleanedText = text.replace(/[\u0000-\u001f]/g, (ch) => {
+      if (ch === '\n') return '\\n';
+      if (ch === '\r') return '\\r';
+      if (ch === '\t') return '\\t';
+      return '';
+    });
+    const data = JSON.parse(cleanedText);
     const configData = Array.isArray(data) ? data[0] : data;
 
     if (String(configData.Status) === '1') {
