@@ -5,6 +5,7 @@
         "staff_data": [
             {
                 "staff_id": "30",
+				"office_staff": "No",
                 "staff_name": "Black Kinght",
                 "userName": "",
                 "contract_amount": "0.00",
@@ -25,6 +26,7 @@
                 "mobile_2": "",
                 "emergency_mobile_no": "",
                 "emergency_contact_person": "",
+				"dob": "25-12-1988",
                 "pan_no": "ACTRB2018j",
                 "aadhaar_no": "457045120247",
                 "voter_no": "af4e5455445",

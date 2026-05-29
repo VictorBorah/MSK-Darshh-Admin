@@ -7,6 +7,7 @@ import { AlertCircle } from 'lucide-react';
 export interface Project {
   project_id: string;
   project_name: string;
+  project_code?: string;
   site_coordinates?: string;
   site_address?: string;
   start_date?: string;

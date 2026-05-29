@@ -268,8 +268,8 @@ export default function DemandsPage() {
               <span className="text-[13px] font-medium text-gray-400 px-3 whitespace-nowrap">Project</span>
               <div className="h-5 w-[1px] bg-gray-700"></div>
               <Select
-                options={projects ? projects.map((p: any) => ({ value: String(p.project_id), label: p.project_name })) : []}
-                value={activeProject ? { value: String(activeProject.project_id), label: activeProject.project_name } : null}
+                options={projects ? projects.map((p: any) => ({ value: String(p.project_id), label: p.project_code || p.project_name })) : []}
+                value={activeProject ? { value: String(activeProject.project_id), label: activeProject.project_code || activeProject.project_name } : null}
                 onChange={(val: any) => {
                   const matched = projects ? projects.find((p: any) => String(p.project_id) === String(val?.value)) : null;
                   setActiveProject(matched);
@@ -639,7 +639,7 @@ export default function DemandsPage() {
       <MakeDemandModal
         isOpen={showMakeDemandModal}
         onClose={() => setShowMakeDemandModal(false)}
-        projects={projects ? projects.map((p: any) => ({ id: String(p.project_id), project_name: p.project_name })) : []}
+        projects={projects ? projects.map((p: any) => ({ id: String(p.project_id), project_name: p.project_code || p.project_name, project_code: p.project_code || p.project_name })) : []}
         priorities={priorityOptions}
         onSuccess={fetchDemandsData}
       />

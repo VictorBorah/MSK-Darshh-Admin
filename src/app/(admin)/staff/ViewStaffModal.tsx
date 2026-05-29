@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Loader2, Maximize2, Minimize2, UserCircle, FileImage, ShieldCheck, Mail, Phone, MapPin, Building2, User, UserSquare2, PhoneCall, CheckCircle2, XCircle, Printer } from 'lucide-react';
+import { X, Loader2, Maximize2, Minimize2, UserCircle, FileImage, ShieldCheck, Mail, Phone, MapPin, Building2, User, UserSquare2, PhoneCall, CheckCircle2, XCircle, Printer, Download } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import { generatePdfFromElement } from '@/utils/pdfGenerator';
@@ -139,6 +139,8 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
               bloodGroup: getMatched(fetchedBloodgroups, staff.blood_group, 'blood_group'),
               paymentCategory: (staff.payment_category_id && String(staff.payment_category_id) !== "0" && String(staff.payment_category_id) !== "") ? staff.payment_category_txt : '-',
               contractAmount: staff.contract_amount ? `₹ ${staff.contract_amount}` : '-',
+              officeStaff: staff.office_staff,
+              dob: staff.dob,
               files: staff.files && staff.files[0] ? staff.files[0] : null
             });
 
@@ -272,7 +274,8 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
                     
                     <Field label="PAN Number" value={displayData.panNo} important icon={ShieldCheck} />
                     <Field label="Voter / EPIC" value={displayData.voterNo} icon={ShieldCheck} />
-                    <div className="hidden xl:block"></div> {/* Spacer for grid alignment */}
+                    <Field label="Date of Birth" value={displayData.dob} icon={User} />
+                    <Field label="Office Staff" value={displayData.officeStaff} icon={User} />
                     
                     <Field label="Emergency Contact" value={displayData.emergencyContact} icon={PhoneCall} />
                     <Field label="Emergency Mobile" value={displayData.emergencyMobile} icon={PhoneCall} />
@@ -366,14 +369,25 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
                               {url ? (
                                 <div className="relative w-full h-full">
                                   <img src={url} alt={doc.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                                  <a 
-                                    href={url} 
-                                    target="_blank" 
-                                    rel="noreferrer"
-                                    className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[1px]"
-                                  >
-                                    <span className="px-3 py-1 bg-white/10 rounded-full text-white text-xs font-medium border border-white/20">View Full</span>
-                                  </a>
+                                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-2 items-center justify-center backdrop-blur-[1px]">
+                                    <a 
+                                      href={url} 
+                                      target="_blank" 
+                                      rel="noreferrer"
+                                      className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-white text-[11px] font-medium border border-white/20 transition-colors cursor-pointer text-center min-w-[80px]"
+                                    >
+                                      View Full
+                                    </a>
+                                    <a 
+                                      href={url} 
+                                      download
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="px-3 py-1 bg-blue-600 hover:bg-blue-500 rounded-full text-white text-[11px] font-medium flex items-center justify-center gap-1 transition-colors cursor-pointer text-center min-w-[80px]"
+                                    >
+                                      <Download className="w-3 h-3" /> Download
+                                    </a>
+                                  </div>
                                 </div>
                               ) : (
                                 <div className="flex flex-col items-center gap-1">
@@ -456,6 +470,8 @@ export default function ViewStaffModal({ isOpen, onClose, staffId }: ViewStaffMo
                 <p><strong>Marital Status:</strong> {displayData.maritalStatus || 'N/A'}</p>
                 <p><strong>Father's Name:</strong> {displayData.fatherName || 'N/A'}</p>
                 <p><strong>Mother's Name:</strong> {displayData.motherName || 'N/A'}</p>
+                <p><strong>Date of Birth:</strong> {displayData.dob || 'N/A'}</p>
+                <p><strong>Is Office Staff:</strong> {displayData.officeStaff || 'N/A'}</p>
               </div>
             </div>
 

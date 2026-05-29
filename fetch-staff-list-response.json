@@ -4,12 +4,67 @@
         "Status": "1",
         "staff_data": [
             {
+                "staff_id": "40",
+                "total_paid": "0",
+                "office_staff": "No",
+                "attendance_done": "0",
+                "staff_name": "Test from android",
+                "userName": "",
+                "projects_csv": "10",
+                "apiKey": "",
+                "group_id": "10",
+                "group_name": "Mistry",
+                "userPIN": "",
+                "authorized_email": "",
+                "father_name": "",
+                "mother_name": "",
+                "email_2": "",
+                "mobile_1": "",
+                "mobile_2": "",
+                "emergency_mobile_no": "",
+                "emergency_contact_person": "",
+                "dob": "",
+                "pan_no": "",
+                "aadhaar_no": "",
+                "voter_no": "",
+                "address": "Test mistry address",
+                "pincode": "",
+                "district_id": "",
+                "district_name": "",
+                "gender_id": "0",
+                "gender_text": "",
+                "marital_status_id": "0",
+                "marital_status_txt": "",
+                "kyc_verified_by_id": "0",
+                "kyc_verified_by_name": "",
+                "last_login": "27-05-2026 01:19:31 AM",
+                "kyc_approved": "No",
+                "account_activated": "Yes",
+                "is_suspended": "No",
+                "attendance_data": [
+                    {
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "days_num": "0"
+                    }
+                ],
+                "files": [
+                    {
+                        "dp_file": "https://zyn-app.sgp1.digitaloceanspaces.com/zyn-app/app-data/office-auto/1779026606_33_1f926e.jpg?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00VYV63W4VR6MFXWAT%2F20260529%2Fsgp1%2Fs3%2Faws4_request&X-Amz-Date=20260529T025400Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=5604a808d906809c92c8d624cbb6301e1fece6ec67bff96e35aebb4f8e4c9942",
+                        "pan_file": "",
+                        "voter_file": "",
+                        "aadhar_file": ""
+                    }
+                ]
+            },
+            {
                 "staff_id": "33",
-				"total_paid": "0",
-				"attendance_done": "1",
+                "total_paid": "0",
+                "office_staff": "No",
+                "attendance_done": "0",
                 "staff_name": "Karan Borah",
                 "userName": "karan_b26",
-                "projects_csv": "13,9,10,8",
+                "projects_csv": "13,9,10,8,16",
                 "apiKey": "YzVhNzAzMjM5OTMxZGY0OWJlMmI2ZmY2OTVkMGIwYjQ=",
                 "group_id": "5",
                 "group_name": "Site Supervisor",
@@ -22,6 +77,7 @@
                 "mobile_2": "",
                 "emergency_mobile_no": "5547810024",
                 "emergency_contact_person": "Priya Borah",
+                "dob": "25-12-1988",
                 "pan_no": "AXCFF7612M",
                 "aadhaar_no": "124578524102",
                 "voter_no": "",
@@ -35,21 +91,20 @@
                 "marital_status_txt": "Married",
                 "kyc_verified_by_id": "0",
                 "kyc_verified_by_name": "",
-                "last_login": "17-05-2026 05:01:03 AM",
+                "last_login": "27-05-2026 01:19:31 AM",
                 "kyc_approved": "Yes",
                 "account_activated": "Yes",
                 "is_suspended": "No",
-				"attendance_data": [
+                "attendance_data": [
                     {
-                        "project_id": "9",
-                        "project_name": "GOGOI RESIDENCE",
-                        "days_num": "1",
-                        "sql_str": " WHERE worker_id = '18' AND project_id = '9' AND stage_id = '21' "
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "days_num": "0"
                     }
                 ],
                 "files": [
                     {
-                        "dp_file": "https://doca.blr1.digitaloceanspaces.com/doca/app-data/office-auto/1778305132_1_9cc7f1.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00JC9THC2K2TTG92VJ%2F20260517%2Fblr1%2Fs3%2Faws4_request&X-Amz-Date=20260517T120515Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=f3c4dfa90b155db91c5bf5bcf9798a18fcdfcb64b1c3eae9944967fe499fdbc3",
+                        "dp_file": "https://zyn-app.sgp1.digitaloceanspaces.com/zyn-app/app-data/office-auto/1778305132_1_9cc7f1.png?X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=DO00VYV63W4VR6MFXWAT%2F20260529%2Fsgp1%2Fs3%2Faws4_request&X-Amz-Date=20260529T025400Z&X-Amz-SignedHeaders=host&X-Amz-Expires=43200&X-Amz-Signature=a85bc8fa58d59418e96d3bfdcff38654017368190db2daaf4efd6f8caaf0d6e4",
                         "pan_file": "",
                         "voter_file": "",
                         "aadhar_file": ""
@@ -58,8 +113,9 @@
             },
             {
                 "staff_id": "17",
-				"total_paid": "5200",
-				"attendance_done": "0",
+                "total_paid": "0",
+                "office_staff": "No",
+                "attendance_done": "0",
                 "staff_name": "Test Contractor 2",
                 "userName": "",
                 "projects_csv": "15,14,13,9,10",
@@ -75,6 +131,7 @@
                 "mobile_2": "",
                 "emergency_mobile_no": "",
                 "emergency_contact_person": "",
+                "dob": "",
                 "pan_no": "",
                 "aadhaar_no": "",
                 "voter_no": "",
@@ -88,16 +145,15 @@
                 "marital_status_txt": "",
                 "kyc_verified_by_id": "0",
                 "kyc_verified_by_name": "",
-                "last_login": "17-05-2026 05:01:03 AM",
+                "last_login": "27-05-2026 01:19:31 AM",
                 "kyc_approved": "No",
-                "account_activated": "No",
+                "account_activated": "Yes",
                 "is_suspended": "No",
-				"attendance_data": [
+                "attendance_data": [
                     {
-                        "project_id": "9",
-                        "project_name": "GOGOI RESIDENCE",
-                        "days_num": "1",
-                        "sql_str": " WHERE worker_id = '18' AND project_id = '9' AND stage_id = '21' "
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "days_num": "0"
                     }
                 ],
                 "files": [
@@ -111,8 +167,9 @@
             },
             {
                 "staff_id": "7",
-				"total_paid": "6500",
-				"attendance_done": "0",
+                "total_paid": "0",
+                "office_staff": "No",
+                "attendance_done": "0",
                 "staff_name": "Manoj Gupta",
                 "userName": "",
                 "projects_csv": "9,10",
@@ -128,6 +185,7 @@
                 "mobile_2": "",
                 "emergency_mobile_no": "",
                 "emergency_contact_person": "",
+                "dob": "",
                 "pan_no": "",
                 "aadhaar_no": "",
                 "voter_no": "",
@@ -141,16 +199,15 @@
                 "marital_status_txt": "",
                 "kyc_verified_by_id": "0",
                 "kyc_verified_by_name": "",
-                "last_login": "17-05-2026 05:01:03 AM",
+                "last_login": "27-05-2026 01:19:31 AM",
                 "kyc_approved": "No",
-                "account_activated": "No",
+                "account_activated": "Yes",
                 "is_suspended": "Yes",
-				"attendance_data": [
+                "attendance_data": [
                     {
-                        "project_id": "9",
-                        "project_name": "GOGOI RESIDENCE",
-                        "days_num": "1",
-                        "sql_str": " WHERE worker_id = '18' AND project_id = '9' AND stage_id = '21' "
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "days_num": "0"
                     }
                 ],
                 "files": [
@@ -164,8 +221,9 @@
             },
             {
                 "staff_id": "5",
-				"total_paid": "0",
-				"attendance_done": "0",
+                "total_paid": "0",
+                "office_staff": "No",
+                "attendance_done": "0",
                 "staff_name": "Salman Khan",
                 "userName": "",
                 "projects_csv": "14,13,9,10,8",
@@ -181,6 +239,7 @@
                 "mobile_2": "",
                 "emergency_mobile_no": "",
                 "emergency_contact_person": "",
+                "dob": "",
                 "pan_no": "",
                 "aadhaar_no": "",
                 "voter_no": "",
@@ -194,16 +253,15 @@
                 "marital_status_txt": "",
                 "kyc_verified_by_id": "0",
                 "kyc_verified_by_name": "",
-                "last_login": "17-05-2026 05:01:03 AM",
+                "last_login": "27-05-2026 01:19:31 AM",
                 "kyc_approved": "No",
-                "account_activated": "No",
+                "account_activated": "Yes",
                 "is_suspended": "No",
-				"attendance_data": [
+                "attendance_data": [
                     {
-                        "project_id": "9",
-                        "project_name": "GOGOI RESIDENCE",
-                        "days_num": "1",
-                        "sql_str": " WHERE worker_id = '18' AND project_id = '9' AND stage_id = '21' "
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "days_num": "0"
                     }
                 ],
                 "files": [
@@ -217,11 +275,12 @@
             },
             {
                 "staff_id": "3",
-				"total_paid": "4580",
-				"attendance_done": "0",
+                "total_paid": "0",
+                "office_staff": "No",
+                "attendance_done": "0",
                 "staff_name": "Srikant Ghosle",
                 "userName": "",
-                "projects_csv": "15,14,13,9,10,8",
+                "projects_csv": "15,14,13,9,10,8,16",
                 "apiKey": "",
                 "group_id": "2",
                 "group_name": "Accountant",
@@ -234,6 +293,7 @@
                 "mobile_2": "",
                 "emergency_mobile_no": "",
                 "emergency_contact_person": "",
+                "dob": "",
                 "pan_no": "AVTPV2178J",
                 "aadhaar_no": "457845120247",
                 "voter_no": "ASDF2323",
@@ -247,16 +307,15 @@
                 "marital_status_txt": "",
                 "kyc_verified_by_id": "0",
                 "kyc_verified_by_name": "",
-                "last_login": "17-05-2026 05:01:03 AM",
+                "last_login": "27-05-2026 01:19:31 AM",
                 "kyc_approved": "No",
-                "account_activated": "No",
+                "account_activated": "Yes",
                 "is_suspended": "No",
-				"attendance_data": [
+                "attendance_data": [
                     {
-                        "project_id": "9",
-                        "project_name": "GOGOI RESIDENCE",
-                        "days_num": "1",
-                        "sql_str": " WHERE worker_id = '18' AND project_id = '9' AND stage_id = '21' "
+                        "project_id": "10",
+                        "project_name": "SHELTON",
+                        "days_num": "0"
                     }
                 ],
                 "files": [
@@ -269,7 +328,7 @@
                 ]
             }
         ],
-        "total_rows": "5",
+        "total_rows": "6",
         "pagination_size": "10",
         "Message": "System ready to proceed"
     }

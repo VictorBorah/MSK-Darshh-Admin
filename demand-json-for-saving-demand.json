@@ -5,6 +5,7 @@
     "demand_title": "1",
     "demand_description": "Test Text",
     "priority": "1",
+    "target_date": "1",
     "payment_amount": "1"
 },
 {
@@ -21,6 +22,7 @@
     "demand_title": "1",
     "demand_description": "Test Text",
     "priority": "1",
+	"target_date": "1"
 	"payment_amount": "1"
 },
 {

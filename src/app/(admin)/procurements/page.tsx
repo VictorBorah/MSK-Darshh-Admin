@@ -25,16 +25,16 @@ const SearchableSelectPlaceholder = ({
   const [searchWord, setSearchWord] = useState('');
 
   // Find the selected option to display if closed, else display search string
-  const selectedOption = options.find(o => String(o.id) === String(value));
+  const selectedOption = options.find(o => String(o.id || o.project_id) === String(value));
   let displayValue = '';
   if (isOpen) {
     displayValue = searchWord;
   } else if (selectedOption) {
-    displayValue = selectedOption.name || selectedOption.status || selectedOption.vendor_name || selectedOption.project_name || selectedOption.item_name || '';
+    displayValue = selectedOption.project_code || selectedOption.name || selectedOption.status || selectedOption.vendor_name || selectedOption.project_name || selectedOption.item_name || '';
   }
 
   const filteredOptions = options.filter(opt => {
-    const name = String(opt.name || opt.status || opt.vendor_name || opt.project_name || opt.item_name || '').toLowerCase();
+    const name = String(opt.project_code || opt.name || opt.status || opt.vendor_name || opt.project_name || opt.item_name || '').toLowerCase();
     return name.includes(searchWord.toLowerCase());
   });
 
@@ -67,12 +67,12 @@ const SearchableSelectPlaceholder = ({
               <div className="px-3 py-1.5 text-xs text-gray-500">No results found</div>
             ) : (
               filteredOptions.map(opt => {
-                const optName = opt.name || opt.status || opt.vendor_name || opt.project_name || opt.item_name;
+                const optName = opt.project_code || opt.name || opt.status || opt.vendor_name || opt.project_name || opt.item_name;
                 return (
                   <div
-                    key={opt.id}
+                    key={opt.id || opt.project_id}
                     className="px-3 py-1.5 text-xs text-gray-300 hover:bg-[#11141e] hover:text-white cursor-pointer transition-colors"
-                    onClick={() => { onChange?.(String(opt.id)); setIsOpen(false); }}
+                    onClick={() => { onChange?.(String(opt.id || opt.project_id)); setIsOpen(false); }}
                   >
                     {optName}
                   </div>

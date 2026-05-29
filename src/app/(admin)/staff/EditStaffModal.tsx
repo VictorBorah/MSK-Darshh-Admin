@@ -49,6 +49,14 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
   const [kycComplete, setKycComplete] = useState(false);
   const [contractAmount, setContractAmount] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [dob, setDob] = useState('');
+  const [isOfficeStaff, setIsOfficeStaff] = useState(false);
+
+  const maxDobDateStr = (() => {
+    const today = new Date();
+    today.setFullYear(today.getFullYear() - 18);
+    return today.toISOString().split('T')[0];
+  })();
 
   const [showValidationModal, setShowValidationModal] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -123,6 +131,8 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
       setContractAmount('');
       setKycComplete(false);
       setEmailError('');
+      setDob('');
+      setIsOfficeStaff(false);
       setShowValidationModal(false);
       setIsValidating(false);
       setIsSaving(false);
@@ -199,6 +209,17 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
             setPincode(staff.pincode || '');
             setContractAmount(staff.contract_amount || '');
             setKycComplete(staff.kyc_approved === 'Yes');
+            setIsOfficeStaff(staff.office_staff === 'Yes');
+            if (staff.dob) {
+              const parts = staff.dob.split('-');
+              if (parts.length === 3) {
+                setDob(`${parts[2]}-${parts[1]}-${parts[0]}`);
+              } else {
+                setDob('');
+              }
+            } else {
+              setDob('');
+            }
 
             if (staff.district_id && fetchedDistricts.length > 0) {
               const matched = fetchedDistricts.find(d => String(d.id) === String(staff.district_id));
@@ -365,6 +386,14 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
       if (pincode) payload.pincode = pincode;
       if (mobile2) payload.mobile_2 = mobile2;
       payload.kyc_approved = kycComplete ? "1" : "0";
+
+      if (dob) {
+        const [year, month, day] = dob.split('-');
+        payload.dob = `${day}-${month}-${year}`;
+      } else {
+        payload.dob = '';
+      }
+      payload.office_staff = isOfficeStaff ? "1" : "0";
 
       if (uploadedFiles.profile) payload.profile_photo_file = uploadedFiles.profile;
       if (uploadedFiles.pan) payload.pan_file = uploadedFiles.pan;
@@ -559,167 +588,195 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
             {/* Left Side (Form Grid) */}
             <div className="flex-1 flex flex-col">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 content-start mb-4">
-                
+                  
+                {/* Row 1: Full Name, Usergroup, Username */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Full Name <span className="text-red-400">*</span></label>
+                  <input type="text" value={staffName} onChange={e => setStaffName(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
                 <div className="space-y-1">
                   <label className="text-[12px] text-gray-400">Usergroup</label>
                   <input type="text" value={groupName} disabled className="w-full bg-[#161a25]/50 border border-gray-800 rounded px-3 py-1.5 text-[13px] text-gray-500 cursor-not-allowed outline-none" />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[12px] text-gray-400">Full Name <span className="text-red-400">*</span></label>
-                  <input type="text" value={staffName} onChange={e => setStaffName(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                  <label className="text-[12px] text-gray-400">Username <span className="text-red-400">*</span></label>
+                  <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
                 </div>
 
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">AADHAR Number</label>
-                <input type="text" value={aadhaarNo} onChange={e => setAadhaarNo(e.target.value)} className={`w-full bg-[#161a25] border ${aadhaarNo && !isValidAadhaar(aadhaarNo) ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-emerald-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none`} />
-                {aadhaarNo && !isValidAadhaar(aadhaarNo) && <span className="text-red-500 text-[11px]">Must be a valid 12 digit number</span>}
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Marital Status</label>
-                <Select
-                  options={maritalStatuses.map(m => ({ value: m.id, label: m.status_txt }))}
-                  value={selectedMaritalStatus}
-                  onChange={setSelectedMaritalStatus}
-                  styles={selectStyles}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Username <span className="text-red-400">*</span></label>
-                <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Voter Number (EPIC)</label>
-                <input type="text" value={voterNo} onChange={e => setVoterNo(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Gender <span className="text-red-400">*</span></label>
-                <Select
-                  options={genders.map(g => ({ value: g.id, label: g.gender_txt }))}
-                  value={selectedGender}
-                  onChange={setSelectedGender}
-                  styles={selectStyles}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Father Name</label>
-                <input type="text" value={fatherName} onChange={e => setFatherName(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">PAN Number</label>
-                <input type="text" value={panNo} onChange={e => setPanNo(e.target.value)} className={`w-full bg-[#161a25] border ${panNo && !isValidPan(panNo) ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-emerald-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none uppercase`} />
-                {panNo && !isValidPan(panNo) && <span className="text-red-500 text-[11px]">Invalid PAN format (e.g. ABCDE1234F)</span>}
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Blood Group <span className="text-red-400">*</span></label>
-                <Select
-                  options={bloodgroups.map(b => ({ value: b.id, label: b.blood_group }))}
-                  value={selectedBloodgroup}
-                  onChange={setSelectedBloodgroup}
-                  styles={selectStyles}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Mother Name</label>
-                <input type="text" value={motherName} onChange={e => setMotherName(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Select District</label>
-                <Select
-                  options={districts.map(d => ({ value: d.id, label: d.district }))}
-                  value={selectedDistrict}
-                  onChange={setSelectedDistrict}
-                  styles={selectStyles}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Payment Category</label>
-                <Select
-                  options={paymentCategories.map(c => ({ value: c.master_category_id, label: c.master_category_name }))}
-                  value={selectedPaymentCategory}
-                  onChange={setSelectedPaymentCategory}
-                  styles={selectStyles}
-                  menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Emergency mobile no. <span className="text-red-400">*</span></label>
-                <input type="text" value={emergencyMobile} onChange={e => setEmergencyMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Authorized Email <span className="text-red-400">*</span></label>
-                <input 
-                  type="email" 
-                  value={authorizedEmail} 
-                  onChange={e => {
-                    setAuthorizedEmail(e.target.value);
-                    if (emailError) setEmailError('');
-                  }} 
-                  onBlur={() => {
-                    if (authorizedEmail && !authorizedEmail.toLowerCase().endsWith('@gmail.com')) {
-                      setEmailError('Only Google Accounts allowed');
-                    }
-                  }}
-                  className={`w-full bg-[#161a25] border ${emailError ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-emerald-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none`} 
-                />
-                {emailError && <span className="text-red-500 text-[11px] block mt-1">{emailError}</span>}
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Pincode</label>
-                <input type="text" value={pincode} onChange={e => setPincode(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Emergency contact person <span className="text-red-400">*</span></label>
-                <input type="text" value={emergencyContact} onChange={e => setEmergencyContact(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Mobile 1 <span className="text-red-400">*</span></label>
-                <input type="text" value={mobile1} onChange={e => setMobile1(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
-
-              <div className="space-y-1 row-span-2">
-                <label className="text-[12px] text-gray-400">Permanent Address <span className="text-red-400">*</span></label>
-                <textarea value={permanentAddress} onChange={e => setPermanentAddress(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-2 text-[13px] text-white focus:border-emerald-500 outline-none resize-none h-[88px]" />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Contract Amount</label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[13px]">₹</span>
-                  <input type="text" value={contractAmount} onChange={e => setContractAmount(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full bg-[#161a25] border border-gray-700 rounded pl-7 pr-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                {/* Row 2: Father Name, Mother Name, Date of Birth */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Father Name</label>
+                  <input type="text" value={fatherName} onChange={e => setFatherName(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <label className="text-[12px] text-gray-400">Mobile 2</label>
-                <input type="text" value={mobile2} onChange={e => setMobile2(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Mother Name</label>
+                  <input type="text" value={motherName} onChange={e => setMotherName(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
 
-              <div className="space-y-1 flex items-end h-[34px]">
-                <label className="flex items-center gap-2 cursor-pointer group">
-                  <input type="checkbox" checked={kycComplete} onChange={e => setKycComplete(e.target.checked)} className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-emerald-500" />
-                  <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Mark KYC Complete</span>
-                </label>
-              </div>
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Date of Birth</label>
+                  <input 
+                    type="date" 
+                    value={dob} 
+                    max={maxDobDateStr} 
+                    onChange={e => setDob(e.target.value)} 
+                    onClick={(e) => e.currentTarget.showPicker?.()}
+                    className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none cursor-pointer light-bg-date-picker" 
+                  />
+                </div>
+
+                {/* Row 3: Gender, Marital Status, Blood Group */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Gender <span className="text-red-400">*</span></label>
+                  <Select
+                    options={genders.map(g => ({ value: g.id, label: g.gender_txt }))}
+                    value={selectedGender}
+                    onChange={setSelectedGender}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Marital Status</label>
+                  <Select
+                    options={maritalStatuses.map(m => ({ value: m.id, label: m.status_txt }))}
+                    value={selectedMaritalStatus}
+                    onChange={setSelectedMaritalStatus}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Blood Group <span className="text-red-400">*</span></label>
+                  <Select
+                    options={bloodgroups.map(b => ({ value: b.id, label: b.blood_group }))}
+                    value={selectedBloodgroup}
+                    onChange={setSelectedBloodgroup}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+
+                {/* Row 4: Mobile 1, Mobile 2, Authorized Email */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Mobile 1 <span className="text-red-400">*</span></label>
+                  <input type="text" value={mobile1} onChange={e => setMobile1(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Mobile 2</label>
+                  <input type="text" value={mobile2} onChange={e => setMobile2(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Authorized Email <span className="text-red-400">*</span></label>
+                  <input 
+                    type="email" 
+                    value={authorizedEmail} 
+                    onChange={e => {
+                      setAuthorizedEmail(e.target.value);
+                      if (emailError) setEmailError('');
+                    }} 
+                    onBlur={() => {
+                      if (authorizedEmail && !authorizedEmail.toLowerCase().endsWith('@gmail.com')) {
+                        setEmailError('Only Google Accounts allowed');
+                      }
+                    }}
+                    className={`w-full bg-[#161a25] border ${emailError ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-emerald-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none`} 
+                  />
+                  {emailError && <span className="text-red-500 text-[11px] block mt-1">{emailError}</span>}
+                </div>
+
+                {/* Row 5 & 6: Select District, Pincode, Permanent Address (row-span-2) */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Select District</label>
+                  <Select
+                    options={districts.map(d => ({ value: d.id, label: d.district }))}
+                    value={selectedDistrict}
+                    onChange={setSelectedDistrict}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Pincode</label>
+                  <input type="text" value={pincode} onChange={e => setPincode(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
+                <div className="space-y-1 row-span-2">
+                  <label className="text-[12px] text-gray-400">Permanent Address <span className="text-red-400">*</span></label>
+                  <textarea value={permanentAddress} onChange={e => setPermanentAddress(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-2 text-[13px] text-white focus:border-emerald-500 outline-none resize-none h-[88px]" />
+                </div>
+
+                {/* Row 6 continued: PAN Number, AADHAR Number */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">PAN Number</label>
+                  <input type="text" value={panNo} onChange={e => setPanNo(e.target.value)} className={`w-full bg-[#161a25] border ${panNo && !isValidPan(panNo) ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-emerald-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none uppercase`} />
+                  {panNo && !isValidPan(panNo) && <span className="text-red-500 text-[11px]">Invalid PAN format (e.g. ABCDE1234F)</span>}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">AADHAR Number</label>
+                  <input type="text" value={aadhaarNo} onChange={e => setAadhaarNo(e.target.value)} className={`w-full bg-[#161a25] border ${aadhaarNo && !isValidAadhaar(aadhaarNo) ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-emerald-500'} rounded px-3 py-1.5 text-[13px] text-white outline-none`} />
+                  {aadhaarNo && !isValidAadhaar(aadhaarNo) && <span className="text-red-500 text-[11px]">Must be a valid 12 digit number</span>}
+                </div>
+
+                {/* Row 7: Voter Number (EPIC), Payment Category, Contract Amount */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Voter Number (EPIC)</label>
+                  <input type="text" value={voterNo} onChange={e => setVoterNo(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Payment Category</label>
+                  <Select
+                    options={paymentCategories.map(c => ({ value: c.master_category_id, label: c.master_category_name }))}
+                    value={selectedPaymentCategory}
+                    onChange={setSelectedPaymentCategory}
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Contract Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[13px]">₹</span>
+                    <input type="text" value={contractAmount} onChange={e => setContractAmount(e.target.value.replace(/[^0-9.]/g, ''))} className="w-full bg-[#161a25] border border-gray-700 rounded pl-7 pr-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                  </div>
+                </div>
+
+                {/* Row 8: Emergency Contact Person, Emergency Mobile No., Is Office Staff (Checkbox) */}
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Emergency contact person <span className="text-red-400">*</span></label>
+                  <input type="text" value={emergencyContact} onChange={e => setEmergencyContact(e.target.value)} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[12px] text-gray-400">Emergency mobile no. <span className="text-red-400">*</span></label>
+                  <input type="text" value={emergencyMobile} onChange={e => setEmergencyMobile(e.target.value.replace(/\D/g, '').slice(0, 10))} className="w-full bg-[#161a25] border border-gray-700 rounded px-3 py-1.5 text-[13px] text-white focus:border-emerald-500 outline-none" />
+                </div>
+
+                <div className="space-y-1 flex items-end h-[34px]">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" checked={isOfficeStaff} onChange={e => setIsOfficeStaff(e.target.checked)} className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-emerald-500" />
+                    <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Is Office Staff</span>
+                  </label>
+                </div>
+
+                {/* Row 9: Mark KYC Complete (Checkbox) */}
+                <div className="space-y-1 flex items-end h-[34px]">
+                  <label className="flex items-center gap-2 cursor-pointer group">
+                    <input type="checkbox" checked={kycComplete} onChange={e => setKycComplete(e.target.checked)} className="bg-[#161a25] border-gray-500 rounded cursor-pointer h-4 w-4 accent-emerald-500" />
+                    <span className="text-[13px] text-gray-300 group-hover:text-white transition-colors">Mark KYC Complete</span>
+                  </label>
+                </div>
 
               </div>
               <p className="text-[11px] italic text-gray-500 mt-auto pt-4 border-t border-gray-800/50">Fields marked in <span className="text-red-400">*</span> are mandatory</p>
