@@ -575,6 +575,11 @@ export default function StaffPage() {
                               <AlertTriangle className="w-4 h-4 text-yellow-500" />
                             </span>
                           )}
+                          {String(staff.cKey) === '0' && (
+                            <span title="This is a test account" className="cursor-help flex items-center shrink-0">
+                              <AlertTriangle className="w-4 h-4 text-orange-500" />
+                            </span>
+                          )}
                           {staff.staff_name || '-'}
                         </div>
                       </td>
