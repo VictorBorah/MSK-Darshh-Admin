@@ -421,7 +421,7 @@ export default function GpsPhotos() {
 
   // Filter lists for dropdown search boxes
   const filteredProjects = projects ? projects.filter((p: any) =>
-    (p.project_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.project_code || p.project_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.site_address || '').toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];
 
@@ -478,7 +478,7 @@ export default function GpsPhotos() {
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <Search className="w-4 h-4 text-blue-500 shrink-0" />
                 <span className="font-semibold text-[13.5px] truncate">
-                  {selectedProject ? selectedProject.project_name : 'Search project...'}
+                  {selectedProject ? (selectedProject.project_code || selectedProject.project_name) : 'Search project...'}
                 </span>
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isProjectDropdownOpen ? 'rotate-180' : ''}`} />
@@ -506,7 +506,7 @@ export default function GpsPhotos() {
                             : 'text-gray-300 hover:bg-[#1f2536]'
                         }`}
                       >
-                        <div className="font-semibold truncate">{p.project_name}</div>
+                        <div className="font-semibold truncate">{p.project_code || p.project_name}</div>
                         <div className={`text-[11px] mt-0.5 ${selectedProject?.project_id === p.project_id ? 'text-blue-100' : 'text-gray-400'}`}>
                           {p.site_address}
                         </div>

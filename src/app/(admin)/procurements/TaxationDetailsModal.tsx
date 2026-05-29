@@ -337,7 +337,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
         }}
       />
       <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-      <div className={`bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full rounded-none' : 'w-[950px] max-w-[95vw] h-[85vh] max-h-[85vh] rounded-xl'}`}>
+      <div className={`bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full rounded-none' : 'w-[1150px] max-w-[95vw] h-[92vh] max-h-[92vh] rounded-xl'}`}>
 
         {/* Loading Overlay */}
         {isLoading && (

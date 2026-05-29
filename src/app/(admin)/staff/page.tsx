@@ -33,6 +33,11 @@ const KYC_OPTIONS = [
   { value: '1', label: 'Yes' }
 ];
 
+const OFFICE_STAFF_OPTIONS = [
+  { value: 'all', label: 'Show All' },
+  { value: '1', label: 'Show Office Staff' }
+];
+
 export default function StaffPage() {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -52,6 +57,7 @@ export default function StaffPage() {
   const [selectedDistrict, setSelectedDistrict] = useState<any>(null);
   const [selectedSuspension, setSelectedSuspension] = useState<any>(null);
   const [selectedKYC, setSelectedKYC] = useState<any>(null);
+  const [selectedOfficeStaff, setSelectedOfficeStaff] = useState<any>(null);
 
   // Table Data State
   const [staffList, setStaffList] = useState<any[]>([]);
@@ -114,6 +120,9 @@ export default function StaffPage() {
       if (selectedDistrict) params.append('district_id', selectedDistrict.value);
       if (selectedSuspension) params.append('suspended', selectedSuspension.value);
       if (selectedKYC) params.append('kyc_done', selectedKYC.value);
+      if (selectedOfficeStaff && selectedOfficeStaff.value !== 'all') {
+        params.append('office_staff', selectedOfficeStaff.value);
+      }
 
       const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/fetchStaffList?${params.toString()}`;
 
@@ -150,7 +159,7 @@ export default function StaffPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, selectedUsergroup, selectedDistrict, selectedSuspension, selectedKYC]);
+  }, [currentPage, selectedUsergroup, selectedDistrict, selectedSuspension, selectedKYC, selectedOfficeStaff]);
 
   // Debounced refetch on filter change
   useEffect(() => {
@@ -347,9 +356,9 @@ export default function StaffPage() {
       </div>
 
       {/* Filters Bar */}
-      <div className="bg-[#191e2b] border border-gray-800 rounded-xl p-4 mb-6 shadow-sm flex flex-wrap items-center gap-6">
+      <div className="bg-[#191e2b] border border-gray-800 rounded-xl p-4 mb-6 shadow-sm flex flex-wrap items-center gap-4">
 
-        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[240px]">
+        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[210px] flex-1 lg:flex-none">
           <span className="text-[13px] font-medium text-gray-300 px-3 whitespace-nowrap">Select Usergroup</span>
           <div className="h-5 w-[1px] bg-gray-700"></div>
           <Select
@@ -365,7 +374,7 @@ export default function StaffPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[220px]">
+        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[180px] flex-1 lg:flex-none">
           <span className="text-[13px] font-medium text-gray-300 px-3 whitespace-nowrap">District</span>
           <div className="h-5 w-[1px] bg-gray-700"></div>
           <Select
@@ -381,7 +390,7 @@ export default function StaffPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[200px]">
+        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[170px] flex-1 lg:flex-none">
           <span className="text-[13px] font-medium text-gray-300 px-3 whitespace-nowrap">Suspended</span>
           <div className="h-5 w-[1px] bg-gray-700"></div>
           <Select
@@ -396,13 +405,28 @@ export default function StaffPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[200px]">
+        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[170px] flex-1 lg:flex-none">
           <span className="text-[13px] font-medium text-gray-300 px-3 whitespace-nowrap">KYC Done</span>
           <div className="h-5 w-[1px] bg-gray-700"></div>
           <Select
             options={KYC_OPTIONS}
             value={selectedKYC}
             onChange={(val) => { setSelectedKYC(val); setCurrentPage(1); }}
+            placeholder="Select option ..."
+            styles={selectStyles}
+            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+            className="flex-1"
+            isClearable
+          />
+        </div>
+
+        <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-auto min-w-[210px] flex-1 lg:flex-none">
+          <span className="text-[13px] font-medium text-gray-300 px-3 whitespace-nowrap">Office Staff</span>
+          <div className="h-5 w-[1px] bg-gray-700"></div>
+          <Select
+            options={OFFICE_STAFF_OPTIONS}
+            value={selectedOfficeStaff}
+            onChange={(val) => { setSelectedOfficeStaff(val); setCurrentPage(1); }}
             placeholder="Select option ..."
             styles={selectStyles}
             menuPortalTarget={typeof document !== 'undefined' ? document.body : null}

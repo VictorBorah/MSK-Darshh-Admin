@@ -395,7 +395,7 @@ export default function MakePaymentDemandModal({ isOpen, onClose, projects, prio
               <label className="text-[13px] font-normal text-white whitespace-nowrap">Select Project</label>
               <div className="flex-1">
                 <Select
-                  options={projects.map((p: any) => ({ value: String(p.id), label: p.project_name }))}
+                  options={projects.map((p: any) => ({ value: String(p.id || p.project_id), label: p.project_code || p.project_name }))}
                   onChange={(val: any) => {
                     const newProject = val ? val.value : null;
                     if (newProject === selectedProject) return;
@@ -406,7 +406,7 @@ export default function MakePaymentDemandModal({ isOpen, onClose, projects, prio
                       setSelectedProject(newProject);
                     }
                   }}
-                  value={projects.find(p => String(p.id) === selectedProject) ? { value: selectedProject, label: projects.find((p: any) => String(p.id) === selectedProject)?.project_name } : null}
+                  value={projects.find(p => String(p.id || p.project_id) === selectedProject) ? { value: selectedProject, label: projects.find((p: any) => String(p.id || p.project_id) === selectedProject)?.project_code || projects.find((p: any) => String(p.id || p.project_id) === selectedProject)?.project_name } : null}
                   placeholder="Select a project..."
                   styles={{
                     control: (base, state) => ({ ...base, backgroundColor: '#cdd5df', borderColor: 'transparent', minHeight: '38px', borderRadius: '2px', fontWeight: 400, color: '#111', boxShadow: 'none', cursor: 'pointer', fontSize: '12px' }),

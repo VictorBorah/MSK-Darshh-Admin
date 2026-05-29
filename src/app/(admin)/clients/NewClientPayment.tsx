@@ -267,7 +267,7 @@ export default function NewClientPayment({
 
   // Search filtering lists
   const filteredProjects = client.projects_data
-    ? client.projects_data.filter(p => p.project_name.toLowerCase().includes(projectSearchQuery.toLowerCase()))
+    ? client.projects_data.filter(p => (p.project_code || p.project_name).toLowerCase().includes(projectSearchQuery.toLowerCase()))
     : [];
 
   const filteredPayModes = paymentModes
@@ -316,7 +316,7 @@ export default function NewClientPayment({
                 >
                   <span className="truncate">
                     {selectedProjectId 
-                      ? (client.projects_data?.find(p => p.project_id === selectedProjectId)?.project_name || 'Select Project')
+                      ? (client.projects_data?.find(p => p.project_id === selectedProjectId)?.project_code || client.projects_data?.find(p => p.project_id === selectedProjectId)?.project_name || 'Select Project')
                       : 'Select Project'}
                   </span>
                   <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isProjectDropdownOpen ? 'rotate-180' : ''}`} />
@@ -349,7 +349,7 @@ export default function NewClientPayment({
                               selectedProjectId === p.project_id ? 'bg-blue-600 text-white' : 'text-gray-300 hover:bg-[#11141e]'
                             }`}
                           >
-                            <div className="truncate">{p.project_name}</div>
+                            <div className="truncate">{p.project_code || p.project_name}</div>
                           </div>
                         ))
                       ) : (

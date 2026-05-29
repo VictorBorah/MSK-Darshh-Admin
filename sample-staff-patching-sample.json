@@ -27,6 +27,8 @@
       "aadhaar_file": "file_4.jpg",
       "payment_category": "5",
       "pwd": "1234",
+      "office_staff": "1",
+      "dob": "25-12-1986",
       "projects_csv": "1,2,3,4",
       "contract_amount": "52000.50",
       "marital_status": "1"

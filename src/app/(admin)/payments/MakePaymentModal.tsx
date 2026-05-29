@@ -601,8 +601,8 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
               <div className="flex flex-col gap-2">
                 <label className="text-[13px] font-medium text-gray-300">Select Project <span className="text-red-400">*</span></label>
                 <Select
-                  options={projects?.map((p: any) => ({ value: String(p.id), label: p.project_name || p.name })) || []}
-                  value={projects?.find(p => String(p.id) === selectedProject) ? { value: selectedProject, label: projects.find((p: any) => String(p.id) === selectedProject)?.project_name || projects.find((p: any) => String(p.id) === selectedProject)?.name } : null}
+                  options={projects?.map((p: any) => ({ value: String(p.id || p.project_id), label: p.project_code || p.project_name || p.name })) || []}
+                  value={projects?.find(p => String(p.id || p.project_id) === selectedProject) ? { value: selectedProject, label: projects.find((p: any) => String(p.id || p.project_id) === selectedProject)?.project_code || projects.find((p: any) => String(p.id || p.project_id) === selectedProject)?.project_name || projects.find((p: any) => String(p.id || p.project_id) === selectedProject)?.name } : null}
                   onChange={(val: any) => {
                     const nextVal = val ? val.value : '';
                     if (tableItems.length > 0) {

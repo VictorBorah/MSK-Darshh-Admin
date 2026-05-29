@@ -287,7 +287,7 @@ export default function Dashboard() {
 
   // Filter project list based on search query from live API projects
   const filteredProjects = projects ? projects.filter((p: Project) =>
-    (p.project_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (p.project_code || p.project_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.site_address || '').toLowerCase().includes(searchQuery.toLowerCase())
   ) : [];
 
@@ -484,7 +484,7 @@ export default function Dashboard() {
               <div className="flex items-center gap-2.5 overflow-hidden">
                 <Search className="w-4.5 h-4.5 text-blue-500 shrink-0" />
                 <span className="font-semibold text-[14px] truncate">
-                  {activeProject ? activeProject.project_name : 'Select a Project...'}
+                  {activeProject ? (activeProject.project_code || activeProject.project_name) : 'Select a Project...'}
                 </span>
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isSearchOpen ? 'rotate-180' : ''}`} />
@@ -518,7 +518,7 @@ export default function Dashboard() {
                             : isDark ? 'text-gray-300 hover:bg-[#1f2536]' : 'text-slate-700 hover:bg-slate-100'
                           }`}
                       >
-                        <div className="font-semibold truncate">{p.project_name}</div>
+                        <div className="font-semibold truncate">{p.project_code || p.project_name}</div>
                         <div className={`text-[11px] mt-0.5 ${activeProject?.project_id === p.project_id ? 'text-blue-100' : 'text-gray-400'}`}>
                           {p.site_address}
                         </div>
