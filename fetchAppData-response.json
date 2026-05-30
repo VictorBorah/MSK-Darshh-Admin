@@ -299,6 +299,12 @@
                 "menu_item": "Utility Tags",
                 "slug": "utility-tags",
                 "order_id": "17"
+            },
+            {
+                "menu_type": "2",
+                "menu_item": "Warehouses",
+                "slug": "warehouses",
+                "order_id": "17"
             }
         ],
         "User_Data": [
