@@ -23,7 +23,8 @@ import {
   UserCheck,
   ClipboardList,
   Camera,
-  Tag
+  Tag,
+  Warehouse
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -53,6 +54,7 @@ export default function Sidebar() {
       case 'budget-heads': return <ClipboardList className={className} />;
       case 'gps-photos': return <Camera className={className} />;
       case 'utility-tags': return <Tag className={className} />;
+      case 'warehouses': return <Warehouse className={className} />;
       default: return <CircleDot className={className} />;
     }
   };

@@ -1,0 +1,20 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "warehouse_data": [
+            {
+                "id": "4",
+                "warehouse_name": "South Hall",
+                "warehouse_address": "Linkin Street, Agra 32",
+                "store_keeper_name": "Victor Smith",
+                "warehouse_mobile": "9954102257",
+                "default_warehouse": "Yes",
+                "active": "1"
+            }
+        ],
+        "total_rows": "1",
+        "pagination_size": "10",
+        "Message": "Found 1 warehouse(s)"
+    }
+]

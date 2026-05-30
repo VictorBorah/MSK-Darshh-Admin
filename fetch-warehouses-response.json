@@ -1,0 +1,56 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "warehouse_data": [
+            {
+                "id": "5",
+                "warehouse_name": "Parker Godown",
+                "warehouse_address": "Matrix Road, 127 Park Avenue, Goa",
+                "store_keeper_name": "Richard Hanks",
+                "warehouse_mobile": "9954817725",
+                "default_warehouse": "No",
+                "active": "1"
+            },
+            {
+                "id": "4",
+                "warehouse_name": "South Hall",
+                "warehouse_address": "Linkin Street, Agra 32",
+                "store_keeper_name": "Victor Smith",
+                "warehouse_mobile": "9954102257",
+                "default_warehouse": "Yes",
+                "active": "1"
+            },
+            {
+                "id": "3",
+                "warehouse_name": "My 3rd Warehouse",
+                "warehouse_address": null,
+                "store_keeper_name": null,
+                "warehouse_mobile": "",
+                "default_warehouse": "No",
+                "active": "1"
+            },
+            {
+                "id": "2",
+                "warehouse_name": "My 2nd Warehouse",
+                "warehouse_address": "Address 2",
+                "store_keeper_name": "John Doe",
+                "warehouse_mobile": "8845741125",
+                "default_warehouse": "No",
+                "active": "0"
+            },
+            {
+                "id": "1",
+                "warehouse_name": "My First Warehouse",
+                "warehouse_address": "My Address",
+                "store_keeper_name": "Robert Cliff",
+                "warehouse_mobile": "1245784512",
+                "default_warehouse": "No",
+                "active": "0"
+            }
+        ],
+        "total_rows": "5",
+        "pagination_size": "10",
+        "Message": "Warehouses fetched"
+    }
+]
