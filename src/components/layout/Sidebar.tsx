@@ -37,7 +37,7 @@ export default function Sidebar() {
     switch(slug) {
       case 'dashboard': return <LayoutDashboard className={className} />;
       case 'projects': return <Box className={className} />;
-      case 'staff': return <Users className={className} />;
+      case 'staff-members': return <Users className={className} />;
       case 'procurements': return <ShoppingCart className={className} />;
       case 'payments': return <IndianRupee className={className} />;
       case 'supply-ledger': return <Files className={className} />;
