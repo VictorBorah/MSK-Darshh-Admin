@@ -77,7 +77,8 @@ export default function Sidebar() {
 
   // Helper to render individual menu items dynamically
   const renderMenuItem = (item: MenuItem) => {
-    const isActive = pathname === `/${String(item.slug)}`;
+    const slug = String(item.slug) === 'staff' ? 'staff-members' : String(item.slug);
+    const isActive = pathname === `/${slug}`;
     
     // Active / Inactive Base Styles
     const baseClasses = "group relative flex items-center gap-3 px-3 py-1.5 rounded-md transition-colors w-full";
@@ -87,12 +88,12 @@ export default function Sidebar() {
 
     return (
       <Link 
-        key={String(item.slug)} 
-        href={`/${String(item.slug)}`} 
+        key={slug} 
+        href={`/${slug}`} 
         onClick={() => setSidebarOpen(false)}
         className={`${baseClasses} ${activeClasses}`}
       >
-        {getIconForSlug(String(item.slug))}
+        {getIconForSlug(slug)}
         <span className={`truncate ${sidebarOpen ? '' : 'md:hidden'}`}>{String(item.menu_item)}</span>
 
         {/* Hover Tooltip */}
