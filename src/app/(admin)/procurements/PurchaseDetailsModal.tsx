@@ -114,6 +114,8 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    // Double-layered Safety: Early return immediately after hook declarations
    if (!isOpen || !itemRow) return null;
 
+   const assignedWhName = warehouses?.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || itemRow?.warehouse_name || '';
+
    const getShareText = () => {
       if (!itemRow) return '';
       const gst = parseFloat(itemRow.gst_rate || 0).toFixed(0);
@@ -209,7 +211,15 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                      <div className="flex items-start justify-between">
                         <div>
                            <h3 className="text-white font-bold text-[15px]">{itemRow?.item_name || 'N/A'}</h3>
-                           <span className="text-[11px] text-gray-400 font-medium tracking-wide">ID: {itemRow?.item_id || 'N/A'}</span>
+                           {assignedWhName && assignedWhName !== 'Select Warehouse' && (
+                              <div className="mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/15 border border-blue-500/20 rounded text-[11px] font-bold text-blue-400">
+                                 <Box className="w-3.5 h-3.5 shrink-0" />
+                                 Warehouse: {assignedWhName}
+                              </div>
+                           )}
+                           <div className="mt-1">
+                              <span className="text-[11px] text-gray-400 font-medium tracking-wide">ID: {itemRow?.item_id || 'N/A'}</span>
+                           </div>
                         </div>
                         <div className="text-right">
                            <div className="text-emerald-400 font-bold text-[15px]">₹ {parseFloat(itemRow?.amount_inc_gst || 0).toFixed(2)}</div>
