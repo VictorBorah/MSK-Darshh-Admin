@@ -48,6 +48,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   const [isDeletingInvoice, setIsDeletingInvoice] = useState(false);
 
   const [uploadedInvoiceFilename, setUploadedInvoiceFilename] = useState('');
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState('');
   const [uploadedInvoiceUrl, setUploadedInvoiceUrl] = useState('');
   const [isGstInclusive, setIsGstInclusive] = useState(false);
   const [showMathModal, setShowMathModal] = useState(false);
@@ -81,6 +83,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setShowMathModal(false);
       setIsManuallyEdited(false);
       setSelectedTag(item.utility_tag || '');
+      setSelectedWarehouse(item.warehouse_id || '');
       fetchInitialData();
     }
   }, [isOpen, item]);
@@ -98,6 +101,35 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       let appArr;
       try { appArr = JSON.parse(appText); } catch (e) { throw new Error('Invalid JSON'); }
       const appDataRaw = Array.isArray(appArr) ? appArr[0] : appArr;
+
+      // Fetch system configs to load warehouses
+      const configRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const configText = await configRes.text();
+      const cleanedConfigText = configText.replace(/[\u0000-\u001f]/g, (ch) => {
+        if (ch === '\n') return '\\n';
+        if (ch === '\r') return '\\r';
+        if (ch === '\t') return '\\t';
+        return '';
+      });
+      let configArr;
+      try {
+        configArr = JSON.parse(cleanedConfigText);
+      } catch (e) {
+        configArr = {};
+      }
+      const configData = Array.isArray(configArr) ? configArr[0] : configArr;
+
+      if (configData && String(configData.Status) === '1' && Array.isArray(configData.warehouse_data)) {
+        setWarehouses(configData.warehouse_data);
+        if (!item.warehouse_id) {
+          const defaultWh = configData.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
+          if (defaultWh) {
+            setSelectedWarehouse(String(defaultWh.id));
+          }
+        }
+      }
 
       const defaultGst = appDataRaw?.System_Data?.default_gst || '';
       const gstInc = appDataRaw?.System_Data?.gst_inclusive || '0';
@@ -352,6 +384,11 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
           <h2 className="text-[15px] font-bold text-white flex items-center gap-2 tracking-wide">
             <Settings className="w-4 h-4 text-blue-400" />
             Taxation Configuration
+            {item?.item_name && (
+              <span className="ml-2 px-2.5 py-0.5 text-[15px] font-bold bg-red-500/10 border border-dotted border-red-500/30 rounded-md text-red-400">
+                {item.item_name}
+              </span>
+            )}
           </h2>
           <div className="flex items-center gap-1">
             <button onClick={() => setIsMaximized(!isMaximized)} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Toggle Size">
@@ -377,11 +414,6 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
               {/* Top Setup */}
               <div className="bg-[#1b202c] p-5 border border-gray-700 rounded-lg shadow-inner">
                 <div className="flex flex-col gap-4">
-                  <div className="bg-[#11141e] border border-gray-700/50 rounded-md px-3 py-2.5 flex flex-col gap-0.5 shadow-sm">
-                    <span className="text-[11px] text-blue-400 uppercase tracking-wide font-bold">Target Item</span>
-                    <span className="text-[13px] text-white font-medium line-clamp-1">{item?.item_name || 'Selected Item'}</span>
-                  </div>
-
                   <div className="flex flex-col gap-2">
                     <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Buying From Vendor</label>
                     <Select
@@ -392,6 +424,27 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                         setIsManuallyEdited(true);
                       }}
                       placeholder="Select Vendor..."
+                      styles={{
+                        control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
+                        menuPortal: base => ({ ...base, zIndex: 99999 }),
+                        menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
+                        option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
+                        singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                        input: base => ({ ...base, color: '#fff' })
+                      }}
+                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Warehouse</label>
+                    <Select
+                      options={warehouses?.map((w: any) => ({ value: String(w.id), label: w.warehouse_name || '' })) || []}
+                      value={warehouses?.find(w => String(w.id) === selectedWarehouse) ? { value: selectedWarehouse, label: warehouses.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || '' } : null}
+                      onChange={(val: any) => {
+                        setSelectedWarehouse(val ? val.value : '');
+                      }}
+                      placeholder="Select Warehouse..."
                       styles={{
                         control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
                         menuPortal: base => ({ ...base, zIndex: 99999 }),
@@ -815,7 +868,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                 invoice_url: uploadedInvoiceUrl,
                 amount: taxData?.final_amount ? String(taxData.final_amount).replace(/[^0-9.]/g, '') : item?.amount,
                 taxData: taxData,
-                utility_tag: selectedTag
+                utility_tag: selectedTag,
+                warehouse_id: selectedWarehouse
               });
               onClose();
             }}

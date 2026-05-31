@@ -97,6 +97,13 @@ export default function ProcurementsPage() {
   // Loading State for preloader
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+  const getPurchaseTotal = () => {
+    return procurementsList.reduce((sum, item) => {
+      const val = parseFloat(item.total_purchase_value || 0);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0).toFixed(2);
+  };
+
   // Lookups mapped from sys/fetch_system_config
   const [vendorsOptions, setVendorsOptions] = useState<any[]>([]);
   const [projectsOptions, setProjectsOptions] = useState<any[]>([]);
@@ -316,7 +323,7 @@ export default function ProcurementsPage() {
               <Plus className="w-3.5 h-3.5" /> New
             </button>
             <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded text-[12px] font-bold flex items-center gap-1.5">
-              Purchased Today: <IndianRupee className="w-3.5 h-3.5" /> 124560.00
+              Purchase Total: <IndianRupee className="w-3.5 h-3.5" /> {getPurchaseTotal()}
             </div>
           </div>
           <div className="flex items-center gap-2">
