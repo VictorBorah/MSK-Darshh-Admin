@@ -745,7 +745,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                 invoice_uploaded: row.has_gst_invoice === '1' ? "1" : "0",
                 invoice_file_string: row.invoice_file || "",
                 tax_inv_no: row.invoice_number || "",
-                utility_tag: String(row.utility_tag || "")
+                utility_tag: String(row.utility_tag || ""),
+                warehouse_id: String(row.warehouse_id || "")
               };
             });
 
@@ -756,6 +757,10 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
             formData.append('project_id', selectedProject);
             formData.append('purchase_json', JSON.stringify(purchaseJsonObj));
             formData.append('purchase_status', saveData.status);
+
+            const firstItemWithWh = tableItems.find(row => row.warehouse_id);
+            const warehouseId = firstItemWithWh?.warehouse_id || '';
+            formData.append('warehouse_id', String(warehouseId));
 
             if (saveData.has_gst_invoice === '1') {
               formData.append('has_tax_invoice', '1');

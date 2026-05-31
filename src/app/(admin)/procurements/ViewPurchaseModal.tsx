@@ -25,6 +25,42 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
   const [isWarningModalOpen, setIsWarningModalOpen] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
 
+  const fetchDetails = async () => {
+    if (!procurementId) return;
+    setIsLoading(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchPurchaseDetails?procurement_id=${procurementId}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const text = await res.text();
+      let arr; try { arr = JSON.parse(text); } catch (x) { }
+      const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && String(data.Status) === '1') {
+        setPurchaseDetails(data.purchase_details || null);
+        const items = data.item_data || [];
+        setItemData(items);
+        if (selectedItem) {
+          const updatedItem = items.find((i: any) => String(i.purchase_id) === String(selectedItem.purchase_id));
+          if (updatedItem) {
+            setSelectedItem(updatedItem);
+          }
+        }
+      } else {
+        toast.error(data?.Message || 'Failed to fetch purchase details');
+        onClose();
+      }
+    } catch (err: any) {
+      toast.error('An error occurred while fetching details');
+      onClose();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!isOpen || !procurementId) {
       setPurchaseDetails(null);
@@ -35,34 +71,6 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
       setIsUpdateEnabled(false);
       return;
     }
-
-    const fetchDetails = async () => {
-      setIsLoading(true);
-      try {
-        const token = localStorage.getItem('at_ki8Xq1iV');
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchPurchaseDetails?procurement_id=${procurementId}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        const text = await res.text();
-        let arr; try { arr = JSON.parse(text); } catch (x) { }
-        const data = arr && Array.isArray(arr) ? arr[0] : arr;
-
-        if (data && String(data.Status) === '1') {
-          setPurchaseDetails(data.purchase_details || null);
-          setItemData(data.item_data || []);
-        } else {
-          toast.error(data?.Message || 'Failed to fetch purchase details');
-          onClose();
-        }
-      } catch (err: any) {
-        toast.error('An error occurred while fetching details');
-        onClose();
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
     fetchDetails();
   }, [isOpen, procurementId, onClose]);
@@ -332,6 +340,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
           setIsConnectDemandOpen(true);
         }}
         isClosed={purchaseDetails?.is_closed === 'Yes'}
+        onSuccess={fetchDetails}
       />
 
       <ConnectDemandModal
