@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth, MenuItem } from '@/components/providers/AuthProvider';
@@ -24,7 +25,8 @@ import {
   ClipboardList,
   Camera,
   Tag,
-  Warehouse
+  Warehouse,
+  ChevronDown
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -66,14 +68,100 @@ export default function Sidebar() {
     return orderA - orderB;
   };
 
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+
+  // Auto-expand group if a child item is currently active
+  useEffect(() => {
+    if (!menu || menu.length === 0) return;
+    
+    const activeItem = menu.find(item => {
+      if (item.is_submenu_item === "1" && item.parent_id) {
+        const slug = String(item.slug) === 'staff' ? 'staff-members' : String(item.slug);
+        return pathname === `/${slug}`;
+      }
+      return false;
+    });
+
+    if (activeItem && activeItem.parent_id) {
+      setExpandedGroup(String(activeItem.parent_id));
+    }
+  }, [pathname, menu]);
+
+  const handleGroupClick = (parentId: string) => {
+    if (!sidebarOpen) {
+      setSidebarOpen(true);
+      setExpandedGroup(parentId);
+    } else {
+      setExpandedGroup(prev => (prev === parentId ? null : parentId));
+    }
+  };
+
+  const getIconForGroup = (groupLabel: string, className: string = "w-4 h-4 shrink-0") => {
+    switch(groupLabel.toLowerCase()) {
+      case 'financial': return <IndianRupee className={className} />;
+      case 'inventory': return <Warehouse className={className} />;
+      case 'privileges': return <UserCheck className={className} />;
+      case 'utility': return <Tag className={className} />;
+      default: return <CircleDot className={className} />;
+    }
+  };
+
+  type RenderableItem = 
+    | { type: 'item'; data: MenuItem }
+    | { type: 'group'; parentId: string; label: string; items: MenuItem[] };
+
+  const buildRenderableMenu = (sortedItems: MenuItem[]): RenderableItem[] => {
+    const result: RenderableItem[] = [];
+    const seenGroups = new Set<string>();
+    
+    const groupItemsMap: Record<string, MenuItem[]> = {};
+    const groupLabelMap: Record<string, string> = {};
+    
+    sortedItems.forEach(item => {
+      if (item.is_submenu_item === "1" && item.parent_id) {
+        const parentId = String(item.parent_id);
+        if (!groupItemsMap[parentId]) {
+          groupItemsMap[parentId] = [];
+          groupLabelMap[parentId] = String(item.parent_group) || `Group ${parentId}`;
+        }
+        groupItemsMap[parentId].push(item);
+      }
+    });
+    
+    sortedItems.forEach(item => {
+      if (item.is_submenu_item === "1" && item.parent_id) {
+        const parentId = String(item.parent_id);
+        if (!seenGroups.has(parentId)) {
+          seenGroups.add(parentId);
+          result.push({
+            type: 'group',
+            parentId,
+            label: groupLabelMap[parentId],
+            items: groupItemsMap[parentId]
+          });
+        }
+      } else {
+        result.push({
+          type: 'item',
+          data: item
+        });
+      }
+    });
+    
+    return result;
+  };
+
   // Split menus into categories and sort them by order_id ascending
-  const localMenu = menu
+  const sortedLocal = menu
     .filter((item) => String(item.menu_type) === "1")
     .sort(sortMenuByOrder);
 
-  const masterMenu = menu
+  const sortedMaster = menu
     .filter((item) => String(item.menu_type) === "2")
     .sort(sortMenuByOrder);
+
+  const localRenderable = buildRenderableMenu(sortedLocal);
+  const masterRenderable = buildRenderableMenu(sortedMaster);
 
   // Helper to render individual menu items dynamically
   const renderMenuItem = (item: MenuItem) => {
@@ -104,6 +192,55 @@ export default function Sidebar() {
     );
   };
 
+  const renderMenuGroup = (parentId: string, label: string, items: MenuItem[]) => {
+    const isExpanded = expandedGroup === parentId && sidebarOpen;
+    const isAnyChildActive = items.some(item => {
+      const slug = String(item.slug) === 'staff' ? 'staff-members' : String(item.slug);
+      return pathname === `/${slug}`;
+    });
+
+    return (
+      <div key={`group-${parentId}`} className="flex flex-col w-full">
+        {/* Group Header Button */}
+        <button
+          onClick={() => handleGroupClick(parentId)}
+          className={`group relative flex items-center justify-between px-3 py-1.5 rounded-md transition-colors w-full text-left text-gray-400 hover:bg-gray-800 hover:text-gray-200 cursor-pointer ${
+            isAnyChildActive ? 'text-blue-400 font-semibold' : ''
+          }`}
+        >
+          <div className="flex items-center gap-3 truncate">
+            {getIconForGroup(label)}
+            <span className={`truncate ${sidebarOpen ? '' : 'md:hidden'}`}>{label}</span>
+          </div>
+
+          <div className={`flex items-center shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>
+            <ChevronDown className={`w-3.5 h-3.5 text-gray-500 group-hover:text-gray-300 transition-transform duration-200 ${isExpanded ? '' : '-rotate-90'}`} />
+          </div>
+
+          {/* Hover Tooltip */}
+          <div className={`absolute left-full ml-4 px-2.5 py-1.5 bg-[#1f2536] text-white text-xs rounded-md shadow-xl border border-gray-700 opacity-0 ${sidebarOpen ? '' : 'md:group-hover:opacity-100'} pointer-events-none transition-opacity duration-200 z-50 whitespace-nowrap`}>
+            {label}
+          </div>
+        </button>
+
+        {/* Nested Child Items */}
+        {isExpanded && (
+          <div className="mt-1 pl-4 flex flex-col gap-1 border-l border-gray-800/80 ml-5 transition-all duration-200">
+            {items.map(renderMenuItem)}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderRenderableItem = (item: RenderableItem) => {
+    if (item.type === 'item') {
+      return renderMenuItem(item.data);
+    } else {
+      return renderMenuGroup(item.parentId, item.label, item.items);
+    }
+  };
+
   return (
     <>
       {/* Mobile Backdrop Overlay */}
@@ -116,7 +253,7 @@ export default function Sidebar() {
 
       <aside 
         className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen shrink-0 bg-gradient-to-t from-teal-900/40 via-[#191e2b] to-[#191e2b] border-r border-gray-800 text-gray-300 transition-all duration-300 ease-in-out
-          ${sidebarOpen ? 'w-[200px] translate-x-0 md:relative' : 'w-[200px] md:w-16 -translate-x-full md:translate-x-0 md:relative'}
+          ${sidebarOpen ? 'w-[260px] translate-x-0 md:relative' : 'w-[260px] md:w-16 -translate-x-full md:translate-x-0 md:relative'}
         `}
       >
         {/* Sidebar Header Logo */}
@@ -173,24 +310,24 @@ export default function Sidebar() {
           )}
 
           {/* Dynamic Category 1: Local */}
-          {user && localMenu.length > 0 && (
+          {user && localRenderable.length > 0 && (
             <>
               <div className={`mt-3 mb-1.5 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
                 <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Local</span>
                 <span className={`hidden ${sidebarOpen ? '' : 'md:inline'} text-gray-600`}>--</span>
               </div>
-              {localMenu.map(renderMenuItem)}
+              {localRenderable.map(renderRenderableItem)}
             </>
           )}
 
           {/* Dynamic Category 2: Master */}
-          {user && masterMenu.length > 0 && (
+          {user && masterRenderable.length > 0 && (
             <>
               <div className={`mt-3 mb-1.5 px-3 text-[11px] font-semibold text-gray-500 uppercase tracking-wider ${sidebarOpen ? 'text-left' : 'md:text-center text-left'}`}>
                 <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Master</span>
                 <span className={`hidden ${sidebarOpen ? '' : 'md:inline'} text-gray-600`}>--</span>
               </div>
-              {masterMenu.map(renderMenuItem)}
+              {masterRenderable.map(renderRenderableItem)}
             </>
           )}
 

@@ -73,7 +73,8 @@ export default function Login() {
       
       // Auto redirect after allowing user to see the success message
       setTimeout(() => {
-        router.push('/home');
+        const lastVisited = localStorage.getItem('last_visited_route') || '/home';
+        router.push(lastVisited);
       }, 2000);
     }
   }, [router]);
@@ -132,7 +133,8 @@ export default function Login() {
 
                showModal(`Welcome back, ${displayUser}!`, 'success', 'Redirecting You..');
                setTimeout(() => { 
-                 router.push('/home'); 
+                 const lastVisited = localStorage.getItem('last_visited_route') || '/home';
+                 router.push(lastVisited); 
                }, 1500);
 
            } else {

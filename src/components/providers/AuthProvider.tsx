@@ -21,6 +21,9 @@ export interface MenuItem {
   menu_item: string | boolean;
   slug: string | boolean;
   order_id?: string | number;
+  is_submenu_item?: string;
+  parent_id?: string;
+  parent_group?: string;
 }
 
 interface AuthContextType {
@@ -207,6 +210,13 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       };
     }
   }, [pathname, validateSession, triggerLogout]);
+
+  // Keep track of the last visited route for redirection on next session/login
+  useEffect(() => {
+    if (pathname && pathname !== '/') {
+      localStorage.setItem('last_visited_route', pathname);
+    }
+  }, [pathname]);
 
   return (
     <AuthContext.Provider value={{ user, menu, frontendVersion, projects, defaultProject, isLoadingAppData, logout: triggerLogout }}>
