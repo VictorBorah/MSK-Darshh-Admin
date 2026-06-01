@@ -21,8 +21,8 @@ export interface MenuItem {
   menu_item: string | boolean;
   slug: string | boolean;
   order_id?: string | number;
-  is_submenu_item?: string;
-  parent_id?: string;
+  is_submenu_item?: string | number;
+  parent_id?: string | number;
   parent_group?: string;
 }
 
