@@ -75,7 +75,7 @@ export default function Sidebar() {
     if (!menu || menu.length === 0) return;
     
     const activeItem = menu.find(item => {
-      if (item.is_submenu_item === "1" && item.parent_id) {
+      if (String(item.is_submenu_item) === "1" && item.parent_id) {
         const slug = String(item.slug) === 'staff' ? 'staff-members' : String(item.slug);
         return pathname === `/${slug}`;
       }
@@ -118,7 +118,7 @@ export default function Sidebar() {
     const groupLabelMap: Record<string, string> = {};
     
     sortedItems.forEach(item => {
-      if (item.is_submenu_item === "1" && item.parent_id) {
+      if (String(item.is_submenu_item) === "1" && item.parent_id) {
         const parentId = String(item.parent_id);
         if (!groupItemsMap[parentId]) {
           groupItemsMap[parentId] = [];
@@ -129,7 +129,7 @@ export default function Sidebar() {
     });
     
     sortedItems.forEach(item => {
-      if (item.is_submenu_item === "1" && item.parent_id) {
+      if (String(item.is_submenu_item) === "1" && item.parent_id) {
         const parentId = String(item.parent_id);
         if (!seenGroups.has(parentId)) {
           seenGroups.add(parentId);
