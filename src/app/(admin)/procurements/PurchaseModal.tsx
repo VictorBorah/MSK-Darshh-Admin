@@ -671,15 +671,18 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                   <IndianRupee className="w-4 h-4 ml-2 mr-0.5" /> {grandTotal.toFixed(2)}
                 </span>
               </div>
-              <label className="flex items-center gap-2 cursor-pointer select-none text-[13px] font-medium text-gray-300 hover:text-white transition-colors bg-[#161a25] px-3.5 py-1.5 rounded-lg border border-gray-700 shadow-sm ml-2">
-                <input
-                  type="checkbox"
-                  checked={isMarkComplete}
-                  onChange={(e) => setIsMarkComplete(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-600 text-blue-600 bg-gray-700 focus:ring-blue-500 focus:ring-offset-gray-800 focus:ring-2 cursor-pointer"
-                />
-                <span>Mark Complete</span>
-              </label>
+              {/* Hide Mark Complete checkbox for now */}
+              {false && (
+                <label className="flex items-center gap-2 cursor-pointer select-none text-[13px] font-medium text-gray-300 hover:text-white transition-colors bg-[#161a25] px-3.5 py-1.5 rounded-lg border border-gray-700 shadow-sm ml-2">
+                  <input
+                    type="checkbox"
+                    checked={isMarkComplete}
+                    onChange={(e) => setIsMarkComplete(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600 text-blue-600 bg-gray-700 focus:ring-blue-500 focus:ring-offset-gray-800 focus:ring-2 cursor-pointer"
+                  />
+                  <span>Mark Complete</span>
+                </label>
+              )}
             </div>
             <div className="flex gap-3">
               <button onClick={onClose} className="px-6 py-2 bg-gray-700 hover:bg-gray-600 border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm">
@@ -695,7 +698,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                 }}
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
               >
-                Save Purchase
+                Initiate Purchase
               </button>
             </div>
           </div>
