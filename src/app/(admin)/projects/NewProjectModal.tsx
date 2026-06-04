@@ -6,7 +6,7 @@ import {
   X, Loader2, DollarSign, Layers, Grid, MapPin, HelpCircle, ChevronRight, Save
 } from 'lucide-react';
 import Select from 'react-select';
-import { useJsApiLoader, GoogleMap, Marker, Autocomplete, Libraries } from '@react-google-maps/api';
+import { useJsApiLoader, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
 import dynamic from 'next/dynamic';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import WarningAlertModal from '@/components/WarningAlertModal';
@@ -15,7 +15,7 @@ const GeofenceMap = dynamic(() => import('./GeofenceMap'), { ssr: false, loading
 const StagesModal = dynamic(() => import('./StagesModal'), { ssr: false, loading: () => <div className="text-white">Loading Stages...</div> });
 const ExpensesModal = dynamic(() => import('./ExpensesModal'), { ssr: false, loading: () => <div className="text-white">Loading Expenses...</div> });
 
-const GOOGLE_MAPS_LIBRARIES: Libraries = ['places'];
+const GOOGLE_MAPS_LIBRARIES: any = ['places'];
 
 interface CoordinateMapProps {
   initialCoords: { lat: number, lng: number } | null;
