@@ -445,8 +445,8 @@ export default function ProcurementsPage() {
         </div>
 
         <div className="overflow-x-auto flex-1 bg-[#232b3e] p-4 flex flex-col">
-          <table className="w-full text-[12px] text-left">
-            <thead className="text-[12px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
+          <table className="w-full text-[11px] text-left">
+            <thead className="text-[11px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
               <tr>
                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
@@ -618,8 +618,8 @@ export default function ProcurementsPage() {
         </div>
 
         <div className="overflow-x-auto flex-1 bg-[#232b3e] p-4 flex flex-col">
-          <table className="w-full text-[12px] text-left">
-            <thead className="text-[12px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
+          <table className="w-full text-[11px] text-left">
+            <thead className="text-[11px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
               <tr>
                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
