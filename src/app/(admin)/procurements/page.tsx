@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, Printer, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/components/providers/AuthProvider';
 import MakeDemandModal from './MakeDemandModal';
 import DemandDetailModal from './DemandDetailModal';
 import PurchaseModal from './PurchaseModal';
@@ -87,6 +88,7 @@ const SearchableSelectPlaceholder = ({
 };
 
 export default function ProcurementsPage() {
+  const { projects: myProjects, isLoadingAppData } = useAuth();
   const [maximizedColumn, setMaximizedColumn] = useState<'procurements' | 'demands' | null>(null);
   const [showMakeDemandModal, setShowMakeDemandModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -168,7 +170,7 @@ export default function ProcurementsPage() {
     }
   };
 
-  const fetchProcurementsData = async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo) => {
+  const fetchProcurementsData = useCallback(async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo) => {
     const params = new URLSearchParams();
     params.set('pagenum', String(passedPage));
     if (passedProj) params.set('project_id', passedProj);
@@ -192,15 +194,22 @@ export default function ProcurementsPage() {
     const pData = Array.isArray(data) ? data[0] : data;
 
     if (String(pData.Status) === '1') {
-      setProcurementsList(pData.procurements_data || []);
-      const total = parseInt(pData.total_rows || "0", 10);
+      let filtered = [];
+      if (pData.procurements_data && Array.isArray(pData.procurements_data)) {
+        const allowedIds = new Set(myProjects.map((p: any) => String(p.project_id)));
+        filtered = pData.procurements_data.filter((proc: any) => allowedIds.has(String(proc.project_id)));
+        setProcurementsList(filtered);
+      } else {
+        setProcurementsList([]);
+      }
+      const total = filtered.length;
       const pageSize = parseInt(pData.pagination_size || "10", 10);
       setProcTotalPages(total && pageSize ? Math.ceil(total / pageSize) : 1);
       return { success: true, message: pData.Message };
     } else {
       return { success: false, message: pData.Message || 'Procurements fetch error' };
     }
-  };
+  }, [procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, myProjects]);
 
   const fetchDemandsData = async (token: string, passedPage = demPage, passedProj = demProject, passedStatus = demStatus, passedItem = demItem, passedDateFrom = demDateFrom, passedDateTo = demDateTo) => {
     const params = new URLSearchParams();
@@ -269,6 +278,7 @@ export default function ProcurementsPage() {
 
   // Initial Load Context
   useEffect(() => {
+    if (isLoadingAppData) return;
     const loadInitialData = async () => {
       const token = localStorage.getItem('at_ki8Xq1iV');
       if (!token) return;
@@ -290,7 +300,7 @@ export default function ProcurementsPage() {
     };
     loadInitialData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoadingAppData]);
 
   // Sync Independent Procurements Table
   useEffect(() => {
@@ -298,7 +308,7 @@ export default function ProcurementsPage() {
     const token = localStorage.getItem('at_ki8Xq1iV');
     if (token) fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor]);
+  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, fetchProcurementsData]);
 
   // Sync Independent Demands Table
   useEffect(() => {
