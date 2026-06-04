@@ -721,6 +721,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         isOpen={showSaveModal}
         onClose={() => setShowSaveModal(false)}
         isSaving={isSavingProcurement}
+        isMarkedComplete={isMarkComplete}
         onConfirm={async (saveData) => {
           setIsSavingProcurement(true);
           const toastId = toast.loading('Saving procurement...');

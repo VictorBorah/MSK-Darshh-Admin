@@ -413,12 +413,10 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
     if (!geofenceData) { toast.error("Please configure the site Geofence boundaries."); setErrorField('geofenceData'); return; }
     if (!startDate) { toast.error("A Start Date is required."); setErrorField('startDate'); return; }
     if (!clientId) { toast.error("You must Link a Client to this project."); setErrorField('clientId'); return; }
+    if (!stagesCsv) { toast.error("Please define Stages."); setErrorField('stagesCsv'); return; }
+    if (!currentStage) { toast.error("Please configure a Current Stage."); setErrorField('currentStage'); return; }
     if (accountantId.length === 0) { toast.error("Please assign at least one Accountant."); setErrorField('accountantId'); return; }
-    if (managerId.length === 0) { toast.error("Please assign at least one Manager."); setErrorField('managerId'); return; }
     if (engineerId.length === 0) { toast.error("Please assign at least one Engineer."); setErrorField('engineerId'); return; }
-    if (supervisorId.length === 0) { toast.error("Please assign at least one Supervisor."); setErrorField('supervisorId'); return; }
-    if (!allocatedBudget) { toast.error("Please specify an Allocated Budget."); setErrorField('allocatedBudget'); return; }
-    if (!budgetTrigger) { toast.error("Please define a Budget Trigger amount."); setErrorField('budgetTrigger'); return; }
 
     setSavingDetails(true);
     try {

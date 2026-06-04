@@ -1,0 +1,394 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "total_rows": "16",
+        "pagination_size": "10",
+        "project_data": [
+            {
+                "project_id": "16",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "HILTON",
+                "project_code": "HILT-24",
+                "district": "DHEMAJI",
+                "client_name": "JOHN CENA",
+                "current_stage": "LAND CLEARING",
+                "start_date": "10-05-2026",
+                "end_date": "",
+                "site_address": "DHEMAJI TOWN",
+                "site_coordinates": "27.472899409559783, 94.5596822885304",
+                "stages_csv": "1,2,4,5,6,7",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              93.150107,\r\n              26.743569\r\n            ],\r\n            [\r\n              93.150316,\r\n              26.742218\r\n            ],\r\n            [\r\n              93.151137,\r\n              26.742352\r\n            ],\r\n            [\r\n              93.150837,\r\n              26.743765\r\n            ],\r\n            [\r\n              93.150107,\r\n              26.743569\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "4500000.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Karan Borah",
+                    "Mohan Singh"
+                ],
+                "engineers_data": [
+                    "Amir Khan",
+                    "Newton Singh"
+                ],
+                "managers_data": [
+                    "Hardik Goswami"
+                ],
+                "contractors_data": [
+                    "Bikash Sharma"
+                ],
+                "masons_data": [],
+                "procurement_managers_data": [
+                    "Test PM 1"
+                ],
+                "operation_data": [],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "15",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "RUNTIME TEST",
+                "project_code": "RUNTST",
+                "district": "BARPETA",
+                "client_name": "ARYAN BORAH",
+                "current_stage": "FOUNDATION INITIATION",
+                "start_date": "31-12-2025",
+                "end_date": "",
+                "site_address": "TEST ADDRESS",
+                "site_coordinates": "26.204463152597274, 91.73606410169845",
+                "stages_csv": "2,4,6,7",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              91.728763,\r\n              26.214568\r\n            ],\r\n            [\r\n              91.728824,\r\n              26.214482\r\n            ],\r\n            [\r\n              91.729001,\r\n              26.21448\r\n            ],\r\n            [\r\n              91.729006,\r\n              26.214583\r\n            ],\r\n            [\r\n              91.728767,\r\n              26.214598\r\n            ],\r\n            [\r\n              91.728763,\r\n              26.214568\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "7800000.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Mohan Singh"
+                ],
+                "engineers_data": [
+                    "Amir Khan"
+                ],
+                "managers_data": [
+                    "Hardik Goswami"
+                ],
+                "contractors_data": [
+                    "Test Contractor 2"
+                ],
+                "masons_data": [
+                    "Billa Mistry"
+                ],
+                "procurement_managers_data": [
+                    "Test PM 2"
+                ],
+                "operation_data": [
+                    "Test OM 2"
+                ],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "14",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "HAZARIKA KUTIR",
+                "project_code": "XX-1234",
+                "district": "BARPETA",
+                "client_name": "TIGER SINGH",
+                "current_stage": "LAND CLEARING",
+                "start_date": "05-04-2026",
+                "end_date": "",
+                "site_address": "TEST",
+                "site_coordinates": "26.11922272755118,91.76279067993164",
+                "stages_csv": "1,3,5,6",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              91.759344,\r\n              26.125211\r\n            ],\r\n            [\r\n              91.759301,\r\n              26.124748\r\n            ],\r\n            [\r\n              91.75988,\r\n              26.124729\r\n            ],\r\n            [\r\n              91.759816,\r\n              26.125288\r\n            ],\r\n            [\r\n              91.759344,\r\n              26.125211\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "0.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Test 3",
+                    "Mohan Singh"
+                ],
+                "engineers_data": [
+                    "Salman Khan"
+                ],
+                "managers_data": [
+                    "Hardik Goswami"
+                ],
+                "contractors_data": [
+                    "Test Contractor 2"
+                ],
+                "masons_data": [
+                    "Raju Mistry"
+                ],
+                "procurement_managers_data": [
+                    "Test PM 2"
+                ],
+                "operation_data": [
+                    "Test OM 2"
+                ],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "13",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "DIKRONG TOWER",
+                "project_code": "HTX-H",
+                "district": "KAMRUP METRO",
+                "client_name": "MANASH BORAH",
+                "current_stage": "LAND CLEARING",
+                "start_date": "12-06-2025",
+                "end_date": "",
+                "site_address": "BELTOLA",
+                "site_coordinates": "26.120123206348392, 91.76072828785053",
+                "stages_csv": "1,2,4,5,6,7",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              76.889231,\r\n              20.447385\r\n            ],\r\n            [\r\n              76.889322,\r\n              20.447224\r\n            ],\r\n            [\r\n              76.889413,\r\n              20.447305\r\n            ],\r\n            [\r\n              76.889301,\r\n              20.447436\r\n            ],\r\n            [\r\n              76.889231,\r\n              20.447385\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "87500000.00",
+                "inital_expenditure": "67000.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Rakesh Bedi",
+                    "Karan Borah"
+                ],
+                "engineers_data": [
+                    "Salman Khan"
+                ],
+                "managers_data": [
+                    "Hardik Goswami",
+                    "Rakesh Dutta"
+                ],
+                "contractors_data": [
+                    "Test Contractor 2"
+                ],
+                "masons_data": [
+                    "Raju Mistry"
+                ],
+                "procurement_managers_data": [
+                    "Test PM 2"
+                ],
+                "operation_data": [
+                    "Test 6",
+                    "Azad Khan"
+                ],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "12",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "SIANG VALLEY HOUSING",
+                "project_code": "SIANG-K",
+                "district": "LAKHIMPUR",
+                "client_name": "MANJIT BORAH",
+                "current_stage": "LAND CLEARING",
+                "start_date": "26-12-2025",
+                "end_date": "",
+                "site_address": "NORTH LAKHIMPUR",
+                "site_coordinates": "26.53219323590006,91.89771165330656",
+                "stages_csv": "1,2,4,5,6,7",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              94.111693,\r\n              27.254624\r\n            ],\r\n            [\r\n              94.111891,\r\n              27.254748\r\n            ],\r\n            [\r\n              94.112004,\r\n              27.254643\r\n            ],\r\n            [\r\n              94.111805,\r\n              27.254519\r\n            ],\r\n            [\r\n              94.111693,\r\n              27.254624\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "8700000.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "11",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "MATRIX APARTMENTS",
+                "project_code": "MAT-009",
+                "district": "BISWANATH",
+                "client_name": "TIGER SINGH",
+                "current_stage": "FOUNDATION CONSTRUCTION",
+                "start_date": "31-10-2025",
+                "end_date": "",
+                "site_address": "TEST ADDRESS",
+                "site_coordinates": "26.12230531297829, 91.76794052124023",
+                "stages_csv": "3,5,7",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              91.756825,\r\n              26.124999\r\n            ],\r\n            [\r\n              91.757404,\r\n              26.124922\r\n            ],\r\n            [\r\n              91.757533,\r\n              26.124324\r\n            ],\r\n            [\r\n              91.756739,\r\n              26.124401\r\n            ],\r\n            [\r\n              91.756825,\r\n              26.124999\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "7854212.00",
+                "inital_expenditure": "12.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "10",
+                "status": "Running",
+                "progress_percent": "33",
+                "project_name": "SHELTON",
+                "project_code": "TST 312",
+                "district": "DIBRUGARH",
+                "client_name": "MANJIT BORAH",
+                "current_stage": "SHED CONSTRUCTION",
+                "start_date": "04-05-2021",
+                "end_date": "",
+                "site_address": "KAHILIPARA, GUWAHATI",
+                "site_coordinates": "26.14082248605997, 91.79608247054976",
+                "stages_csv": "2,5,7,14,3,1,11",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              94.560229,\r\n              27.472737\r\n            ],\r\n            [\r\n              94.560073,\r\n              27.472333\r\n            ],\r\n            [\r\n              94.560293,\r\n              27.472238\r\n            ],\r\n            [\r\n              94.560417,\r\n              27.472675\r\n            ],\r\n            [\r\n              94.560229,\r\n              27.472737\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "782000.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Karan Borah"
+                ],
+                "engineers_data": [
+                    "Salman Khan"
+                ],
+                "managers_data": [
+                    "Manoj Gupta"
+                ],
+                "contractors_data": [
+                    "Test Contractor 2"
+                ],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "9",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "GOGOI RESIDENCE",
+                "project_code": "EG",
+                "district": "KAMRUP METRO",
+                "client_name": "MANJIT BORAH",
+                "current_stage": "CIVIL REPAIRING",
+                "start_date": "20-10-2025",
+                "end_date": "",
+                "site_address": "KAHILIPARA",
+                "site_coordinates": "26.13656362054904, 91.77032768726349",
+                "stages_csv": "21",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              94.560255,\r\n              27.472664\r\n            ],\r\n            [\r\n              94.560135,\r\n              27.472319\r\n            ],\r\n            [\r\n              94.560288,\r\n              27.472257\r\n            ],\r\n            [\r\n              94.560411,\r\n              27.472638\r\n            ],\r\n            [\r\n              94.560255,\r\n              27.472664\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "8000000.00",
+                "inital_expenditure": "200000.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Mohan Singh",
+                    "Karan Borah"
+                ],
+                "engineers_data": [
+                    "Amir Khan"
+                ],
+                "managers_data": [
+                    "Rakesh Dutta"
+                ],
+                "contractors_data": [
+                    "Test Contractor 2"
+                ],
+                "masons_data": [
+                    "Billa Mistry"
+                ],
+                "procurement_managers_data": [
+                    "Test PM 1"
+                ],
+                "operation_data": [
+                    "Test OM 2"
+                ],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "8",
+                "status": "Running",
+                "progress_percent": "50",
+                "project_name": "SUPERNOVA",
+                "project_code": "VIC TST",
+                "district": "KAMRUP METRO",
+                "client_name": "MANASH BORAH",
+                "current_stage": "PLINTH CONSTRUCTION",
+                "start_date": "26-02-2026",
+                "end_date": "",
+                "site_address": "TEST ADDRESS",
+                "site_coordinates": "26.12230531297829, 91.76794052124023",
+                "stages_csv": "2,4,6",
+                "geofence_json": "{\r\n  \"type\": \"FeatureCollection\",\r\n  \"features\": [\r\n    {\r\n      \"type\": \"Feature\",\r\n      \"properties\": {},\r\n      \"geometry\": {\r\n        \"type\": \"Polygon\",\r\n        \"coordinates\": [\r\n          [\r\n            [\r\n              91.780214,\r\n              26.12859\r\n            ],\r\n            [\r\n              91.778154,\r\n              26.12127\r\n            ],\r\n            [\r\n              91.789225,\r\n              26.11996\r\n            ],\r\n            [\r\n              91.788281,\r\n              26.128899\r\n            ],\r\n            [\r\n              91.780214,\r\n              26.12859\r\n            ]\r\n          ]\r\n        ]\r\n      }\r\n    }\r\n  ]\r\n}",
+                "allocated_budget": "99999999.99",
+                "inital_expenditure": "1326500.00",
+                "accountants_data": [
+                    "Srikant Ghosle"
+                ],
+                "supervisors_data": [
+                    "Karan Borah"
+                ],
+                "engineers_data": [
+                    "Salman Khan"
+                ],
+                "managers_data": [
+                    "Rakesh Dutta"
+                ],
+                "contractors_data": [
+                    "Test Contractor 1"
+                ],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "1",
+                "active": "1"
+            },
+            {
+                "project_id": "7",
+                "status": "Running",
+                "progress_percent": "0",
+                "project_name": "ELIZA ENCLAVE",
+                "project_code": "TST 123",
+                "district": "DHUBRI",
+                "client_name": "SIMRAN SINGH",
+                "current_stage": "",
+                "start_date": "",
+                "end_date": "",
+                "site_address": "",
+                "site_coordinates": "",
+                "stages_csv": "",
+                "geofence_json": "",
+                "allocated_budget": "0.00",
+                "inital_expenditure": "0.00",
+                "accountants_data": [],
+                "supervisors_data": [],
+                "engineers_data": [],
+                "managers_data": [],
+                "contractors_data": [],
+                "masons_data": [],
+                "procurement_managers_data": [],
+                "operation_data": [],
+                "setup_complete": "0",
+                "active": "1"
+            }
+        ],
+        "Message": "Projects List Fetched Successfully"
+    }
+]

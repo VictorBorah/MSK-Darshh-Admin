@@ -18,11 +18,13 @@ import {
 } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/components/providers/AuthProvider';
 import NewProjectModal from '@/app/(admin)/projects/NewProjectModal';
 import ViewProjectModal from '@/app/(admin)/projects/ViewProjectModal';
 import SettingsProjectModal from '@/app/(admin)/projects/SettingsProjectModal';
 import EditProjectModal from '@/app/(admin)/projects/EditProjectModal';
 import BudgetConfigModal from '@/app/(admin)/projects/BudgetConfigModal';
+import ViewProjectBasicInfo from '@/app/(admin)/projects/ViewProjectBasicInfo';
 
 export default function Home() {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
@@ -35,7 +37,31 @@ export default function Home() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   
   // Action Modal Triggers
-  const [activeModal, setActiveModal] = useState<{type: 'view'|'settings'|'edit'|'budget', id: string, name: string} | null>(null);
+  const [activeModal, setActiveModal] = useState<{type: 'view'|'settings'|'edit'|'budget'|'basic_info', id: string, name: string} | null>(null);
+
+  const { menu, projects: myProjects, isLoadingAppData } = useAuth();
+
+  // Find menu item with master_menu_id === "2" (projects) and retrieve privileges
+  const projectMenuItem = (menu as any[]).find((item: any) => String(item.master_menu_id) === '2');
+  const privileges = projectMenuItem?.privileges_array?.[0] || {};
+
+  const canAddNew = privileges.add_new_project === '1';
+  const canEdit = privileges.edit_project === '1';
+  const canViewClient = privileges.view_project_client === '1';
+  const canManageSettings = privileges.manage_project_settings === '1';
+  const canViewProgress = privileges.view_project_progress === '1';
+  const canViewActions = privileges.project_quick_actions === '1';
+  const canViewExtended = privileges.project_extended_view === '1';
+
+  // Calculate visible columns count dynamically
+  const visibleColumnsCount = 
+    4 + 
+    (canViewActions ? 1 : 0) + 
+    (canViewClient ? 1 : 0) + 
+    (canViewProgress ? 1 : 0) + 
+    (canViewExtended ? 1 : 0) +
+    (canManageSettings ? 1 : 0) + 
+    (canEdit ? 1 : 0);
 
   const fetchProjects = useCallback(async () => {
     setIsLoading(true);
@@ -61,16 +87,19 @@ export default function Home() {
       const data = Array.isArray(arr) ? arr[0] : arr;
 
       if (data && String(data.Status) === '1') {
-        const total = parseInt(data.total_rows || "0", 10);
         const pageSize = parseInt(data.pagination_size || "10", 10);
         
+        let filtered = [];
         if (data.project_data && Array.isArray(data.project_data)) {
-          setProjects(data.project_data);
+          const allowedIds = new Set(myProjects.map((p: any) => String(p.project_id)));
+          filtered = data.project_data.filter((p: any) => allowedIds.has(String(p.project_id)));
+          setProjects(filtered);
         } else {
           setProjects([]);
         }
         
         // Calculate Pagination context 
+        const total = filtered.length;
         if (total && pageSize) {
           setTotalPages(Math.ceil(total / pageSize));
           setItemsPerPage(pageSize);
@@ -90,11 +119,13 @@ export default function Home() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [myProjects]);
 
   useEffect(() => {
-    fetchProjects();
-  }, [fetchProjects]);
+    if (!isLoadingAppData) {
+      fetchProjects();
+    }
+  }, [fetchProjects, isLoadingAppData]);
 
   return (
     <div className="p-6 text-gray-300 bg-[#11141e] min-h-full">
@@ -127,24 +158,28 @@ export default function Home() {
 
         {/* Actions Bar */}
         <div className="p-4 border-b border-gray-800 flex flex-col sm:flex-row sm:justify-between sm:items-center bg-[#191e2b]">
-          <div className="flex flex-wrap gap-2">
-            <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <Play className="w-3.5 h-3.5 text-green-500 fill-green-500/20" /> Start
-            </button>
-            <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <Pause className="w-3 h-3 text-orange-400 fill-orange-400" /> Pause
-            </button>
-            <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
-              <Archive className="w-3.5 h-3.5 text-blue-400" /> Archive
-            </button>
-          </div>
+          {canViewActions && (
+            <div className="flex flex-wrap gap-2">
+              <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
+                <Play className="w-3.5 h-3.5 text-green-500 fill-green-500/20" /> Start
+              </button>
+              <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
+                <Pause className="w-3.5 h-3.5 text-orange-400 fill-orange-400" /> Pause
+              </button>
+              <button className="flex items-center gap-1.5 px-2.5 py-1 text-[13px] bg-transparent border border-gray-700 rounded-lg hover:bg-[#252b3d] text-gray-300 transition-colors">
+                <Archive className="w-3.5 h-3.5 text-blue-400" /> Archive
+              </button>
+            </div>
+          )}
           <div className="flex items-center gap-3 mt-4 sm:mt-0">
-             <button 
-               onClick={() => setIsNewProjectModalOpen(true)}
-               className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-1.5 text-sm transition-colors gap-2"
-             >
-               <Plus className="w-4 h-4" /> New Project
-             </button>
+             {canAddNew && (
+               <button 
+                 onClick={() => setIsNewProjectModalOpen(true)}
+                 className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium px-4 py-1.5 text-sm transition-colors gap-2"
+               >
+                 <Plus className="w-4 h-4" /> New Project
+               </button>
+             )}
           </div>
         </div>
 
@@ -159,25 +194,25 @@ export default function Home() {
                 <th className="px-4 py-3.5 w-48">Name</th>
                 <th className="px-4 py-3.5 w-24 hidden lg:table-cell">Code</th>
                 <th className="px-4 py-3.5 w-24">Status</th>
-                <th className="px-4 py-3.5 w-32">Actions</th>
-                <th className="px-4 py-3.5 w-32 hidden lg:table-cell">Client</th>
-                <th className="px-4 py-3.5 w-32">Progress</th>
-                <th className="px-4 py-3.5 w-20 text-center">View</th>
-                <th className="px-4 py-3.5 w-24 text-center">Settings</th>
-                <th className="px-4 py-3.5 w-20 text-center">Edit</th>
+                {canViewActions && <th className="px-4 py-3.5 w-32">Actions</th>}
+                {canViewClient && <th className="px-4 py-3.5 w-32 hidden lg:table-cell">Client</th>}
+                {canViewProgress && <th className="px-4 py-3.5 w-32">Progress</th>}
+                {canViewExtended && <th className="px-4 py-3.5 w-20 text-center">View</th>}
+                {canManageSettings && <th className="px-4 py-3.5 w-24 text-center">Settings</th>}
+                {canEdit && <th className="px-4 py-3.5 w-20 text-center">Edit</th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-800 bg-[#161a25]">
               {isLoading ? (
                 <tr>
-                   <td colSpan={10} className="py-12 text-center text-gray-500">
+                   <td colSpan={visibleColumnsCount} className="py-12 text-center text-gray-500">
                      <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />
                      Loading Projects...
                    </td>
                 </tr>
               ) : projects.length === 0 ? (
                  <tr>
-                   <td colSpan={10} className="py-12 text-center text-gray-500">
+                   <td colSpan={visibleColumnsCount} className="py-12 text-center text-gray-500">
                      No projects found matching the criteria.
                    </td>
                  </tr>
@@ -193,7 +228,13 @@ export default function Home() {
                      progress={project.progress_percent}
                      statusColor={String(project.status).toLowerCase() === 'running' ? 'green' : 'cyan'}
                      setupComplete={project.setup_complete}
-                     onAction={(type: 'view'|'settings'|'edit'|'budget') => setActiveModal({ type, id: String(project.project_id), name: project.project_name })}
+                     onAction={(type: 'view'|'settings'|'edit'|'budget'|'basic_info') => setActiveModal({ type, id: String(project.project_id), name: project.project_name })}
+                     canEdit={canEdit}
+                     canViewClient={canViewClient}
+                     canManageSettings={canManageSettings}
+                     canViewProgress={canViewProgress}
+                     canViewActions={canViewActions}
+                     canViewExtended={canViewExtended}
                    />
                  ))
               )}
@@ -262,6 +303,15 @@ export default function Home() {
         projectId={activeModal?.id || ''} 
         projectName={activeModal?.name || ''} 
       />
+      <ViewProjectBasicInfo 
+        isOpen={activeModal?.type === 'basic_info'} 
+        onClose={() => setActiveModal(null)} 
+        project={
+          activeModal?.type === 'basic_info'
+            ? projects.find((p: any) => String(p.project_id) === activeModal.id)
+            : null
+        } 
+      />
     </div>
   );
 }
@@ -275,7 +325,13 @@ function TableRow({
   progress,
   statusColor = "emerald",
   setupComplete,
-  onAction
+  onAction,
+  canEdit,
+  canViewClient,
+  canManageSettings,
+  canViewProgress,
+  canViewActions,
+  canViewExtended
 }: any) {
   const isSetupIncomplete = String(setupComplete) === '0';
 
@@ -284,7 +340,7 @@ function TableRow({
       <td className="px-5 py-3.5">
         <input type="checkbox" className="bg-transparent border-gray-600 rounded cursor-pointer h-3.5 w-3.5 accent-blue-600 opacity-70 group-hover:opacity-100 transition-opacity" />
       </td>
-      <td className="px-4 py-3.5 font-medium text-blue-500 hover:text-blue-400 cursor-pointer">
+      <td className="px-4 py-3.5 font-medium text-blue-500 hover:text-blue-400 cursor-pointer" onClick={() => onAction('basic_info')}>
         <div className="flex items-center gap-2">
            {name}
            {isSetupIncomplete && (
@@ -294,45 +350,55 @@ function TableRow({
            )}
         </div>
       </td>
-      <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{code}</td>
+      <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell cursor-pointer hover:text-blue-400" onClick={() => onAction('basic_info')}>{code}</td>
       <td className="px-4 py-3.5">
         <span className={`px-2 py-1 text-[10px] font-bold tracking-wider ${statusColor === 'green' ? 'text-green-500 border border-green-500/30' : 'text-[#00BFA5] border border-[#00BFA5]/30'} bg-transparent rounded shadow-sm`}>
           {status}
         </span>
       </td>
-      <td className="px-4 py-3.5">
-        <div className="flex items-center gap-3 text-gray-500">
-          <span title="Graph"><LineChart className="w-3.5 h-3.5 hover:text-blue-400 cursor-pointer transition-colors" /></span>
-          <span title="Pause"><Pause className="w-3.5 h-3.5 hover:text-orange-400 cursor-pointer transition-colors" /></span>
-          <span title="View" onClick={() => onAction('view')}><Eye className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer transition-colors" /></span>
-          <span title="Edit" onClick={() => onAction('edit')}><Pencil className="w-3.5 h-3.5 hover:text-yellow-400 cursor-pointer transition-colors" /></span>
-          <span title="Budget Config" onClick={() => onAction('budget')}><IndianRupee className="w-3.5 h-3.5 hover:text-purple-400 cursor-pointer transition-colors" /></span>
-        </div>
-      </td>
-      <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{client}</td>
-      <td className="px-4 py-3.5 text-gray-400">
-        <div className="flex items-center gap-2">
-          <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
+      {canViewActions && (
+        <td className="px-4 py-3.5">
+          <div className="flex items-center gap-3 text-gray-500">
+            <span title="Graph"><LineChart className="w-3.5 h-3.5 hover:text-blue-400 cursor-pointer transition-colors" /></span>
+            <span title="Pause"><Pause className="w-3.5 h-3.5 hover:text-orange-400 cursor-pointer transition-colors" /></span>
+            {canViewExtended && <span title="View" onClick={() => onAction('view')}><Eye className="w-3.5 h-3.5 hover:text-emerald-400 cursor-pointer transition-colors" /></span>}
+            {canEdit && <span title="Edit" onClick={() => onAction('edit')}><Pencil className="w-3.5 h-3.5 hover:text-yellow-400 cursor-pointer transition-colors" /></span>}
+            <span title="Budget Config" onClick={() => onAction('budget')}><IndianRupee className="w-3.5 h-3.5 hover:text-purple-400 cursor-pointer transition-colors" /></span>
           </div>
-          <span className="text-xs">{progress}%</span>
-        </div>
-      </td>
-      <td className="px-4 py-3.5 text-center">
-        <button onClick={() => onAction('view')} className="px-2 py-1 text-[10px] bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-          <Eye className="w-2.5 h-2.5" /> View
-        </button>
-      </td>
-      <td className="px-4 py-3.5 text-center">
-        <button onClick={() => onAction('settings')} className="px-2 py-1 text-[10px] bg-gray-700/50 text-gray-300 hover:bg-gray-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-          <Settings className="w-2.5 h-2.5" /> Settings
-        </button>
-      </td>
-      <td className="px-4 py-3.5 text-center">
-        <button onClick={() => onAction('edit')} className="px-2 py-1 text-[10px] bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
-          <Pencil className="w-2.5 h-2.5" /> Edit
-        </button>
-      </td>
+        </td>
+      )}
+      {canViewClient && <td className="px-4 py-3.5 text-gray-400 hidden lg:table-cell">{client}</td>}
+      {canViewProgress && (
+        <td className="px-4 py-3.5 text-gray-400">
+          <div className="flex items-center gap-2">
+            <div className="w-16 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 rounded-full" style={{ width: `${progress}%` }}></div>
+            </div>
+            <span className="text-xs">{progress}%</span>
+          </div>
+        </td>
+      )}
+      {canViewExtended && (
+        <td className="px-4 py-3.5 text-center">
+          <button onClick={() => onAction('view')} className="px-2 py-1 text-[10px] bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <Eye className="w-2.5 h-2.5" /> View
+          </button>
+        </td>
+      )}
+      {canManageSettings && (
+        <td className="px-4 py-3.5 text-center">
+          <button onClick={() => onAction('settings')} className="px-2 py-1 text-[10px] bg-gray-700/50 text-gray-300 hover:bg-gray-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <Settings className="w-2.5 h-2.5" /> Settings
+          </button>
+        </td>
+      )}
+      {canEdit && (
+        <td className="px-4 py-3.5 text-center">
+          <button onClick={() => onAction('edit')} className="px-2 py-1 text-[10px] bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600 hover:text-white rounded transition-colors inline-flex items-center justify-center gap-1.5 whitespace-nowrap">
+            <Pencil className="w-2.5 h-2.5" /> Edit
+          </button>
+        </td>
+      )}
     </tr>
   );
 }
