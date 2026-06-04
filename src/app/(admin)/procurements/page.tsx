@@ -88,7 +88,20 @@ const SearchableSelectPlaceholder = ({
 };
 
 export default function ProcurementsPage() {
-  const { projects: myProjects, isLoadingAppData } = useAuth();
+  const { menu, projects: myProjects, isLoadingAppData } = useAuth();
+  
+  // Find menu item with master_menu_id === "4" (procurements) and retrieve privileges
+  const procurementsMenuItem = (menu as any[] || []).find((item: any) => String(item.master_menu_id) === '4');
+  const privileges = procurementsMenuItem?.privileges_array?.[0] || {};
+  const approvePurchase = privileges.approve_purchase === '1';
+  const closePurchase = privileges.close_purchase === '1';
+
+  const showFilter1 = approvePurchase;
+  const showFilter2 = closePurchase && !approvePurchase;
+
+  const [adminDisplay, setAdminDisplay] = useState('unverified');
+  const [displayOption, setDisplayOption] = useState('verified');
+
   const [maximizedColumn, setMaximizedColumn] = useState<'procurements' | 'demands' | null>(null);
   const [showMakeDemandModal, setShowMakeDemandModal] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -170,7 +183,7 @@ export default function ProcurementsPage() {
     }
   };
 
-  const fetchProcurementsData = useCallback(async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo) => {
+  const fetchProcurementsData = useCallback(async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo, passedAdminDisplay = adminDisplay, passedDisplayOption = displayOption) => {
     const params = new URLSearchParams();
     params.set('pagenum', String(passedPage));
     if (passedProj) params.set('project_id', passedProj);
@@ -184,6 +197,13 @@ export default function ProcurementsPage() {
       params.set('purchase_date_to', `${dd}-${mm}-${yyyy}`);
     }
     if (passedVendor) params.set('vendor_id', passedVendor);
+
+    if (showFilter1) {
+      params.set('admin_display', passedAdminDisplay);
+    }
+    if (showFilter2) {
+      params.set('display_option', passedDisplayOption);
+    }
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchprocurements?${params.toString()}`, {
       method: 'GET',
@@ -209,7 +229,7 @@ export default function ProcurementsPage() {
     } else {
       return { success: false, message: pData.Message || 'Procurements fetch error' };
     }
-  }, [procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, myProjects]);
+  }, [procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, myProjects, adminDisplay, displayOption, showFilter1, showFilter2]);
 
   const fetchDemandsData = async (token: string, passedPage = demPage, passedProj = demProject, passedStatus = demStatus, passedItem = demItem, passedDateFrom = demDateFrom, passedDateTo = demDateTo) => {
     const params = new URLSearchParams();
@@ -306,9 +326,9 @@ export default function ProcurementsPage() {
   useEffect(() => {
     if (isInitialLoading) return;
     const token = localStorage.getItem('at_ki8Xq1iV');
-    if (token) fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo);
+    if (token) fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, adminDisplay, displayOption);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, fetchProcurementsData]);
+  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, fetchProcurementsData, adminDisplay, displayOption]);
 
   // Sync Independent Demands Table
   useEffect(() => {
@@ -335,6 +355,32 @@ export default function ProcurementsPage() {
             <div className="px-3 py-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded text-[12px] font-bold flex items-center gap-1.5">
               Purchase Total: <IndianRupee className="w-3.5 h-3.5" /> {getPurchaseTotal()}
             </div>
+            {showFilter1 && (
+              <div className="flex items-center gap-1.5 bg-[#161a25]/60 px-3 py-1 rounded-lg border border-gray-600/50 shadow-inner">
+                <span className="text-[12px] text-gray-400 font-medium whitespace-nowrap">Display Options:</span>
+                <select
+                  value={adminDisplay}
+                  onChange={(e) => setAdminDisplay(e.target.value)}
+                  className="bg-[#1b202c] border border-gray-600 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="unverified">Show only Unverified</option>
+                  <option value="all">Show all</option>
+                </select>
+              </div>
+            )}
+            {showFilter2 && (
+              <div className="flex items-center gap-1.5 bg-[#161a25]/60 px-3 py-1 rounded-lg border border-gray-600/50 shadow-inner">
+                <span className="text-[12px] text-gray-400 font-medium whitespace-nowrap">Display Options:</span>
+                <select
+                  value={displayOption}
+                  onChange={(e) => setDisplayOption(e.target.value)}
+                  className="bg-[#1b202c] border border-gray-600 rounded px-2 py-0.5 text-xs text-white focus:outline-none focus:border-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="verified">Show only verified</option>
+                  <option value="all">Show all</option>
+                </select>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <button
