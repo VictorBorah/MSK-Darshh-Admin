@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Maximize2, Minimize2, Loader2, IndianRupee } from 'lucide-react';
+import { X, Maximize2, Minimize2, Loader2, IndianRupee, Check, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PurchaseDetailsModal from './PurchaseDetailsModal';
 import ConnectDemandModal from './ConnectDemandModal';
@@ -240,12 +240,31 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                     {itemData.map((row, idx) => {
                       const vendorObj = vendors?.find(v => String(v.id) === String(row.vendor_id));
                       const vendorName = vendorObj?.vendor_name || vendorObj?.name || `Vendor #${row.vendor_id}`;
+                      const isVerified = row.is_verified === 'Yes' || row.is_verified === '1';
+                      const isUnverified = row.is_verified === 'No' || row.is_verified === '0';
 
                       return (
-                        <tr key={row.purchase_id || idx} className="hover:bg-white/5 transition-colors text-[12px]">
+                        <tr 
+                          key={row.purchase_id || idx} 
+                          title={isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
+                          className={`transition-colors text-[12px] ${
+                            isVerified 
+                              ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20' 
+                              : isUnverified 
+                                ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
+                                : 'hover:bg-white/5'
+                          }`}
+                        >
                           <td className="px-2 py-2 text-center text-gray-400 font-medium border-r border-gray-700/30">{idx + 1}</td>
                           <td className="px-3 py-2 text-white font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px]">
-                            {row.item_name || `Item #${row.item_id}`}
+                            <div className="flex items-center gap-1.5">
+                              <span>{row.item_name || `Item #${row.item_id}`}</span>
+                              {isVerified ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
+                              ) : isUnverified ? (
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              ) : null}
+                            </div>
                           </td>
                           <td className="px-3 py-2 text-gray-300 font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px]">{vendorName}</td>
                           <td className="px-2 py-2 text-center text-gray-300 font-medium border-r border-gray-700/30">{row.qnty || '0'}</td>

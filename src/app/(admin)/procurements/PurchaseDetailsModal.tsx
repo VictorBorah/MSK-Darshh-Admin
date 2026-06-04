@@ -1,9 +1,10 @@
-import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check, Loader2 } from 'lucide-react';
+import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import { useState, useRef, useEffect } from 'react';
 import { generatePdfFromElement } from '@/utils/pdfGenerator';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 interface PurchaseDetailsModalProps {
    isOpen: boolean;
@@ -18,6 +19,7 @@ interface PurchaseDetailsModalProps {
 export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false, voucherNumber, onSuccess }: PurchaseDetailsModalProps) {
    useModalEscape(isOpen, onClose, 300);
    const itemDetailsRef = useRef<HTMLDivElement>(null);
+   const { menu } = useAuth();
 
    const [isShareOpen, setIsShareOpen] = useState(false);
    const [copied, setCopied] = useState(false);
@@ -189,6 +191,13 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
    const demandInfo = itemRow?.connected_demand_info;
    const isConnected = demandInfo && Object.keys(demandInfo).length > 0 && demandInfo.demand_id;
 
+   const isVerified = itemRow?.is_verified === 'Yes' || itemRow?.is_verified === '1';
+   const isUnverified = itemRow?.is_verified === 'No' || itemRow?.is_verified === '0';
+
+   const procurementsMenuItem = (menu as any[] || []).find((item: any) => String(item.master_menu_id) === '4');
+   const privileges = procurementsMenuItem?.privileges_array?.[0] || {};
+   const canApprove = privileges.approve_purchase === '1';
+
    return (
       <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
          <div className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[1100px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -196,7 +205,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
             <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25]">
                <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
                   <Box className="w-5 h-5 text-emerald-400" />
-                  Purchased Item Details
+                  Item Details
                </h2>
                <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Close">
                   <X className="w-5 h-5" />
@@ -205,7 +214,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 
             <div className="p-6 bg-[#161a25] overflow-y-auto max-h-[82vh]">
                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                  
+
                   {/* Left Column: Basic Pricing & Info (Span 7) */}
                   <div ref={itemDetailsRef} className="lg:col-span-7 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
                      <div className="flex items-start justify-between">
@@ -279,6 +288,26 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               </div>
                            </div>
                         )}
+                        
+                        <div className="flex flex-col gap-0.5 col-span-2 border-t border-gray-700/30 pt-2.5 mt-1">
+                           <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Verification Status</span>
+                           {isUnverified ? (
+                              <span className="text-[13px] text-amber-500 font-bold flex items-center gap-1.5">
+                                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Unverified
+                              </span>
+                           ) : (
+                              <div className="flex flex-col gap-1 text-[13px] text-white">
+                                 <div className="font-semibold text-emerald-400">Verified</div>
+                                 <div>
+                                    <span className="text-gray-400 font-medium">Verified By:</span>{' '}
+                                    <span className="text-white font-bold">{itemRow?.verified_by_Name || 'N/A'}</span>
+                                 </div>
+                                 <div className="text-gray-400">
+                                    (Role: <span className="text-gray-300 font-medium">{itemRow?.verified_by_usergroup || 'N/A'}</span>)
+                                 </div>
+                              </div>
+                           )}
+                        </div>
 
                         <div className="col-span-2 flex justify-end gap-2.5 mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
 
@@ -368,6 +397,17 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            >
                               <Printer className="w-3.5 h-3.5" /> Print to PDF
                            </button>
+
+                           {isUnverified && canApprove && (
+                              <button
+                                 onClick={() => {
+                                    toast.success("Approval event handler will be added later.");
+                                 }}
+                                 className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200"
+                              >
+                                 Approve
+                              </button>
+                           )}
                         </div>
                      </div>
                   </div>
@@ -391,7 +431,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <div className="flex flex-col gap-3.5 mt-1">
                               {itemRow?.warehouse_name && (
                                  <div className="text-[11px] text-gray-400 font-medium">
-                                    Currently stored at: <span className="text-emerald-400 font-bold">{itemRow.warehouse_name}</span> 
+                                    Currently stored at: <span className="text-emerald-400 font-bold">{itemRow.warehouse_name}</span>
                                  </div>
                               )}
                               <div className="flex flex-col gap-3">
