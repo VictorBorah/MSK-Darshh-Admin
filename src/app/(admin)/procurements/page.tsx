@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, Printer, Lock } from 'lucide-react';
+import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, Printer, Lock, Check, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/components/providers/AuthProvider';
 import MakeDemandModal from './MakeDemandModal';
@@ -459,33 +459,56 @@ export default function ProcurementsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-700">
-              {procurementsList.map((row, idx) => (
-                <tr key={row.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-4 py-3 text-white text-center font-medium">{(procPage - 1) * 10 + idx + 1}</td>
-                  <td className="px-4 py-3 text-white">{row.purchase_date || '-'}</td>
-                  <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
-                  <td className="px-4 py-3 text-white">{row.procurement_txt || '-'}</td>
-                  <td className="px-4 py-3 text-white">{row.vendor_name || '-'}</td>
-                  <td className="px-4 py-3 text-white font-semibold">₹{row.total_purchase_value || '-'}</td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      disabled={String(row.invoice_ready) !== '1'}
-                      className="text-gray-300 hover:text-blue-400 p-1 hover:bg-white/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300"
-                      title={String(row.invoice_ready) === '1' ? 'Print Invoice' : 'Invoice Not Ready'}
-                    >
-                      <Printer className="w-4 h-4" />
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => setViewProcurementId(String(row.id))}
-                      className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
-                    >
-                      <Settings className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {procurementsList.map((row, idx) => {
+                const isVerified = row.is_verified === 'Yes';
+                const isUnverified = row.is_verified === 'No';
+                return (
+                  <tr 
+                    key={row.id} 
+                    title={isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
+                    className={`transition-colors ${
+                      isVerified 
+                        ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20' 
+                        : isUnverified 
+                          ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
+                          : 'hover:bg-white/5'
+                    }`}
+                  >
+                    <td className="px-4 py-3 text-center font-medium">{(procPage - 1) * 10 + idx + 1}</td>
+                    <td className="px-4 py-3">{row.purchase_date || '-'}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <span>{row.project_name || '-'}</span>
+                        {isVerified ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
+                        ) : isUnverified ? (
+                          <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        ) : null}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{row.procurement_txt || '-'}</td>
+                    <td className="px-4 py-3">{row.vendor_name || '-'}</td>
+                    <td className="px-4 py-3 font-semibold">₹{row.total_purchase_value || '-'}</td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        disabled={String(row.invoice_ready) !== '1'}
+                        className="text-gray-300 hover:text-blue-400 p-1 hover:bg-white/10 rounded transition-colors disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-gray-300"
+                        title={String(row.invoice_ready) === '1' ? 'Print Invoice' : 'Invoice Not Ready'}
+                      >
+                        <Printer className="w-4 h-4" />
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
+                        onClick={() => setViewProcurementId(String(row.id))}
+                        className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                      >
+                        <Settings className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
               {procurementsList.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No purchases found.</td>
