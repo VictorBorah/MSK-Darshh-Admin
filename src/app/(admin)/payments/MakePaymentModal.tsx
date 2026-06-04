@@ -61,13 +61,13 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
             headers: { 'Authorization': `Bearer ${token}` }
           });
           const text = await res.text();
-          let arr; try { arr = JSON.parse(text); } catch (e) {}
+          let arr; try { arr = JSON.parse(text); } catch (e) { }
           const data = arr && Array.isArray(arr) ? arr[0] : arr;
           if (data && String(data.Status) === '1') {
-             if (data.tds_options) setTdsOptions(data.tds_options);
-             if (data.app_settings) setAppSettings(data.app_settings);
+            if (data.tds_options) setTdsOptions(data.tds_options);
+            if (data.app_settings) setAppSettings(data.app_settings);
           }
-        } catch(e) {
+        } catch (e) {
           console.error("Failed to load tds options");
         }
       };
@@ -308,89 +308,89 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
 
     const timer = setTimeout(async () => {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      
+
       const deductTdsEnabled = String(appSettings?.deduct_tds) === '1';
 
       const updates = await Promise.all(itemsToCalc.map(async (item) => {
-         let effectiveRate = '0';
-         const hasExplicitOption = item.tds_option_id !== undefined && item.tds_option_id !== '';
+        let effectiveRate = '0';
+        const hasExplicitOption = item.tds_option_id !== undefined && item.tds_option_id !== '';
 
-         if (hasExplicitOption) {
-           if (item.tds_option_id === 'not_applicable') {
-             effectiveRate = '0';
-           } else if (item.tds_option_id === 'other') {
-             effectiveRate = item.custom_tds_rate || '0';
-           } else {
-             const matched = tdsOptions.find(o => String(o.id) === String(item.tds_option_id));
-             if (matched) effectiveRate = matched.tds_option;
-           }
-         } else {
-           if (deductTdsEnabled) {
-             const defaultOpt = tdsOptions.find(o => String(o.is_default) === '1');
-             if (defaultOpt) effectiveRate = defaultOpt.tds_option;
-           } else {
-             const calcAmt = String((Number(item.qnty) || 0) * (Number(item.price) || 0));
-             return { 
-               id: item.id, 
-               success: true, 
-               isBypassed: true,
-               data: {
-                 base_amount: calcAmt,
-                 tds_amount: '0',
-                 gross_amount: calcAmt,
-                 Message: 'Auto TDS Deduction disabled'
-               }, 
-               item 
-             };
-           }
-         }
+        if (hasExplicitOption) {
+          if (item.tds_option_id === 'not_applicable') {
+            effectiveRate = '0';
+          } else if (item.tds_option_id === 'other') {
+            effectiveRate = item.custom_tds_rate || '0';
+          } else {
+            const matched = tdsOptions.find(o => String(o.id) === String(item.tds_option_id));
+            if (matched) effectiveRate = matched.tds_option;
+          }
+        } else {
+          if (deductTdsEnabled) {
+            const defaultOpt = tdsOptions.find(o => String(o.is_default) === '1');
+            if (defaultOpt) effectiveRate = defaultOpt.tds_option;
+          } else {
+            const calcAmt = String((Number(item.qnty) || 0) * (Number(item.price) || 0));
+            return {
+              id: item.id,
+              success: true,
+              isBypassed: true,
+              data: {
+                base_amount: calcAmt,
+                tds_amount: '0',
+                gross_amount: calcAmt,
+                Message: 'Auto TDS Deduction disabled'
+              },
+              item
+            };
+          }
+        }
 
-         const params = new URLSearchParams();
-         params.set('base_amount', item.price || '0');
-         params.set('qnty', String(item.qnty || '1'));
-         params.set('tds_rate', effectiveRate);
+        const params = new URLSearchParams();
+        params.set('base_amount', item.price || '0');
+        params.set('qnty', String(item.qnty || '1'));
+        params.set('tds_rate', effectiveRate);
 
-         try {
-           const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/calculateTDSAmount?${params.toString()}`, {
-             headers: { 'Authorization': `Bearer ${token}` }
-           });
-           const text = await res.text();
-           let arr; try { arr = JSON.parse(text); } catch(e){}
-           const data = arr && Array.isArray(arr) ? arr[0] : arr;
-           return { id: item.id, success: String(data?.Status) === '1', isBypassed: false, data, item };
-         } catch(e) {
-           return { id: item.id, success: false, isBypassed: false, item };
-         }
+        try {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/calculateTDSAmount?${params.toString()}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const text = await res.text();
+          let arr; try { arr = JSON.parse(text); } catch (e) { }
+          const data = arr && Array.isArray(arr) ? arr[0] : arr;
+          return { id: item.id, success: String(data?.Status) === '1', isBypassed: false, data, item };
+        } catch (e) {
+          return { id: item.id, success: false, isBypassed: false, item };
+        }
       }));
 
       const anyBypassed = updates.some(u => u.isBypassed);
       if (anyBypassed) {
-         toast('Auto TDS Deduction disabled To enable it go to Settings', { icon: '⚠️', id: 'tds_disabled_toast' });
+        toast('Auto TDS Deduction disabled To enable it go to Settings', { icon: '⚠️', id: 'tds_disabled_toast' });
       }
 
       updates.forEach(update => {
-         if (update.success) {
-            if (!update.isBypassed) {
-               toast.success(update.data.Message || 'TDS Calculated');
-            }
-            if (update.item.showTdsAlertTrigger && !update.isBypassed) {
-               setShowTdsAlert(true);
-            }
-         } else {
-            toast.error(update.data?.Message || 'Failed to calculate TDS');
-         }
+        if (update.success) {
+          if (!update.isBypassed) {
+            toast.success(update.data.Message || 'TDS Calculated');
+          }
+          if (update.item.showTdsAlertTrigger && !update.isBypassed) {
+            setShowTdsAlert(true);
+          }
+        } else {
+          toast.error(update.data?.Message || 'Failed to calculate TDS');
+        }
       });
 
       setTableItems(prev => prev.map(row => {
-         const update = updates.find(u => u.id === row.id);
-         if (update) {
-           if (update.success) {
-             return { ...row, amount: update.data.gross_amount, tdsData: update.data, isCalculatingTds: false, needsTdsCalc: false, showTdsAlertTrigger: false };
-           } else {
-             return { ...row, isCalculatingTds: false, needsTdsCalc: false, showTdsAlertTrigger: false };
-           }
-         }
-         return row;
+        const update = updates.find(u => u.id === row.id);
+        if (update) {
+          if (update.success) {
+            return { ...row, amount: update.data.gross_amount, tdsData: update.data, isCalculatingTds: false, needsTdsCalc: false, showTdsAlertTrigger: false };
+          } else {
+            return { ...row, isCalculatingTds: false, needsTdsCalc: false, showTdsAlertTrigger: false };
+          }
+        }
+        return row;
       }));
 
     }, 800);
@@ -416,7 +416,7 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
 
     const payment_data = tableItems.map(item => {
       const isTxnFileUploaded = item.has_transaction_file === '1' && item.transaction_file ? "1" : "0";
-      
+
       let tdsOptionValue = String(item.tds_option_id || "");
       if (item.tds_option_id === 'not_applicable') {
         tdsOptionValue = "-1";
@@ -444,6 +444,10 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         payloadObj.staff_id = String(item.staff_id);
       }
 
+      if (item.purchase_id) {
+        payloadObj.purchase_id = String(item.purchase_id);
+      }
+
       return payloadObj;
     });
 
@@ -457,6 +461,11 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
       payload.append('payment_json', payment_json);
       payload.append('verified', isMarkComplete ? '1' : '0');
 
+      const firstItemWithPurchase = tableItems.find(row => row.purchase_id);
+      if (firstItemWithPurchase && firstItemWithPurchase.purchase_id) {
+        payload.append('purchase_id', String(firstItemWithPurchase.purchase_id));
+      }
+
       if (enableBackDates === '1' && paymentDate) {
         const [yyyy, mm, dd] = paymentDate.split('-');
         payload.append('payment_date', `${dd}-${mm}-${yyyy}`);
@@ -469,7 +478,7 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
       });
 
       const rawText = await res.text();
-      let arr; try { arr = JSON.parse(rawText); } catch(e){}
+      let arr; try { arr = JSON.parse(rawText); } catch (e) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
 
       if (data && String(data.Status) === '1') {
@@ -819,7 +828,7 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
                 className="px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
               >
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-                Save Payment
+                Initiate Payment
               </button>
             </div>
           </div>
@@ -834,7 +843,7 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         onApply={(data) => {
           setTableItems(prev => prev.map(row => {
             if (row.id === settingsItem.id) {
-               return { ...row, ...data };
+              return { ...row, ...data };
             }
             return row;
           }));

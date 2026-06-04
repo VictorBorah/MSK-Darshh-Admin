@@ -65,6 +65,17 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
   const staffSearchRef = useRef<HTMLDivElement>(null);
   const staffAbortControllerRef = useRef<AbortController | null>(null);
 
+  // Link Purchase Order States
+  const [selectedPurchaseId, setSelectedPurchaseId] = useState<string | null>(null);
+  const [selectedPurchaseText, setSelectedPurchaseText] = useState<string>('');
+  const [purchaseSearchQuery, setPurchaseSearchQuery] = useState('');
+  const [purchaseSearchResults, setPurchaseSearchResults] = useState<any[]>([]);
+  const [isSearchingPurchase, setIsSearchingPurchase] = useState(false);
+  const [showPurchaseDropdown, setShowPurchaseDropdown] = useState(false);
+
+  const purchaseSearchRef = useRef<HTMLDivElement>(null);
+  const purchaseAbortControllerRef = useRef<AbortController | null>(null);
+
   useEffect(() => {
     if (isOpen && item) {
       setPaymentMode(item.mode_id || '');
@@ -92,6 +103,13 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
       setStaffSearchResults([]);
       setIsSearchingStaff(false);
       setShowStaffDropdown(false);
+
+      setSelectedPurchaseId(item.purchase_id || null);
+      setSelectedPurchaseText(item.purchase_text || '');
+      setPurchaseSearchQuery('');
+      setPurchaseSearchResults([]);
+      setIsSearchingPurchase(false);
+      setShowPurchaseDropdown(false);
 
       setTdsData(item.tdsData || null);
 
@@ -260,6 +278,9 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
       if (staffSearchRef.current && !staffSearchRef.current.contains(event.target as Node)) {
         setShowStaffDropdown(false);
       }
+      if (purchaseSearchRef.current && !purchaseSearchRef.current.contains(event.target as Node)) {
+        setShowPurchaseDropdown(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -323,6 +344,66 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
 
     return () => clearTimeout(timer);
   }, [staffSearchQuery]);
+
+  useEffect(() => {
+    if (purchaseSearchQuery.length === 0) {
+      setPurchaseSearchResults([]);
+      setShowPurchaseDropdown(false);
+      return;
+    }
+
+    if (purchaseSearchQuery.length < 3) {
+      setPurchaseSearchResults([]);
+      setShowPurchaseDropdown(false);
+      return;
+    }
+
+    const performPurchaseSearch = async () => {
+      if (purchaseAbortControllerRef.current) purchaseAbortControllerRef.current.abort();
+
+      const controller = new AbortController();
+      purchaseAbortControllerRef.current = controller;
+
+      setIsSearchingPurchase(true);
+
+      try {
+        const token = localStorage.getItem('at_ki8Xq1iV');
+        const projectId = item?.project_id || '';
+        const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/getPurchaseOrders?query_str=${encodeURIComponent(purchaseSearchQuery)}&project_id=${projectId}`;
+
+        const res = await fetch(endpoint, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
+          signal: controller.signal
+        });
+
+        const rawText = await res.text();
+        let arr;
+        try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON'); }
+        const data = Array.isArray(arr) ? arr[0] : arr;
+
+        if (data && String(data.Status) === '1' && data.purchase_orders) {
+          setPurchaseSearchResults(data.purchase_orders);
+          setShowPurchaseDropdown(true);
+        } else {
+          setPurchaseSearchResults([]);
+          setShowPurchaseDropdown(true);
+        }
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          setPurchaseSearchResults([]);
+        }
+      } finally {
+        setIsSearchingPurchase(false);
+      }
+    };
+
+    const timer = setTimeout(() => {
+      performPurchaseSearch();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [purchaseSearchQuery, item?.project_id]);
 
   useEffect(() => {
     if (!isOpen || isLoading || !isManuallyEdited) return;
@@ -568,10 +649,17 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
 
           {/* Header */}
           <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] shrink-0">
-            <h2 className="text-[15px] font-bold text-white flex items-center gap-2 tracking-wide">
-              <Settings className="w-4 h-4 text-blue-400" />
-              Payment Configuration
-            </h2>
+            <div className="flex items-center gap-3">
+              <h2 className="text-[15px] font-bold text-white flex items-center gap-2 tracking-wide">
+                <Settings className="w-4 h-4 text-blue-400" />
+                Payment Configuration
+              </h2>
+              {item?.item_name && (
+                <span className="px-2.5 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-300 rounded shadow-sm max-w-[300px] truncate" title={item.item_name}>
+                  {item.item_name}
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-1">
               <button onClick={() => setIsMaximized(!isMaximized)} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Toggle Size">
                 {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -596,10 +684,6 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                 {/* Top Setup */}
                 <div className="bg-[#1b202c] p-5 border border-gray-700 rounded-lg shadow-inner">
                   <div className="flex flex-col gap-4">
-                    <div className="bg-[#11141e] border border-gray-700/50 rounded-md px-3 py-2.5 flex flex-col gap-0.5 shadow-sm">
-                      <span className="text-[11px] text-blue-400 uppercase tracking-wide font-bold">Target Item</span>
-                      <span className="text-[13px] text-white font-medium line-clamp-1">{item?.item_name || 'Selected Item'}</span>
-                    </div>
 
                     <div className="flex flex-col gap-2">
                       <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Payment Mode</label>
@@ -620,6 +704,79 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                         }}
                         menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                       />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5" ref={purchaseSearchRef}>
+                      <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Link a Purchase Order</label>
+                      {selectedPurchaseId ? (
+                        <div className="flex items-center justify-between bg-[#11141e] border border-gray-600/50 rounded-md p-2 animate-in fade-in">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-[#2d3a6c] p-1.5 rounded text-blue-200">
+                              <LinkIcon className="w-4 h-4" />
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[13px] text-white font-medium">{selectedPurchaseText}</span>
+                              <span className="text-[10px] text-gray-500 font-semibold tracking-wide">ID: {selectedPurchaseId}</span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedPurchaseId(null);
+                              setSelectedPurchaseText('');
+                              setPurchaseSearchQuery('');
+                              setPurchaseSearchResults([]);
+                            }}
+                            className="p-1.5 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded transition-colors shrink-0"
+                            title="Remove Purchase Order"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <input
+                            type="text"
+                            value={purchaseSearchQuery}
+                            onChange={(e) => setPurchaseSearchQuery(e.target.value)}
+                            placeholder="Type vendor Name"
+                            className="w-full bg-[#11141e] border border-gray-600 rounded pl-9 pr-8 py-2 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500"
+                          />
+                          <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500 pointer-events-none" />
+
+                          <div className="absolute right-2 top-2.5 flex items-center gap-2">
+                            {isSearchingPurchase && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
+                          </div>
+
+                          {showPurchaseDropdown && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-[#191e2b] border border-gray-700 rounded shadow-2xl z-[150] max-h-[200px] overflow-y-auto animate-in fade-in slide-in-from-top-1 duration-150">
+                              {purchaseSearchResults.length === 0 ? (
+                                <div className="px-4 py-3 text-[13px] text-gray-400 text-center italic">No purchase orders found</div>
+                              ) : (
+                                <ul className="py-1">
+                                  {purchaseSearchResults.map((po: any) => (
+                                    <li
+                                      key={po.purchase_id}
+                                      onClick={() => {
+                                        setSelectedPurchaseId(po.purchase_id);
+                                        setSelectedPurchaseText(po.purchase_text);
+                                        setShowPurchaseDropdown(false);
+                                        setPurchaseSearchQuery('');
+                                      }}
+                                      className="px-4 py-2 hover:bg-[#11141e] cursor-pointer text-[13px] text-gray-300 border-b border-gray-700/50 last:border-0 transition-colors flex justify-between items-center"
+                                    >
+                                      <div className="flex flex-col">
+                                        <span className="font-medium text-white">{po.purchase_text}</span>
+                                        <span className="text-[11px] text-gray-500">Voucher: {po.voucher_number} &bull; Amt: {po.amount}</span>
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Checkboxes Inline */}
@@ -978,7 +1135,9 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                   amount: tdsData?.gross_amount ? String(tdsData.gross_amount).replace(/[^0-9.]/g, '') : item?.amount,
                   tdsData: tdsData,
                   staff_id: selectedStaffId,
-                  staff_name: selectedStaffName
+                  staff_name: selectedStaffName,
+                  purchase_id: selectedPurchaseId,
+                  purchase_text: selectedPurchaseText
                 });
                 onClose();
               }}
