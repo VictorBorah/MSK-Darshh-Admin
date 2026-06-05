@@ -5,6 +5,7 @@ import { generatePdfFromElement } from '@/utils/pdfGenerator';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/components/providers/AuthProvider';
+import ApprovePurchase from './ApprovePurchase';
 
 interface PurchaseDetailsModalProps {
    isOpen: boolean;
@@ -28,6 +29,7 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
    const [isConfigLoading, setIsConfigLoading] = useState<boolean>(false);
    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+   const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
 
    const fetchSystemConfig = async () => {
       setIsConfigLoading(true);
@@ -199,6 +201,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
    const canApprove = privileges.approve_purchase === '1';
 
    return (
+      <>
       <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
          <div className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[1100px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
 
@@ -289,21 +292,29 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            </div>
                         )}
                         
-                        <div className="flex flex-col gap-0.5 col-span-2 border-t border-gray-700/30 pt-2.5 mt-1">
-                           <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Verification Status</span>
+                        <div className="flex flex-col gap-1.5 col-span-2 border-t border-gray-700/30 pt-2.5 mt-1">
+                           <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Verification Details</span>
                            {isUnverified ? (
                               <span className="text-[13px] text-amber-500 font-bold flex items-center gap-1.5">
                                  <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Unverified
                               </span>
                            ) : (
-                              <div className="flex flex-col gap-1 text-[13px] text-white">
-                                 <div className="font-semibold text-emerald-400">Verified</div>
-                                 <div>
-                                    <span className="text-gray-400 font-medium">Verified By:</span>{' '}
-                                    <span className="text-white font-bold">{itemRow?.verified_by_Name || 'N/A'}</span>
+                              <div className="grid grid-cols-2 gap-4 text-[13px] text-white w-full">
+                                 <div className="flex flex-col gap-1">
+                                    <div className="font-semibold text-emerald-400">Verified</div>
+                                    <div>
+                                       <span className="text-gray-400 font-medium">Verified By:</span>{' '}
+                                       <span className="text-white font-bold">{itemRow?.verified_by_Name || 'N/A'}</span>
+                                    </div>
+                                    <div className="text-gray-400">
+                                       (Role: <span className="text-gray-300 font-medium">{itemRow?.verified_by_usergroup || 'N/A'}</span>)
+                                    </div>
                                  </div>
-                                 <div className="text-gray-400">
-                                    (Role: <span className="text-gray-300 font-medium">{itemRow?.verified_by_usergroup || 'N/A'}</span>)
+                                 <div className="flex flex-col gap-0.5 border-l border-gray-700/50 pl-4">
+                                    <span className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold">Verification Comment</span>
+                                    <span className="text-gray-300 italic whitespace-pre-wrap mt-1">
+                                       {itemRow?.comment ? `"${itemRow.comment}"` : 'No comment provided.'}
+                                    </span>
                                  </div>
                               </div>
                            )}
@@ -400,9 +411,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 
                            {isUnverified && canApprove && (
                               <button
-                                 onClick={() => {
-                                    toast.success("Approval event handler will be added later.");
-                                 }}
+                                 onClick={() => setShowApproveModal(true)}
                                  className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200"
                               >
                                  Approve
@@ -568,5 +577,17 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 
          </div>
       </div>
-   );
-}
+
+      <ApprovePurchase
+         isOpen={showApproveModal}
+         onClose={() => setShowApproveModal(false)}
+         itemRow={itemRow}
+         onSuccess={() => {
+            setShowApproveModal(false);
+            onClose();
+            onSuccess?.();
+         }}
+      />
+       </>
+    );
+ }

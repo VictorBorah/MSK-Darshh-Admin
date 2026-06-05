@@ -753,6 +753,10 @@ export default function ProcurementsPage() {
         procurementId={viewProcurementId}
         onClose={() => setViewProcurementId(null)}
         vendors={vendorsOptions}
+        onSuccess={() => {
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          if (token) fetchProcurementsData(token);
+        }}
       />
     </div>
   );

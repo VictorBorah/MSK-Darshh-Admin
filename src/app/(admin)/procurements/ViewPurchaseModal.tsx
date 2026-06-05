@@ -10,9 +10,10 @@ interface ViewPurchaseModalProps {
   procurementId: string | null;
   onClose: () => void;
   vendors: any[];
+  onSuccess?: () => void;
 }
 
-export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vendors }: ViewPurchaseModalProps) {
+export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vendors, onSuccess }: ViewPurchaseModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [purchaseDetails, setPurchaseDetails] = useState<any>(null);
@@ -359,7 +360,10 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
           setIsConnectDemandOpen(true);
         }}
         isClosed={purchaseDetails?.is_closed === 'Yes'}
-        onSuccess={fetchDetails}
+        onSuccess={() => {
+          fetchDetails();
+          onSuccess?.();
+        }}
       />
 
       <ConnectDemandModal
