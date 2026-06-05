@@ -755,7 +755,10 @@ export default function ProcurementsPage() {
         vendors={vendorsOptions}
         onSuccess={() => {
           const token = localStorage.getItem('at_ki8Xq1iV');
-          if (token) fetchProcurementsData(token);
+          if (token) {
+            fetchProcurementsData(token);
+            fetchDemandsData(token);
+          }
         }}
       />
     </div>

@@ -32,7 +32,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
 
   useEffect(() => {
     if (isOpen) {
-      setStatus(isMarkedComplete ? '4' : '');
+      setStatus('5');
       setHasGstInvoice(false);
       setInvoiceNumber('');
       setInvoiceFile(null);
@@ -42,7 +42,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
       setShowDeleteInvoiceWarning(false);
       setIsDeletingInvoice(false);
     }
-  }, [isOpen, isMarkedComplete]);
+  }, [isOpen]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,7 +143,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
   const preventConfirm = !status || (hasGstInvoice && !uploadedInvoiceFilename);
 
   const statusOptions = [
-    { value: '4', label: 'Ordered and Paid' },
+    { value: '4', label: 'Ordered and Paid', isDisabled: true },
     { value: '5', label: 'Ordered without payment' }
   ];
 
@@ -190,6 +190,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
                 value={statusOptions.find(o => o.value === status) || null}
                 onChange={(val: any) => setStatus(val ? val.value : '')}
                 isDisabled={isFormDisabled || isMarkedComplete}
+                isOptionDisabled={(option: any) => !!option.isDisabled}
                 placeholder="Select Status..."
                 styles={{
                   control: (base, state) => ({ ...base, backgroundColor: '#1b202c', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '40px', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '13px' }),

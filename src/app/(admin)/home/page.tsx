@@ -22,7 +22,7 @@ export default function Home() {
               Currently Working on: <span className="text-red-400 font-semibold">Deploying to Production Cloud</span>
             </span>
             <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 04/06/2026 11:45 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              Status Updated on: 05/06/2026 11:45 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
             </p>
           </div>
         </div>

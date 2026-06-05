@@ -144,8 +144,9 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
           <div className="flex items-center gap-3">
             <button
               onClick={handleMarkAsComplete}
-              disabled={purchaseDetails?.is_closed === 'Yes'}
-              className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded font-medium text-[12px] transition-colors shadow-sm"
+              disabled={true}
+              className="hidden px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded font-medium text-[12px] transition-colors shadow-sm"
+              style={{ display: 'none' }}
             >
               Mark as complete
             </button>
@@ -245,16 +246,15 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                       const isUnverified = row.is_verified === 'No' || row.is_verified === '0';
 
                       return (
-                        <tr 
-                          key={row.purchase_id || idx} 
+                        <tr
+                          key={row.purchase_id || idx}
                           title={isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
-                          className={`transition-colors text-[12px] ${
-                            isVerified 
-                              ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20' 
-                              : isUnverified 
-                                ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
-                                : 'hover:bg-white/5'
-                          }`}
+                          className={`transition-colors text-[12px] ${isVerified
+                            ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20'
+                            : isUnverified
+                              ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
+                              : 'hover:bg-white/5'
+                            }`}
                         >
                           <td className="px-2 py-2 text-center text-gray-400 font-medium border-r border-gray-700/30">{idx + 1}</td>
                           <td className="px-3 py-2 text-white font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px]">
@@ -361,6 +361,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
         }}
         isClosed={purchaseDetails?.is_closed === 'Yes'}
         onSuccess={() => {
+          setIsItemModalOpen(false);
           fetchDetails();
           onSuccess?.();
         }}
