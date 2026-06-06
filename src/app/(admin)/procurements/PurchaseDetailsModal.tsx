@@ -6,6 +6,7 @@ import Select from 'react-select';
 import toast from 'react-hot-toast';
 import { useAuth } from '@/components/providers/AuthProvider';
 import ApprovePurchase from './ApprovePurchase';
+import FinalizeInvoiceModal from './FinalizeInvoiceModal';
 
 interface PurchaseDetailsModalProps {
    isOpen: boolean;
@@ -30,6 +31,7 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [isConfigLoading, setIsConfigLoading] = useState<boolean>(false);
    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
    const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
+   const [showFinalizeInvoiceModal, setShowFinalizeInvoiceModal] = useState<boolean>(false);
    const [isFinalizing, setIsFinalizing] = useState(false);
 
    // Local editable states and calculated data
@@ -209,7 +211,11 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       }
    };
 
-   const handleFinalizePurchase = async () => {
+   const handleFinalizePurchase = async (invoiceData: {
+      has_tax_invoice: string;
+      tax_invoice_file_name?: string;
+      tax_invoice_no?: string;
+   }) => {
       setIsFinalizing(true);
       const toastId = toast.loading('Finalizing purchase...');
       try {
@@ -219,6 +225,13 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
          formData.append('qnty', String(localItemData?.qnty || ''));
          formData.append('unit_price', String(localItemData?.unit_price || ''));
          formData.append('gst_rate', String(localItemData?.gst_rate || ''));
+         formData.append('has_tax_invoice', invoiceData.has_tax_invoice);
+         if (invoiceData.tax_invoice_file_name) {
+            formData.append('tax_invoice_file_name', invoiceData.tax_invoice_file_name);
+         }
+         if (invoiceData.tax_invoice_no) {
+            formData.append('tax_invoice_no', invoiceData.tax_invoice_no);
+         }
 
          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/closePurchase`, {
             method: 'POST',
@@ -237,6 +250,8 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
 
          if (data && (String(data.Status) === '1' || data.Status === 1)) {
             toast.success(data.Message || 'Purchase Closed successfully', { id: toastId });
+            setShowFinalizeInvoiceModal(false);
+            onClose();
             if (onSuccess) {
                onSuccess();
             }
@@ -340,7 +355,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
    return (
       <>
          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div 
+            <div
                className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[1100px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
                onClick={handleModalClick}
             >
@@ -608,7 +623,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 
                               {isVerified && canClose && (
                                  <button
-                                    onClick={handleFinalizePurchase}
+                                    onClick={() => setShowFinalizeInvoiceModal(true)}
                                     disabled={isFinalizing}
                                     className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200"
                                  >
@@ -785,6 +800,14 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                onClose();
                onSuccess?.();
             }}
+         />
+
+         <FinalizeInvoiceModal
+            isOpen={showFinalizeInvoiceModal}
+            onClose={() => setShowFinalizeInvoiceModal(false)}
+            itemRow={localItemData}
+            onConfirm={handleFinalizePurchase}
+            isSaving={isFinalizing}
          />
       </>
    );

@@ -231,7 +231,7 @@ export default function ProcurementsPage() {
     }
   }, [procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, myProjects, adminDisplay, displayOption, showFilter1, showFilter2]);
 
-  const fetchDemandsData = async (token: string, passedPage = demPage, passedProj = demProject, passedStatus = demStatus, passedItem = demItem, passedDateFrom = demDateFrom, passedDateTo = demDateTo) => {
+  const fetchDemandsData = useCallback(async (token: string, passedPage = demPage, passedProj = demProject, passedStatus = demStatus, passedItem = demItem, passedDateFrom = demDateFrom, passedDateTo = demDateTo) => {
     const params = new URLSearchParams();
     params.set('pagenum', String(passedPage));
     if (passedProj) params.set('project_id', passedProj);
@@ -263,7 +263,7 @@ export default function ProcurementsPage() {
     } else {
       return { success: false, message: dData.Message || 'Demands fetch error' };
     }
-  };
+  }, [demPage, demProject, demStatus, demItem, demDateFrom, demDateTo]);
 
   // Fetch System Settings on Focus
   useEffect(() => {
@@ -336,7 +336,39 @@ export default function ProcurementsPage() {
     const token = localStorage.getItem('at_ki8Xq1iV');
     if (token) fetchDemandsData(token, demPage, demProject, demStatus, demItem, demDateFrom, demDateTo);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demPage, demProject, demStatus, demDateFrom, demDateTo, demItem]);
+  }, [demPage, demProject, demStatus, demDateFrom, demDateTo, demItem, fetchDemandsData]);
+
+  // Re-fetch both tables when the tab gets focused
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const token = localStorage.getItem('at_ki8Xq1iV');
+        if (token) {
+          fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, adminDisplay, displayOption);
+          fetchDemandsData(token, demPage, demProject, demStatus, demItem, demDateFrom, demDateTo);
+        }
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [
+    fetchProcurementsData,
+    fetchDemandsData,
+    procPage,
+    procProject,
+    procStatus,
+    procVendor,
+    procDateFrom,
+    procDateTo,
+    adminDisplay,
+    displayOption,
+    demPage,
+    demProject,
+    demStatus,
+    demItem,
+    demDateFrom,
+    demDateTo
+  ]);
 
   const renderProcurementsPanel = () => {
     const isExpanded = maximizedColumn === 'procurements';
@@ -484,6 +516,11 @@ export default function ProcurementsPage() {
                         ) : isUnverified ? (
                           <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         ) : null}
+                        {row.is_closed === 'Yes' && (
+                          <span title="Closed Purchase" className="inline-flex shrink-0">
+                            <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3">{row.procurement_txt || '-'}</td>

@@ -1,21 +1,29 @@
 import { useState, useEffect } from 'react';
-import { X, Loader2, CheckCircle2, HelpCircle, Trash2, AlertCircle } from 'lucide-react';
-import Select from 'react-select';
+import { X, Loader2, CheckCircle2, HelpCircle, Trash2, AlertCircle, Box, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 import { useModalEscape } from '@/hooks/useModalEscape';
 
-interface SaveProcurementModalProps {
+interface FinalizeInvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (data: any) => void;
+  itemRow: any;
+  onConfirm: (invoiceData: {
+    has_tax_invoice: string;
+    tax_invoice_file_name?: string;
+    tax_invoice_no?: string;
+    tax_invoice_url?: string;
+  }) => void;
   isSaving?: boolean;
-  isMarkedComplete?: boolean;
 }
 
-export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSaving = false, isMarkedComplete = false }: SaveProcurementModalProps) {
-  const [status, setStatus] = useState<string>('');
-
+export default function FinalizeInvoiceModal({
+  isOpen,
+  onClose,
+  itemRow,
+  onConfirm,
+  isSaving = false
+}: FinalizeInvoiceModalProps) {
   const [hasGstInvoice, setHasGstInvoice] = useState(false);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [invoiceFile, setInvoiceFile] = useState<File | null>(null);
@@ -28,11 +36,10 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
   const [isDeletingInvoice, setIsDeletingInvoice] = useState(false);
 
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
-  useModalEscape(isOpen, () => setShowEscapeWarning(true), 400);
+  useModalEscape(isOpen, () => setShowEscapeWarning(true), 450);
 
   useEffect(() => {
     if (isOpen) {
-      setStatus('5');
       setHasGstInvoice(false);
       setInvoiceNumber('');
       setInvoiceFile(null);
@@ -119,104 +126,78 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
   };
 
   const handleConfirm = () => {
-    if (!status) {
-      toast.error('Please select a payment status');
-      return;
-    }
     if (hasGstInvoice && !uploadedInvoiceFilename) {
       toast.error('Please upload the GST invoice file');
       return;
     }
 
-    const data = {
-      status: status,
-      has_gst_invoice: hasGstInvoice ? '1' : '0',
-      invoice_number: invoiceNumber,
-      invoice_file: uploadedInvoiceFilename,
-      invoice_url: uploadedInvoiceUrl
-    };
-
-    onConfirm(data);
+    onConfirm({
+      has_tax_invoice: hasGstInvoice ? '1' : '0',
+      tax_invoice_no: hasGstInvoice ? invoiceNumber : '',
+      tax_invoice_file_name: hasGstInvoice ? uploadedInvoiceFilename : '',
+      tax_invoice_url: hasGstInvoice ? uploadedInvoiceUrl : ''
+    });
   };
 
   const isFormDisabled = isSaving || isUploading || isDeletingInvoice;
-  const preventConfirm = !status || (hasGstInvoice && !uploadedInvoiceFilename);
+  const preventConfirm = hasGstInvoice && !uploadedInvoiceFilename;
 
-  const statusOptions = [
-    { value: '4', label: 'Ordered and Paid', isDisabled: true },
-    { value: '5', label: 'Ordered without payment' }
-  ];
-
-  if (!isOpen) return null;
+  if (!isOpen || !itemRow) return null;
 
   return (
     <>
       <WarningAlertModal
         isOpen={showEscapeWarning}
         onClose={() => setShowEscapeWarning(false)}
-        title="Discard Procurement Settings?"
-        content="Are you sure you want to exit without finalizing? All progress will be lost."
+        title="Discard Finalize Settings?"
+        content="Are you sure you want to exit without closing this purchase? All progress will be lost."
         onConfirm={() => {
           setShowEscapeWarning(false);
           onClose();
         }}
       />
-      <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div className="bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col w-[550px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+        <div className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[550px] max-w-[95vw] rounded-xl overflow-hidden animate-in zoom-in-95 duration-200">
 
           {/* Header */}
-          <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653]">
-            <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
+          <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25]">
+            <h2 className="text-[14px] font-bold text-white flex items-center gap-2 uppercase tracking-wider">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-              Finalize Purchase Order
+              Finalize & Close Purchase
             </h2>
             <button onClick={onClose} disabled={isFormDisabled} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed" title="Close">
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="p-6 bg-[#161a25] flex flex-col gap-6 relative">
+          <div className="p-6 bg-[#161a25] flex flex-col gap-5 relative">
             {isSaving && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#161a25]/60 backdrop-blur-[2px]">
                 <Loader2 className="w-8 h-8 text-blue-500 animate-spin mb-3" />
-                <span className="text-[13px] font-semibold text-white tracking-wide">Processing...</span>
+                <span className="text-[13px] font-semibold text-white tracking-wide">Closing Purchase...</span>
               </div>
             )}
 
-            <div className="flex flex-col gap-2">
-              <label className="text-[13px] font-medium text-gray-300">Payment Status <span className="text-red-400">*</span></label>
-              <Select
-                options={statusOptions}
-                value={statusOptions.find(o => o.value === status) || null}
-                onChange={(val: any) => setStatus(val ? val.value : '')}
-                isDisabled={isFormDisabled || isMarkedComplete}
-                isOptionDisabled={(option: any) => !!option.isDisabled}
-                placeholder="Select Status..."
-                styles={{
-                  control: (base, state) => ({ ...base, backgroundColor: '#1b202c', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '40px', borderRadius: '6px', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
-                  menuPortal: base => ({ ...base, zIndex: 99999 }),
-                  menu: base => ({ ...base, backgroundColor: '#1b202c', border: '1px solid #4b5563', borderRadius: '6px' }),
-                  option: (base, state) => ({
-                    ...base,
-                    backgroundColor: state.isDisabled
-                      ? '#131722'
-                      : state.isSelected
-                      ? '#374151'
-                      : state.isFocused
-                      ? '#1f2937'
-                      : 'transparent',
-                    color: state.isDisabled ? '#6b7280' : '#fff',
-                    cursor: state.isDisabled ? 'not-allowed' : 'pointer',
-                    fontSize: '13px'
-                  }),
-                  singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
-                  input: base => ({ ...base, color: '#fff' })
-                }}
-                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-              />
+            {/* Read-Only Summary Card */}
+            <div className="border border-gray-700/80 rounded-lg p-4 bg-[#1b202c] flex flex-col gap-2">
+              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Purchase Summary</span>
+              <div className="flex flex-col gap-1.5 mt-1">
+                <div className="text-[13px] text-white font-bold flex items-center gap-1.5">
+                  <Box className="w-4 h-4 text-blue-400 shrink-0" />
+                  {itemRow.item_name || 'N/A'}
+                </div>
+                <div className="grid grid-cols-2 gap-4 mt-1 border-t border-gray-800/60 pt-2 text-[12px] text-gray-300">
+                  <div>
+                    <span className="text-gray-400 font-medium">Final Qty:</span> <strong className="text-white">{itemRow.qnty || '0'}</strong>
+                  </div>
+                  <div>
+                    <span className="text-gray-400 font-medium">Unit Price:</span> <strong className="text-white">₹ {parseFloat(itemRow.unit_price || 0).toFixed(2)}</strong>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="hidden bg-[#1b202c] p-4 border border-gray-700/80 rounded-lg flex flex-col gap-4">
+            <div className="bg-[#1b202c] p-4 border border-gray-700/80 rounded-lg flex flex-col gap-4">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center">
                   <input
@@ -230,7 +211,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
                     <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" stroke="currentColor" />
                   </svg>
                 </div>
-                <span className="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors flex items-center gap-1.5" title="Upload a GST Invoice covering the entire procurement">
+                <span className="text-[13px] font-medium text-gray-300 group-hover:text-white transition-colors flex items-center gap-1.5" title="Upload a GST Invoice covering this purchase">
                   Upload GST Invoice
                   <HelpCircle className="w-3.5 h-3.5 text-gray-500 hover:text-white transition-colors cursor-help" />
                 </span>
@@ -305,16 +286,23 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
             <button
               onClick={onClose}
               disabled={isFormDisabled}
-              className="px-6 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm"
+              className="px-6 py-2 bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600 text-white rounded font-medium text-[12px] uppercase tracking-wider transition-colors shadow-sm"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirm}
               disabled={preventConfirm || isFormDisabled}
-              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
+              className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-600/50 disabled:cursor-not-allowed text-white rounded font-bold text-[12px] uppercase tracking-wider transition-all duration-200 shadow-sm flex items-center gap-1.5 active:scale-95"
             >
-              Confirm and Save
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Closing...
+                </>
+              ) : (
+                'Close Purchase'
+              )}
             </button>
           </div>
         </div>
