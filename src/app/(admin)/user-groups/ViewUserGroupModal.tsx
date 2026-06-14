@@ -3,6 +3,8 @@
 import { X, Loader2, Maximize2, Minimize2, CheckCircle2, XCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import allPermissions from '../../../../all_permissons.json';
+
 
 interface Permission {
   id: string;
@@ -94,9 +96,18 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
           try { configArr = JSON.parse(configText); } catch (e) { }
           const configData = configArr && Array.isArray(configArr) ? configArr[0] : configArr;
           
-          if (configData && configData.permissions_master) {
-            setPermissions(configData.permissions_master);
-          }
+          const fetchedPerms: Permission[] = (configData && configData.permissions_master) || [];
+          const mergedPerms = [...fetchedPerms];
+          allPermissions.forEach((localPerm: any) => {
+            if (!mergedPerms.some(p => String(p.id) === String(localPerm.id))) {
+              mergedPerms.push({
+                id: String(localPerm.id),
+                permisson_txt: localPerm.permisson_txt
+              });
+            }
+          });
+          setPermissions(mergedPerms);
+
           if (configData && configData.usergroups_data) {
             setUsergroupsData(configData.usergroups_data);
           }
@@ -126,6 +137,10 @@ export default function ViewUserGroupModal({ isOpen, onClose, groupId, groupName
         } catch (error) {
           console.error("Failed to fetch data", error);
           toast.error("Failed to load user group details");
+          setPermissions(allPermissions.map((p: any) => ({
+            id: String(p.id),
+            permisson_txt: p.permisson_txt
+          })));
         } finally {
           setIsLoading(false);
         }

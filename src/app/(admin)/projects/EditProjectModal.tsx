@@ -259,8 +259,8 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
   const [contractorId, setContractorId] = useState<string[]>([]);
   const [supervisorId, setSupervisorId] = useState<string[]>([]);
   const [pmId, setPmId] = useState<string[]>([]);
-  const [omId, setOmId] = useState<string[]>([]);
-  const [managerId, setManagerId] = useState<string[]>([]);
+  const [tmId, setTmId] = useState<string[]>([]);
+  const [assttAdminId, setAssttAdminId] = useState<string[]>([]);
   const [masonId, setMasonId] = useState<string[]>([]);
   const [vendorId, setVendorId] = useState<string[]>([]);
 
@@ -283,6 +283,8 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
     if (isOpen && projectId) {
       setSaveError('');
       setShowExitConfirm(false);
+      setAssttAdminId([]);
+      setTmId([]);
       fetchAggregatedData();
     } else {
       setConfigData(null);
@@ -340,12 +342,12 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
         setExpensesJson(pd.expenses_json || '[]');
 
         setAccountantId(mapHrIds(pd.accountants_data, cData.hr_array?.accountants));
-        setManagerId(mapHrIds(pd.managers_data, cData.hr_array?.managers));
         setEngineerId(mapHrIds(pd.engineers_data, cData.hr_array?.engineers));
         setContractorId(mapHrIds(pd.contractors_data, cData.hr_array?.contractors));
         setSupervisorId(mapHrIds(pd.supervisors_data, cData.hr_array?.supervisors));
         setPmId(mapHrIds(pd.procurement_managers_data, cData.hr_array?.procurement_managers));
-        setOmId(mapHrIds(pd.operation_managers_data || pd.operation_data, cData.hr_array?.operation_managers));
+        setTmId(mapHrIds(pd.technical_managers_data, cData.hr_array?.technical_managers));
+        setAssttAdminId(mapHrIds(pd.assistant_admins_data, cData.hr_array?.asstt_admins));
         setMasonId(mapHrIds(pd.masons_data, cData.hr_array?.masons));
         
         let vIds: string[] = [];
@@ -411,15 +413,15 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
 
       formData.append('client_id', clientId);
       formData.append('sa_csv', accountantId.join(','));
-      formData.append('sm_csv', managerId.join(','));
       formData.append('se_csv', engineerId.join(','));
       formData.append('ss_csv', supervisorId.join(','));
       
       formData.append('pm_csv', pmId.join(','));
       formData.append('sc_csv', contractorId.join(','));
-      formData.append('om_csv', omId.join(','));
+      formData.append('tm_csv', tmId.join(','));
       formData.append('masons_csv', masonId.join(','));
       formData.append('vendors_csv', vendorId.join(','));
+      formData.append('aa_csv', assttAdminId.join(','));
 
       formData.append('budget_amount', allocatedBudget);
       formData.append('trigger_amount', budgetTrigger || '0');
@@ -469,8 +471,8 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
   const contractorOptions = configData?.hr_array?.contractors?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const supervisorOptions = configData?.hr_array?.supervisors?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const pmOptions = configData?.hr_array?.procurement_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
-  const omOptions = configData?.hr_array?.operation_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
-  const managerOptions = configData?.hr_array?.managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
+  const tmOptions = configData?.hr_array?.technical_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
+  const assttAdminOptions = configData?.hr_array?.asstt_admins?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const masonOptions = configData?.hr_array?.masons?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   
   const vendorOptions = configData?.vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name })) || [];
@@ -610,17 +612,17 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
                       </div>
                     </FormRow>
 
-                    <FormRow label="Link Managers" helpText="Assign Managers for this project">
-                      <div className={`w-full ${errorField === 'managerId' ? 'ring-2 ring-red-500 rounded-sm' : ''}`}>
+                    <FormRow label="Link Asstt. Admins" helpText="Assign Assistant Admin for this Project">
+                      <div className={`w-full ${errorField === 'assttAdminId' ? 'ring-2 ring-red-500 rounded-sm' : ''}`}>
                         <Select
                           isMulti
-                          options={managerOptions}
+                          options={assttAdminOptions}
                           styles={customSelectStyles}
                           className="w-full text-[13px]"
                           menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                          value={managerOptions.filter((o: any) => managerId.includes(o.value))}
-                          onChange={(v: any) => setManagerId(v ? v.map((item: any) => item.value) : [])}
-                          placeholder="Select managers..."
+                          value={assttAdminOptions.filter((o: any) => assttAdminId.includes(o.value))}
+                          onChange={(v: any) => setAssttAdminId(v ? v.map((item: any) => item.value) : [])}
+                          placeholder="Select assistant admins..."
                           isClearable
                         />
                       </div>
@@ -686,16 +688,16 @@ export default function EditProjectModal({ isOpen, onClose, projectId, projectNa
                       />
                     </FormRow>
 
-                    <FormRow label="Link OM" helpText="Assign a Operations Manager for this project">
+                    <FormRow label="Link TM" helpText="Link Technical Managers">
                       <Select
                         isMulti
-                        options={omOptions}
+                        options={tmOptions}
                         styles={customSelectStyles}
                         className="w-full text-[13px]"
                         menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                        value={omOptions.filter((o: any) => omId.includes(o.value))}
-                        onChange={(v: any) => setOmId(v ? v.map((item: any) => item.value) : [])}
-                        placeholder="Select OM..."
+                        value={tmOptions.filter((o: any) => tmId.includes(o.value))}
+                        onChange={(v: any) => setTmId(v ? v.map((item: any) => item.value) : [])}
+                        placeholder="Select TM..."
                         isClearable
                       />
                     </FormRow>

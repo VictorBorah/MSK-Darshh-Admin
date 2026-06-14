@@ -279,8 +279,8 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
   const [contractorId, setContractorId] = useState<string[]>([]);
   const [supervisorId, setSupervisorId] = useState<string[]>([]);
   const [pmId, setPmId] = useState<string[]>([]);
-  const [omId, setOmId] = useState<string[]>([]);
-  const [managerId, setManagerId] = useState<string[]>([]);
+  const [tmId, setTmId] = useState<string[]>([]);
+  const [assttAdminId, setAssttAdminId] = useState<string[]>([]);
   const [masonId, setMasonId] = useState<string[]>([]);
   const [vendorId, setVendorId] = useState<string[]>([]);
 
@@ -314,8 +314,8 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
       setContractorId([]);
       setSupervisorId([]);
       setPmId([]);
-      setOmId([]);
-      setManagerId([]);
+      setTmId([]);
+      setAssttAdminId([]);
       setMasonId([]);
       setVendorId([]);
       setAllocatedBudget('');
@@ -343,6 +343,10 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
 
       if (data && String(data.Status) === '1') {
         setConfigData(data);
+        const hasId18 = data.hr_array?.asstt_admins?.some((h: any) => String(h.id) === '18');
+        if (hasId18) {
+          setAssttAdminId(['18']);
+        }
       } else {
         setConfigError(data.Message || 'Failed to load configuration data.');
       }
@@ -433,15 +437,15 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
 
       formData.append('client_id', clientId);
       formData.append('sa_csv', accountantId.join(','));
-      formData.append('sm_csv', managerId.join(','));
       formData.append('se_csv', engineerId.join(','));
       formData.append('ss_csv', supervisorId.join(','));
       
       if (pmId.length > 0) formData.append('pm_csv', pmId.join(','));
       if (contractorId.length > 0) formData.append('sc_csv', contractorId.join(','));
-      if (omId.length > 0) formData.append('om_csv', omId.join(','));
+      if (tmId.length > 0) formData.append('tm_csv', tmId.join(','));
       if (masonId.length > 0) formData.append('masons_csv', masonId.join(','));
       if (vendorId.length > 0) formData.append('vendors_csv', vendorId.join(','));
+      if (assttAdminId.length > 0) formData.append('aa_csv', assttAdminId.join(','));
 
       formData.append('budget_amount', allocatedBudget);
       formData.append('trigger_amount', budgetTrigger);
@@ -492,8 +496,8 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
   const contractorOptions = configData?.hr_array?.contractors?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const supervisorOptions = configData?.hr_array?.supervisors?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const pmOptions = configData?.hr_array?.procurement_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
-  const omOptions = configData?.hr_array?.operation_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
-  const managerOptions = configData?.hr_array?.managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
+  const tmOptions = configData?.hr_array?.technical_managers?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
+  const assttAdminOptions = configData?.hr_array?.asstt_admins?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const masonOptions = configData?.hr_array?.masons?.map((h: any) => ({ value: String(h.id), label: h.name })) || [];
   const vendorOptions = configData?.vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name })) || [];
 
@@ -690,17 +694,17 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
                           </div>
                         </FormRow>
 
-                        <FormRow label="Link Managers" helpText="Assign Managers for this project">
-                          <div className={`w-full ${errorField === 'managerId' ? 'ring-2 ring-red-500 rounded-sm' : ''}`}>
+                        <FormRow label="Link Asstt. Admins" helpText="Assign Assistant Admin for this Project">
+                          <div className={`w-full ${errorField === 'assttAdminId' ? 'ring-2 ring-red-500 rounded-sm' : ''}`}>
                             <Select
                               isMulti
-                              options={managerOptions}
+                              options={assttAdminOptions}
                               styles={customSelectStyles}
                               className="w-full text-[13px]"
                               menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                              value={managerOptions.filter((o: any) => managerId.includes(o.value))}
-                              onChange={(v: any) => setManagerId(v ? v.map((item: any) => item.value) : [])}
-                              placeholder="Select managers..."
+                              value={assttAdminOptions.filter((o: any) => assttAdminId.includes(o.value))}
+                              onChange={(v: any) => setAssttAdminId(v ? v.map((item: any) => item.value) : [])}
+                              placeholder="Select assistant admins..."
                               isClearable
                             />
                           </div>
@@ -766,16 +770,16 @@ export default function NewProjectModal({ isOpen, onClose, onSuccess }: NewProje
                           />
                         </FormRow>
 
-                        <FormRow label="Link OM" helpText="Assign a Operations Manager for this project">
+                        <FormRow label="Link TM" helpText="Link Technical Managers">
                           <Select
                             isMulti
-                            options={omOptions}
+                            options={tmOptions}
                             styles={customSelectStyles}
                             className="w-full text-[13px]"
                             menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                            value={omOptions.filter((o: any) => omId.includes(o.value))}
-                            onChange={(v: any) => setOmId(v ? v.map((item: any) => item.value) : [])}
-                            placeholder="Select OM..."
+                            value={tmOptions.filter((o: any) => tmId.includes(o.value))}
+                            onChange={(v: any) => setTmId(v ? v.map((item: any) => item.value) : [])}
+                            placeholder="Select TM..."
                             isClearable
                           />
                         </FormRow>

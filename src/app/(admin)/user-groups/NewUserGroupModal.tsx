@@ -5,6 +5,8 @@ import { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 import { useModalEscape } from '@/hooks/useModalEscape';
+import allPermissions from '../../../../all_permissons.json';
+
 
 interface Permission {
   id: string;
@@ -108,15 +110,29 @@ export default function NewUserGroupModal({ isOpen, onClose, onSuccess }: any) {
           try { arr = JSON.parse(text); } catch (e) { }
           const data = arr && Array.isArray(arr) ? arr[0] : arr;
           
-          if (data && data.permissions_master) {
-            setPermissions(data.permissions_master);
-          }
+          const fetchedPerms: Permission[] = (data && data.permissions_master) || [];
+          const mergedPerms = [...fetchedPerms];
+          allPermissions.forEach((localPerm: any) => {
+            if (!mergedPerms.some(p => String(p.id) === String(localPerm.id))) {
+              mergedPerms.push({
+                id: String(localPerm.id),
+                permisson_txt: localPerm.permisson_txt
+              });
+            }
+          });
+          setPermissions(mergedPerms);
+
           if (data && data.usergroups_data) {
             setUsergroupsData(data.usergroups_data);
           }
         } catch (error) {
           console.error("Failed to fetch permissions", error);
           toast.error("Failed to load permissions configuration");
+          // Fallback to local permissions on error
+          setPermissions(allPermissions.map((p: any) => ({
+            id: String(p.id),
+            permisson_txt: p.permisson_txt
+          })));
         } finally {
           setIsLoadingConfig(false);
         }

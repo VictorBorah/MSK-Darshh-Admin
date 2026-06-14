@@ -22,6 +22,7 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
   const [bloodgroups, setBloodgroups] = useState<any[]>([]);
   const [maritalStatuses, setMaritalStatuses] = useState<any[]>([]);
   const [paymentCategories, setPaymentCategories] = useState<any[]>([]);
+  const [usergroups, setUsergroups] = useState<any[]>([]);
 
   // Form State
   const [groupName, setGroupName] = useState('');
@@ -32,6 +33,7 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
   const [selectedBloodgroup, setSelectedBloodgroup] = useState<any>(null);
   const [selectedMaritalStatus, setSelectedMaritalStatus] = useState<any>(null);
   const [selectedPaymentCategory, setSelectedPaymentCategory] = useState<any>(null);
+  const [selectedUsergroup, setSelectedUsergroup] = useState<any>(null);
   
   const [username, setUsername] = useState('');
   const [authorizedEmail, setAuthorizedEmail] = useState('');
@@ -115,6 +117,8 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
       setSelectedBloodgroup(null);
       setSelectedMaritalStatus(null);
       setSelectedPaymentCategory(null);
+      setSelectedUsergroup(null);
+      setUsergroups([]);
       setUsername('');
       setAuthorizedEmail('');
       setMobile1('');
@@ -158,12 +162,14 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
           let fetchedBloodgroups: any[] = [];
           let fetchedMaritalStatuses: any[] = [];
           let fetchedPaymentCategories: any[] = [];
+          let fetchedUsergroups: any[] = [];
 
           if (configData && String(configData.Status) === '1') {
             if (configData.districts_data) { fetchedDistricts = configData.districts_data; setDistricts(fetchedDistricts); }
             if (configData.gender_data) { fetchedGenders = configData.gender_data; setGenders(fetchedGenders); }
             if (configData.bloodgroup_data) { fetchedBloodgroups = configData.bloodgroup_data; setBloodgroups(fetchedBloodgroups); }
             if (configData.marital_data) { fetchedMaritalStatuses = configData.marital_data; setMaritalStatuses(fetchedMaritalStatuses); }
+            if (configData.usergroups_data) { fetchedUsergroups = configData.usergroups_data; setUsergroups(fetchedUsergroups); }
           }
 
           // 1.5 Fetch App Data
@@ -221,7 +227,12 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
               setDob('');
             }
 
-            if (staff.district_id && fetchedDistricts.length > 0) {
+             if (staff.group_id && fetchedUsergroups.length > 0) {
+               const matched = fetchedUsergroups.find(ug => String(ug.id) === String(staff.group_id));
+               if (matched) setSelectedUsergroup({ value: matched.id, label: matched.group_name });
+             }
+
+             if (staff.district_id && fetchedDistricts.length > 0) {
               const matched = fetchedDistricts.find(d => String(d.id) === String(staff.district_id));
               if (matched) setSelectedDistrict({ value: matched.id, label: matched.district });
             }
@@ -292,6 +303,7 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
 
   const handleValidateStep2 = async () => {
     if (!staffName.trim()) { toast.error("Full Name is mandatory"); return; }
+    if (!selectedUsergroup) { toast.error("Usergroup is mandatory"); return; }
     if (!username.trim()) { toast.error("Username is mandatory"); return; }
     if (!authorizedEmail.trim()) { toast.error("Authorized Email is mandatory"); return; }
     if (!mobile1.trim()) { toast.error("Mobile 1 is mandatory"); return; }
@@ -364,6 +376,8 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
         staff_id: staffId || '',
         full_name: staffName,
       };
+
+      if (selectedUsergroup) payload.user_group = selectedUsergroup.value;
 
       if (selectedDistrict) payload.district_id = selectedDistrict.value;
       if (selectedGender) payload.sex = selectedGender.value;
@@ -596,8 +610,16 @@ export default function EditStaffModal({ isOpen, onClose, staffId, onSuccess }: 
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[12px] text-gray-400">Usergroup</label>
-                  <input type="text" value={groupName} disabled className="w-full bg-[#161a25]/50 border border-gray-800 rounded px-3 py-1.5 text-[13px] text-gray-500 cursor-not-allowed outline-none" />
+                  <label className="text-[12px] text-gray-400">Usergroup <span className="text-red-400">*</span></label>
+                  <Select
+                    options={usergroups.map(g => ({ value: g.id, label: g.group_name }))}
+                    value={selectedUsergroup}
+                    onChange={setSelectedUsergroup}
+                    placeholder="Select usergroup"
+                    styles={selectStyles}
+                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                    isClearable
+                  />
                 </div>
 
                 <div className="space-y-1">

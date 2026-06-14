@@ -204,8 +204,8 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
                          <HRList items={projectData.accountants_data} />
                        </FormRow>
 
-                       <FormRow label="Linked Managers" alignTop>
-                         <HRList items={projectData.managers_data} />
+                       <FormRow label="Linked Asstt. Admins" alignTop>
+                         <HRList items={projectData.assistant_admins_data} />
                        </FormRow>
 
                        <FormRow label="Linked Engineers" alignTop>
@@ -256,8 +256,8 @@ export default function ViewProjectModal({ isOpen, onClose, projectId, projectNa
                          <HRList items={projectData.procurement_managers_data} />
                        </FormRow>
 
-                       <FormRow label="Linked OMs" alignTop>
-                         <HRList items={projectData.operation_managers_data} />
+                       <FormRow label="Linked TMs" alignTop>
+                         <HRList items={projectData.technical_managers_data} />
                        </FormRow>
 
                        <FormRow label="Linked Masons" alignTop>
