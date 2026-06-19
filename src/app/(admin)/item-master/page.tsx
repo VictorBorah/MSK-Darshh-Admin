@@ -698,7 +698,7 @@ function TableRow({
 }) {
   // Using generic mock data for fields that might be missing in API payload.
   const isStatusActive = String(item.status) === "1"; 
-  const dateAdded = "28 Mar 2026"; 
+  const dateAdded = item.created_at ? item.created_at.split(' ')[0] : '-'; 
   
   return (
     <tr className="hover:bg-[#1f2536] transition-colors group">
