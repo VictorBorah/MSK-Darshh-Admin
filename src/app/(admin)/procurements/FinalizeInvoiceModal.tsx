@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, CheckCircle2, HelpCircle, Trash2, AlertCircle, Box, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
+import Select from 'react-select';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 import { useModalEscape } from '@/hooks/useModalEscape';
 
@@ -13,6 +14,7 @@ interface FinalizeInvoiceModalProps {
     tax_invoice_file_name?: string;
     tax_invoice_no?: string;
     tax_invoice_url?: string;
+    payment_mode?: string;
   }) => void;
   isSaving?: boolean;
 }
@@ -35,6 +37,32 @@ export default function FinalizeInvoiceModal({
   const [showDeleteInvoiceWarning, setShowDeleteInvoiceWarning] = useState(false);
   const [isDeletingInvoice, setIsDeletingInvoice] = useState(false);
 
+  const [paymentModes, setPaymentModes] = useState<any[]>([]);
+  const [selectedPaymentMode, setSelectedPaymentMode] = useState<any>(null);
+  const [isLoadingConfig, setIsLoadingConfig] = useState(false);
+
+  const selectStyles = {
+    control: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: '#161a25',
+      borderColor: state.isFocused ? '#3b82f6' : '#4b5563',
+      '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#6b7280' },
+      boxShadow: 'none',
+      minHeight: '38px',
+    }),
+    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+    menu: (base: any) => ({ ...base, backgroundColor: '#1f2536', border: '1px solid #374151' }),
+    option: (base: any, state: any) => ({
+      ...base,
+      backgroundColor: state.isSelected ? '#2563eb' : state.isFocused ? '#2d3a6c' : 'transparent',
+      color: '#fff',
+      cursor: 'pointer',
+      fontSize: '13px'
+    }),
+    singleValue: (base: any) => ({ ...base, color: '#e5e7eb', fontSize: '13px' }),
+    placeholder: (base: any) => ({ ...base, color: '#9ca3af', fontSize: '13px' }),
+  };
+
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 450);
 
@@ -48,6 +76,35 @@ export default function FinalizeInvoiceModal({
       setUploadedInvoiceUrl('');
       setShowDeleteInvoiceWarning(false);
       setIsDeletingInvoice(false);
+      setSelectedPaymentMode(null);
+
+      const fetchConfig = async () => {
+        setIsLoadingConfig(true);
+        try {
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const text = await res.text();
+          const cleanedText = text.replace(/[\u0000-\u001f]/g, (ch) => {
+            if (ch === '\n') return '\\n';
+            if (ch === '\r') return '\\r';
+            if (ch === '\t') return '\\t';
+            return '';
+          });
+          let arr;
+          try { arr = JSON.parse(cleanedText); } catch (e) { }
+          const data = arr && Array.isArray(arr) ? arr[0] : arr;
+          if (data && String(data.Status) === '1' && Array.isArray(data.payment_modes)) {
+            setPaymentModes(data.payment_modes);
+          }
+        } catch (err) {
+          console.error('Failed to fetch system config in FinalizeInvoiceModal:', err);
+        } finally {
+          setIsLoadingConfig(false);
+        }
+      };
+      fetchConfig();
     }
   }, [isOpen]);
 
@@ -126,6 +183,11 @@ export default function FinalizeInvoiceModal({
   };
 
   const handleConfirm = () => {
+    if (!selectedPaymentMode) {
+      toast.error('Please select a payment method');
+      return;
+    }
+
     if (hasGstInvoice && !uploadedInvoiceFilename) {
       toast.error('Please upload the GST invoice file');
       return;
@@ -135,12 +197,13 @@ export default function FinalizeInvoiceModal({
       has_tax_invoice: hasGstInvoice ? '1' : '0',
       tax_invoice_no: hasGstInvoice ? invoiceNumber : '',
       tax_invoice_file_name: hasGstInvoice ? uploadedInvoiceFilename : '',
-      tax_invoice_url: hasGstInvoice ? uploadedInvoiceUrl : ''
+      tax_invoice_url: hasGstInvoice ? uploadedInvoiceUrl : '',
+      payment_mode: selectedPaymentMode ? selectedPaymentMode.value : ''
     });
   };
 
-  const isFormDisabled = isSaving || isUploading || isDeletingInvoice;
-  const preventConfirm = hasGstInvoice && !uploadedInvoiceFilename;
+  const isFormDisabled = isSaving || isUploading || isDeletingInvoice || isLoadingConfig;
+  const preventConfirm = !selectedPaymentMode || (hasGstInvoice && !uploadedInvoiceFilename);
 
   if (!isOpen || !itemRow) return null;
 
@@ -195,6 +258,22 @@ export default function FinalizeInvoiceModal({
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Choose Payment Method Card */}
+            <div className="border border-gray-700/80 rounded-lg p-4 bg-[#1b202c] flex flex-col gap-2">
+              <label className="text-[12px] text-gray-400 font-medium">Choose Payment Method <span className="text-red-400">*</span></label>
+              <Select
+                options={paymentModes.map(m => ({ value: m.id, label: m.mode }))}
+                value={selectedPaymentMode}
+                onChange={setSelectedPaymentMode}
+                placeholder="Select payment method..."
+                styles={selectStyles}
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                isClearable
+                isDisabled={isFormDisabled}
+                isLoading={isLoadingConfig}
+              />
             </div>
 
             <div className="bg-[#1b202c] p-4 border border-gray-700/80 rounded-lg flex flex-col gap-4">

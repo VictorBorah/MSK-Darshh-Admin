@@ -215,6 +215,7 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       has_tax_invoice: string;
       tax_invoice_file_name?: string;
       tax_invoice_no?: string;
+      payment_mode?: string;
    }) => {
       setIsFinalizing(true);
       const toastId = toast.loading('Finalizing purchase...');
@@ -231,6 +232,9 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
          }
          if (invoiceData.tax_invoice_no) {
             formData.append('tax_invoice_no', invoiceData.tax_invoice_no);
+         }
+         if (invoiceData.payment_mode) {
+            formData.append('payment_mode', invoiceData.payment_mode);
          }
 
          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/closePurchase`, {
@@ -298,6 +302,7 @@ Total GST (${gst}%)  : ₹ ${gstAmt}
 CGST (${cgst}%)     : ₹ ${cgstAmt}
 SGST (${sgst}%)     : ₹ ${sgstAmt}
 IGST (${gst}%)     : ₹ ${igstAmt}
+Payment Mode    : ${localItemData.payment_mode_txt || 'N/A'}
 ------------------------------
 Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 ------------------------------`;
@@ -470,6 +475,10 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">IGST ({localItemData?.gst_rate || 0}%)</span>
                               <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.igst_amount || 0).toFixed(2)}</span>
+                           </div>
+                           <div className="flex flex-col gap-0.5">
+                              <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Payment Mode</span>
+                              <span className="text-[13px] text-emerald-400 font-bold">{localItemData?.payment_mode_txt || 'N/A'}</span>
                            </div>
 
                            {localItemData?.utility_tag_name && (
