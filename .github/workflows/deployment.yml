@@ -44,7 +44,20 @@ jobs:
           NEXT_PUBLIC_ENCRYPTION_KEY: ${{ secrets.NEXT_PUBLIC_ENCRYPTION_KEY }}
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           
-      - name: FTP Deploy to cPanel
+      - name: SFTP Deploy to Hostinger (Production)
+        if: github.ref == 'refs/heads/master'
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
+        with:
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          server: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          local_dir: './out/'
+          remote_dir: 'domains/zynapp.in/public_html'
+          sftp_only: true
+
+      - name: FTP Deploy to cPanel (Staging)
+        if: github.ref != 'refs/heads/master'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
