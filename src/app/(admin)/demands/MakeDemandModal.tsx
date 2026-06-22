@@ -5,6 +5,24 @@ import toast from 'react-hot-toast';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 
+const convertToDDMMYYYY = (yyyyMMDd: string): string => {
+  if (!yyyyMMDd) return '';
+  const parts = yyyyMMDd.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return yyyyMMDd;
+};
+
+const convertToYYYYMMDD = (ddMMYyyy: string): string => {
+  if (!ddMMYyyy) return '';
+  const parts = ddMMYyyy.split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  }
+  return ddMMYyyy;
+};
+
 interface MakeDemandModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,6 +44,13 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
   const [pendingProjectChange, setPendingProjectChange] = useState<string | null>(null);
 
   const [itemsList, setItemsList] = useState<any[]>([]);
+
+  // Schedule Demand Modal States
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [scheduleSelectedPriority, setScheduleSelectedPriority] = useState<string | null>(null);
+  const [scheduleTargetDate, setScheduleTargetDate] = useState<string>('');
+  const [scheduleSelectedStage, setScheduleSelectedStage] = useState<string | null>(null);
+  const [isTargetDateLoading, setIsTargetDateLoading] = useState(false);
 
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -211,6 +236,63 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
 
   const [isSaving, setIsSaving] = useState(false);
 
+  const handlePrioritySelect = async (priorityId: string) => {
+    setScheduleSelectedPriority(priorityId);
+    setIsTargetDateLoading(true);
+
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchTargetDate?priority_id=${priorityId}`;
+      const res = await fetch(endpoint, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      const rawText = await res.text();
+      let arr;
+      try { arr = JSON.parse(rawText); } catch(e) { throw new Error('Invalid JSON response'); }
+      const data = Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && String(data.Status) === "1") {
+        if (data.Message) {
+          toast.success(data.Message);
+        }
+        if (data.target_date) {
+          setScheduleTargetDate(convertToYYYYMMDD(data.target_date));
+        }
+      } else {
+        toast.error(data?.Message || "Failed to fetch target date");
+      }
+    } catch (err: any) {
+      console.error("Fetch target date error:", err);
+      toast.error(err.message || "An unexpected error occurred while fetching target date");
+    } finally {
+      setIsTargetDateLoading(false);
+    }
+  };
+
+  const handleOpenSchedule = () => {
+    if (!selectedProject) {
+      setWarningTitle("Project Required");
+      setWarningContent("Please select a project before confirming the demand.");
+      setShowWarning(true);
+      return;
+    }
+
+    if (itemsList.length === 0) {
+      setWarningTitle("No Items");
+      setWarningContent("Please add at least one item to the demand.");
+      setShowWarning(true);
+      return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    setScheduleTargetDate(today);
+    setScheduleSelectedPriority(null);
+    setScheduleSelectedStage(null);
+    setIsScheduleModalOpen(true);
+  };
+
   const handleConfirmDemand = async () => {
     if (!selectedProject) {
       setWarningTitle("Project Required");
@@ -229,9 +311,11 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
     const demandJson = itemsList.map(item => ({
       item_id: String(item.id),
       qnty: String(item.qnty),
+      stage_id: String(scheduleSelectedStage || ""),
       demand_title: item.title || "",
       demand_description: item.comment || "",
-      priority: String(item.priority || "3")
+      priority: String(scheduleSelectedPriority || item.priority || "3"),
+      target_date: convertToDDMMYYYY(scheduleTargetDate)
     }));
 
     setIsSaving(true);
@@ -265,6 +349,10 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
         setItemsList([]);
         setSelectedProject(null);
         setSeparateDemands(false);
+        setIsScheduleModalOpen(false);
+        setScheduleSelectedPriority(null);
+        setScheduleSelectedStage(null);
+        setScheduleTargetDate('');
       } else {
         toast.error(data.Message || "Failed to create demand");
       }
@@ -277,6 +365,9 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
   };
 
   if (!isOpen) return null;
+
+  const currentProjectObj = projects.find(p => String(p.id || p.project_id) === String(selectedProject));
+  const stages = currentProjectObj?.stages_data || [];
 
   const totalItems = itemsList.reduce((sum, item) => sum + (Number(item.qnty) || 0), 0);
 
@@ -487,7 +578,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                 Cancel
               </button>
               <button 
-                onClick={handleConfirmDemand}
+                onClick={handleOpenSchedule}
                 disabled={isSaving || itemsList.length === 0 || itemsList.some(item => !item.qnty || Number(item.qnty) <= 0)}
                 className="flex items-center justify-center gap-2 px-6 py-2 text-[14px] font-normal text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors shadow-sm min-w-[150px] disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -606,6 +697,91 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                   >
                     Save Configuration
                   </button>
+               </div>
+             </div>
+           </div>
+         )}
+
+         {/* Schedule Demand Modal */}
+         {isScheduleModalOpen && (
+           <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+             <div className="relative bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl w-[400px] max-w-[95vw] flex flex-col overflow-hidden">
+               {isTargetDateLoading && (
+                 <div className="absolute inset-0 bg-[#232b3e]/85 backdrop-blur-[1px] z-[60] flex flex-col items-center justify-center">
+                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                   <span className="text-xs font-bold text-white mt-3">Fetching Target Date...</span>
+                 </div>
+               )}
+               <div className="px-5 py-4 border-b border-gray-700 bg-[#293653]">
+                 <h3 className="text-[15px] text-white font-bold tracking-wide">
+                   Schedule Demand
+                 </h3>
+               </div>
+               <div className="p-6 flex flex-col gap-4 bg-[#1b202c]">
+                 <div>
+                   <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Select Priority</label>
+                   <Select
+                     options={priorities.map((p: any) => ({ value: String(p.id), label: p.priority }))}
+                     value={priorities.find(p => String(p.id) === scheduleSelectedPriority) ? { value: scheduleSelectedPriority, label: priorities.find((p: any) => String(p.id) === scheduleSelectedPriority)?.priority } : null}
+                     onChange={(val: any) => { if (val) handlePrioritySelect(val.value); }}
+                     placeholder="Select priority..."
+                     styles={{
+                       control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', color: '#fff', boxShadow: 'none', cursor: 'pointer', fontSize: '13px' }),
+                       menuPortal: base => ({ ...base, zIndex: 99999 }),
+                       menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
+                       option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
+                       singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                       placeholder: base => ({ ...base, color: '#9ca3af', fontSize: '13px' }),
+                       indicatorSeparator: () => ({ display: 'none' })
+                     }}
+                     menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                   />
+                 </div>
+                 <div>
+                   <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Select Stage</label>
+                   <Select
+                     options={stages.map((s: any) => ({ value: String(s.stage_id), label: s.stage_name }))}
+                     value={stages.find((s: any) => String(s.stage_id) === scheduleSelectedStage) ? { value: scheduleSelectedStage, label: stages.find((s: any) => String(s.stage_id) === scheduleSelectedStage)?.stage_name } : null}
+                     onChange={(val: any) => setScheduleSelectedStage(val ? val.value : null)}
+                     placeholder="Select Stage..."
+                     styles={{
+                       control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', color: '#fff', boxShadow: 'none', cursor: 'pointer', fontSize: '13px' }),
+                       menuPortal: base => ({ ...base, zIndex: 99999 }),
+                       menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
+                       option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
+                       singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                       placeholder: base => ({ ...base, color: '#9ca3af', fontSize: '13px' }),
+                       indicatorSeparator: () => ({ display: 'none' })
+                     }}
+                     menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                   />
+                 </div>
+                 <div>
+                   <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Target Date</label>
+                   <input
+                     type="date"
+                     value={scheduleTargetDate}
+                     onChange={(e) => setScheduleTargetDate(e.target.value)}
+                     onClick={(e) => e.currentTarget.showPicker()}
+                     className="w-full bg-[#161a25] border border-gray-600 rounded px-3 py-2 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors cursor-pointer"
+                   />
+                 </div>
+               </div>
+               <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3">
+                 <button
+                   onClick={() => setIsScheduleModalOpen(false)}
+                   className="px-4 py-2 text-[13px] font-medium text-white bg-gray-600 hover:bg-gray-500 rounded transition-colors"
+                 >
+                   Cancel
+                 </button>
+                 <button
+                   onClick={handleConfirmDemand}
+                   disabled={isSaving || !scheduleSelectedPriority || (stages.length > 0 && !scheduleSelectedStage)}
+                   className="px-5 py-2 text-[13px] font-medium text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                 >
+                   {isSaving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                   Confirm
+                 </button>
                </div>
              </div>
            </div>

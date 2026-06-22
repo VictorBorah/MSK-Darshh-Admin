@@ -766,7 +766,7 @@ export default function DemandsPage() {
       <MakeDemandModal
         isOpen={showMakeDemandModal}
         onClose={() => setShowMakeDemandModal(false)}
-        projects={projects ? projects.map((p: any) => ({ id: String(p.project_id), project_name: p.project_code || p.project_name, project_code: p.project_code || p.project_name })) : []}
+        projects={projects ? projects.map((p: any) => ({ id: String(p.project_id), project_name: p.project_code || p.project_name, project_code: p.project_code || p.project_name, stages_data: p.stages_data })) : []}
         priorities={priorityOptions}
         onSuccess={handleDemandActionSuccess}
       />
