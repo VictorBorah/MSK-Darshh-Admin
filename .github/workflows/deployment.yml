@@ -52,8 +52,8 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           server: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
-          local_dir: './out/'
-          remote_dir: 'domains/zynapp.in/public_html'
+          local_path: './out/'
+          remote_path: 'domains/zynapp.in/public_html'
           sftp_only: true
 
       - name: FTP Deploy to cPanel (Staging)
