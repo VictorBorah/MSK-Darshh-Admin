@@ -7,20 +7,11 @@ import { useTheme } from '@/components/providers/ThemeProvider';
 interface VerificationDetailsProps {
   isOpen: boolean;
   onClose: () => void;
-  verificationData: {
-    is_verified: string;
-    verified_text: string;
-    verified_comment: string;
-    verification_status_txt: string;
-    raised_by_usergroup_name: string;
-    raised_by_staff_name: string;
-    is_fulfilled: string;
-    delivery_confirmed: string;
-    item_name?: string;
-  } | null;
+  verificationData: any | null;
+  onVerifyClick?: (data: any) => void;
 }
 
-export default function VerificationDetails({ isOpen, onClose, verificationData }: VerificationDetailsProps) {
+export default function VerificationDetails({ isOpen, onClose, verificationData, onVerifyClick }: VerificationDetailsProps) {
   useModalEscape(isOpen, onClose, 200);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
@@ -169,6 +160,32 @@ export default function VerificationDetails({ isOpen, onClose, verificationData 
 
           </div>
 
+        </div>
+
+        {/* Footer */}
+        <div className={`px-6 py-4.5 border-t flex justify-end gap-3 ${isDark ? 'bg-[#1b202c]/50 border-gray-800' : 'bg-slate-50 border-slate-200'}`}>
+          <button
+            onClick={onClose}
+            className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-colors border ${
+              isDark 
+                ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-800 hover:text-white' 
+                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-900'
+            }`}
+          >
+            Close
+          </button>
+          <button
+            onClick={() => onVerifyClick?.(verificationData)}
+            disabled={isVerified}
+            title={isVerified ? "Already verified" : "Verify Demand"}
+            className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-colors ${
+              isVerified
+                ? 'bg-gray-700/50 text-gray-500 border border-gray-600/30 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700 text-white shadow active:scale-95'
+            }`}
+          >
+            Verify
+          </button>
         </div>
 
       </div>
