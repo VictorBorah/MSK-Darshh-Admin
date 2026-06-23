@@ -597,9 +597,9 @@ export default function DemandsPage() {
                           <div className="flex items-center gap-1.5">
                             <span>{row.item_name || '-'}</span>
                             {isVerified ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
+                              <span className="px-1 py-0.5 border border-emerald-500/35 text-[9px] font-bold text-emerald-400 rounded bg-emerald-500/5 select-none shrink-0" title="Verified">V</span>
                             ) : (
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              <span className="px-1 py-0.5 border border-amber-500/35 text-[9px] font-bold text-amber-500 rounded bg-amber-500/5 select-none shrink-0" title="Un-Verified">UV</span>
                             )}
                           </div>
                         </td>
