@@ -10,6 +10,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     # This is the magic. It dynamically sets the environment based on the branch.
     # If the branch is 'master', it pulls from the 'production' environment secrets.
@@ -44,7 +46,16 @@ jobs:
           NEXT_PUBLIC_ENCRYPTION_KEY: ${{ secrets.NEXT_PUBLIC_ENCRYPTION_KEY }}
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
           
-      - name: FTP Deploy to Hostinger
+      - name: Deploy Production Build to admin-deploy branch
+        if: github.ref == 'refs/heads/master'
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: ./out
+          branch: admin-deploy
+          clean: true
+
+      - name: FTP Deploy to cPanel (Staging)
+        if: github.ref != 'refs/heads/master'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
