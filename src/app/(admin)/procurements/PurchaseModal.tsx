@@ -725,6 +725,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
         onClose={() => setShowSaveModal(false)}
         isSaving={isSavingProcurement}
         isMarkedComplete={isMarkComplete}
+        projects={projects}
+        projectId={selectedProject}
         onConfirm={async (saveData) => {
           setIsSavingProcurement(true);
           const toastId = toast.loading('Saving procurement...');
@@ -761,6 +763,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
             formData.append('project_id', selectedProject);
             formData.append('purchase_json', JSON.stringify(purchaseJsonObj));
             formData.append('purchase_status', saveData.status);
+            formData.append('stage_id', saveData.stage_id || '');
 
             const firstItemWithWh = tableItems.find(row => row.warehouse_id);
             const warehouseId = firstItemWithWh?.warehouse_id || '';

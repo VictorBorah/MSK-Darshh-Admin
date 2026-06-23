@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Loader2, CheckCircle2, HelpCircle, Trash2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Loader2, CheckCircle2, HelpCircle, Trash2, AlertCircle, ChevronDown } from 'lucide-react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '../../../components/WarningAlertModal';
@@ -11,9 +11,11 @@ interface SaveProcurementModalProps {
   onConfirm: (data: any) => void;
   isSaving?: boolean;
   isMarkedComplete?: boolean;
+  projects: any[];
+  projectId: string;
 }
 
-export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSaving = false, isMarkedComplete = false }: SaveProcurementModalProps) {
+export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSaving = false, isMarkedComplete = false, projects, projectId }: SaveProcurementModalProps) {
   const [status, setStatus] = useState<string>('');
 
   const [hasGstInvoice, setHasGstInvoice] = useState(false);
@@ -30,6 +32,11 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
   const [showEscapeWarning, setShowEscapeWarning] = useState(false);
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 400);
 
+  const [scheduleSelectedStage, setScheduleSelectedStage] = useState<string | null>(null);
+  const [isStageDropdownOpen, setIsStageDropdownOpen] = useState(false);
+  const [stageSearchQuery, setStageSearchQuery] = useState('');
+  const stageDropdownRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (isOpen) {
       setStatus('5');
@@ -41,8 +48,27 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
       setUploadedInvoiceUrl('');
       setShowDeleteInvoiceWarning(false);
       setIsDeletingInvoice(false);
+      setScheduleSelectedStage(null);
+      setIsStageDropdownOpen(false);
+      setStageSearchQuery('');
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (stageDropdownRef.current && !stageDropdownRef.current.contains(event.target as Node)) {
+        setIsStageDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentProjectObj = projects?.find(p => String(p.id || p.project_id) === String(projectId));
+  const stages = currentProjectObj?.stages_data || [];
+  const filteredStages = stages.filter((s: any) => 
+    s.stage_name.toLowerCase().includes(stageSearchQuery.toLowerCase())
+  );
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -123,6 +149,10 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
       toast.error('Please select a payment status');
       return;
     }
+    if (stages.length > 0 && !scheduleSelectedStage) {
+      toast.error('Please select a stage');
+      return;
+    }
     if (hasGstInvoice && !uploadedInvoiceFilename) {
       toast.error('Please upload the GST invoice file');
       return;
@@ -133,14 +163,15 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
       has_gst_invoice: hasGstInvoice ? '1' : '0',
       invoice_number: invoiceNumber,
       invoice_file: uploadedInvoiceFilename,
-      invoice_url: uploadedInvoiceUrl
+      invoice_url: uploadedInvoiceUrl,
+      stage_id: scheduleSelectedStage || ''
     };
 
     onConfirm(data);
   };
 
   const isFormDisabled = isSaving || isUploading || isDeletingInvoice;
-  const preventConfirm = !status || (hasGstInvoice && !uploadedInvoiceFilename);
+  const preventConfirm = !status || (hasGstInvoice && !uploadedInvoiceFilename) || (stages.length > 0 && !scheduleSelectedStage);
 
   const statusOptions = [
     { value: '4', label: 'Ordered and Paid', isDisabled: true },
@@ -215,6 +246,68 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
                 menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
               />
             </div>
+
+            {stages.length > 0 && (
+              <div className="flex flex-col gap-2 relative" ref={stageDropdownRef}>
+                <label className="text-[13px] font-medium text-gray-300">Select Stage <span className="text-red-400">*</span></label>
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsStageDropdownOpen(!isStageDropdownOpen);
+                    }}
+                    className="w-full bg-[#1b202c] text-white rounded-[6px] px-3.5 py-2.5 text-left font-normal text-[13px] flex items-center justify-between border border-[#4b5563] focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  >
+                    <span className={scheduleSelectedStage ? "text-white font-normal" : "text-gray-400 font-normal"}>
+                      {stages.find((s: any) => String(s.stage_id) === String(scheduleSelectedStage))?.stage_name || "Select Stage..."}
+                    </span>
+                    <ChevronDown className="w-4 h-4 text-gray-400 stroke-[2.5]" />
+                  </button>
+                  
+                  {isStageDropdownOpen && (
+                    <div className="absolute top-[42px] left-0 right-0 z-50 bg-[#1b202c] border border-gray-600 rounded shadow-2xl overflow-hidden flex flex-col max-h-60">
+                      {/* Search input inside Stage select */}
+                      <div className="p-2 border-b border-gray-700">
+                        <input
+                          type="text"
+                          placeholder="Search stage..."
+                          value={stageSearchQuery}
+                          onChange={(e) => setStageSearchQuery(e.target.value)}
+                          className="w-full bg-[#161a25] border border-gray-600 rounded px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 font-medium"
+                          autoFocus
+                        />
+                      </div>
+                      
+                      {/* Dropdown Options */}
+                      <div className="overflow-y-auto max-h-40 divide-y divide-gray-700/50">
+                        {filteredStages.length === 0 ? (
+                          <div className="p-3 text-center text-xs text-gray-400 font-semibold">
+                            No stages found
+                          </div>
+                        ) : (
+                          filteredStages.map((s: any) => (
+                            <button
+                              key={s.stage_id}
+                              type="button"
+                              onClick={() => {
+                                setScheduleSelectedStage(String(s.stage_id));
+                                setIsStageDropdownOpen(false);
+                                setStageSearchQuery('');
+                              }}
+                              className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-blue-600/20 text-white ${
+                                String(s.stage_id) === String(scheduleSelectedStage) ? "bg-blue-600/30 text-blue-400" : ""
+                              }`}
+                            >
+                              {s.stage_name}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             <div className="hidden bg-[#1b202c] p-4 border border-gray-700/80 rounded-lg flex flex-col gap-4">
               <label className="flex items-center gap-3 cursor-pointer group">
