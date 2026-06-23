@@ -193,10 +193,10 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
         }}
       />
       <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div className="bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col w-[550px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col w-[550px] max-w-[95vw] rounded-xl animate-in fade-in zoom-in-95 duration-200">
 
           {/* Header */}
-          <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653]">
+          <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#293653] rounded-t-xl">
             <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               Finalize Purchase Order
@@ -394,7 +394,7 @@ export default function SaveProcurementModal({ isOpen, onClose, onConfirm, isSav
             )}
           </div>
 
-          <div className="px-6 py-4 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-end gap-3">
+          <div className="px-6 py-4 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-end gap-3 rounded-b-xl">
             <button
               onClick={onClose}
               disabled={isFormDisabled}
