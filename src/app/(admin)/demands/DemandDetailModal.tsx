@@ -5,17 +5,21 @@ import Select from 'react-select';
 import WarningAlertModal from '../../../components/WarningAlertModal';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import VerificationDetails from '@/app/(admin)/demands/VerificationDetails';
+import VerifyDemand from './VerifyDemand';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 interface DemandDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   demandNo: string | null;
   priorities: any[];
+  warehouses: any[];
   onSuccess?: () => void;
 }
 
-export default function DemandDetailModal({ isOpen, onClose, demandNo, priorities, onSuccess }: DemandDetailModalProps) {
+export default function DemandDetailModal({ isOpen, onClose, demandNo, priorities, warehouses, onSuccess }: DemandDetailModalProps) {
   useModalEscape(isOpen, onClose, 200);
+  const { projects } = useAuth();
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [demandsData, setDemandsData] = useState<any[]>([]);
@@ -27,6 +31,8 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
   const [isLocked, setIsLocked] = useState(false);
   const [isVerificationDetailsOpen, setIsVerificationDetailsOpen] = useState(false);
   const [activeVerificationData, setActiveVerificationData] = useState<any>(null);
+  const [isVerifyDemandOpen, setIsVerifyDemandOpen] = useState(false);
+  const [verifyDemandData, setVerifyDemandData] = useState<any | null>(null);
   const [isAutoGenerating, setIsAutoGenerating] = useState(false);
   const [isUpdatingDemand, setIsUpdatingDemand] = useState(false);
   const [configureTitle, setConfigureTitle] = useState('');
@@ -340,16 +346,15 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                   const isRowLocked = String(row.is_locked) === '1' || row.is_locked === 1 || row.is_locked === 'Yes';
                   const isVerified = String(row.is_verified).toLowerCase() === 'yes';
                   return (
-                    <tr 
-                      key={row.demand_id || row.id} 
+                    <tr
+                      key={row.demand_id || row.id}
                       title={isVerified ? "Verified Demand" : undefined}
-                      className={`transition-colors ${
-                        isVerified 
-                          ? 'bg-green-950/40 hover:bg-green-950/50 border-y border-emerald-500/20 text-emerald-100' 
-                          : isRowLocked 
-                            ? 'bg-red-950/40 hover:bg-red-950/50' 
-                            : 'hover:bg-white/5'
-                      }`}
+                      className={`transition-colors ${isVerified
+                        ? 'bg-green-950/40 hover:bg-green-950/50 border-y border-emerald-500/20 text-emerald-100'
+                        : isRowLocked
+                          ? 'bg-red-950/40 hover:bg-red-950/50'
+                          : 'hover:bg-white/5'
+                        }`}
                     >
                       <td className="px-4 py-3 text-white text-center font-medium">{idx + 1}</td>
                       <td className="px-4 py-3 text-white">
@@ -576,10 +581,35 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
           </div>
         )}
       </div>
-      <VerificationDetails 
+      <VerificationDetails
         isOpen={isVerificationDetailsOpen}
         onClose={() => setIsVerificationDetailsOpen(false)}
         verificationData={activeVerificationData}
+        onVerifyClick={(data) => {
+          setIsVerificationDetailsOpen(false);
+          setVerifyDemandData(data);
+          setIsVerifyDemandOpen(true);
+        }}
+      />
+      <VerifyDemand
+        isOpen={isVerifyDemandOpen}
+        onClose={() => setIsVerifyDemandOpen(false)}
+        demand={
+          verifyDemandData
+            ? {
+                ...verifyDemandData,
+                project_code:
+                  verifyDemandData.project_code ||
+                  projects?.find((p: any) => String(p.project_id || p.id) === String(verifyDemandData.project_id))?.project_code ||
+                  ''
+              }
+            : null
+        }
+        warehouses={warehouses}
+        onSuccess={() => {
+          fetchDetails();
+          onSuccess?.();
+        }}
       />
     </div>
   );

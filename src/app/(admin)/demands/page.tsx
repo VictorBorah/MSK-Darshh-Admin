@@ -76,6 +76,7 @@ export default function DemandsPage() {
   const [isRecentLoading, setIsRecentLoading] = useState(false);
   const [selectedVerifyDemand, setSelectedVerifyDemand] = useState<any | null>(null);
   const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [showRecentDemandsSetting, setShowRecentDemandsSetting] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -105,6 +106,12 @@ export default function DemandsPage() {
           if (configData.demands_status_options) setDemandStatusOptions(configData.demands_status_options);
           if (configData.priority_data) setPriorityOptions(configData.priority_data);
           if (configData.warehouse_data) setWarehouses(configData.warehouse_data);
+
+          // Parse app_settings for showRecentDemands
+          const appSettings = Array.isArray(configData.app_settings) ? configData.app_settings[0] : configData.app_settings;
+          if (appSettings) {
+            setShowRecentDemandsSetting(String(appSettings.showRecentDemands) === '1');
+          }
         }
       } catch (err) {
         console.error('Error loading config:', err);
@@ -525,8 +532,10 @@ export default function DemandsPage() {
       {/* Two Column Grid Layout (Left: Demands list Table; Right: Recent Demands Panel) */}
       <div className="flex flex-col lg:flex-row items-stretch gap-6 flex-1 min-h-0">
         
-        {/* Left Column Panel: Main Demands Table (2/3 Width) */}
-        <div className="bg-[#191e2b] border border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col flex-1 lg:w-2/3">
+        {/* Left Column Panel: Main Demands Table (2/3 Width if recent panel is visible, otherwise w-full) */}
+        <div className={`bg-[#191e2b] border border-gray-800 rounded-xl overflow-hidden shadow-sm flex flex-col flex-1 ${
+          showRecentDemandsSetting ? 'lg:w-2/3' : 'w-full'
+        }`}>
           <div className="overflow-x-auto overflow-y-auto flex-1 min-h-[300px] scrollbar-thin scrollbar-thumb-gray-700">
             <table className="w-full text-sm text-left whitespace-nowrap">
               <thead className="text-[12px] text-gray-400 font-medium bg-[#1f2536] border-b border-gray-800 sticky top-0 z-10">
@@ -649,116 +658,118 @@ export default function DemandsPage() {
         </div>
 
         {/* Right Column Panel: Recent Demands Dynamic Cards (1/3 Width) */}
-        <div className="bg-[#191e2b] border border-gray-800 rounded-xl shadow-sm flex flex-col w-full lg:w-1/3 shrink-0 overflow-hidden h-[450px] lg:h-auto lg:max-h-[calc(100vh-260px)]">
-          
-          {/* Panel Header */}
-          <div className="px-5 py-4 bg-[#232b3e] border-b border-gray-800 flex justify-between items-center shrink-0">
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                Recent Demands
-              </h3>
-              <RefreshCcw
-                onClick={() => {
-                  setRecentPage(1);
-                  fetchRecentDemandsData(1, false);
-                }}
-                className={`w-3.5 h-3.5 text-gray-500 cursor-pointer hover:text-white transition-colors ${isRecentLoading ? 'animate-spin text-white' : ''}`}
-              />
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-              <span className="text-[11px] font-semibold text-gray-400 uppercase">Display:</span>
-              <select
-                value={displayLevels}
-                onChange={(e) => setDisplayLevels(e.target.value as 'my' | 'all')}
-                className="bg-[#11141e] border border-gray-700 rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-blue-500 font-medium cursor-pointer"
-              >
-                <option value="my">My Level</option>
-                <option value="all">All Levels</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Dynamic Card List */}
-          <div className="p-2 flex-1 overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
-            {isRecentLoading && recentDemands.length === 0 ? (
-              <div className="py-12 text-center text-gray-500">
-                <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-500" />
-                <span className="text-xs">Loading demands...</span>
+        {showRecentDemandsSetting && (
+          <div className="bg-[#191e2b] border border-gray-800 rounded-xl shadow-sm flex flex-col w-full lg:w-1/3 shrink-0 overflow-hidden h-[450px] lg:h-auto lg:max-h-[calc(100vh-260px)]">
+            
+            {/* Panel Header */}
+            <div className="px-5 py-4 bg-[#232b3e] border-b border-gray-800 flex justify-between items-center shrink-0">
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Recent Demands
+                </h3>
+                <RefreshCcw
+                  onClick={() => {
+                    setRecentPage(1);
+                    fetchRecentDemandsData(1, false);
+                  }}
+                  className={`w-3.5 h-3.5 text-gray-500 cursor-pointer hover:text-white transition-colors ${isRecentLoading ? 'animate-spin text-white' : ''}`}
+                />
               </div>
-            ) : recentDemands.length === 0 ? (
-              <div className="py-12 text-center text-gray-500 italic text-xs">
-                No recent demands found.
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-[11px] font-semibold text-gray-400 uppercase">Display:</span>
+                <select
+                  value={displayLevels}
+                  onChange={(e) => setDisplayLevels(e.target.value as 'my' | 'all')}
+                  className="bg-[#11141e] border border-gray-700 rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-blue-500 font-medium cursor-pointer"
+                >
+                  <option value="my">My Level</option>
+                  <option value="all">All Levels</option>
+                </select>
               </div>
-            ) : (
-              recentDemands.map((item) => {
-                const isVerified = item.is_verified === 'Yes';
-                const tagText = item.verified_text || (isVerified ? 'Verified' : 'Un-Verified');
-                
-                let tagClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-                const lowerTag = tagText.toLowerCase();
-                if (isVerified || lowerTag === 'verified') {
-                  tagClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
-                } else if (lowerTag === 'un-verified') {
-                  tagClass = 'bg-red-500/10 text-red-400 border border-red-500/20';
-                } else if (lowerTag.includes('paid') || lowerTag.includes('order')) {
-                  tagClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-                }
+            </div>
 
-                return (
-                  <div 
-                    key={item.demand_id || item.demand_no}
-                    onClick={() => setSelectedVerifyDemand(item)}
-                    className={`p-2 flex items-center justify-between gap-2 shadow-sm shrink-0 rounded-lg cursor-pointer transition-colors ${
-                      isVerified 
-                        ? 'bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/20 text-emerald-100' 
-                        : 'bg-[#1f2536] hover:bg-[#232b3e] border border-gray-800/80'
-                    }`}
-                  >
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        {isVerified && (
-                          <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                        )}
-                        <span 
-                          className="text-[11px] font-semibold text-white truncate max-w-[100px] xl:max-w-[130px]" 
-                          title={`${item.item_name} ${item.quantity_txt || item.quantity}`}
-                        >
-                          {item.item_name} {item.quantity_txt || item.quantity}
+            {/* Dynamic Card List */}
+            <div className="p-2 flex-1 overflow-y-auto space-y-1.5 scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
+              {isRecentLoading && recentDemands.length === 0 ? (
+                <div className="py-12 text-center text-gray-500">
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-500" />
+                  <span className="text-xs">Loading demands...</span>
+                </div>
+              ) : recentDemands.length === 0 ? (
+                <div className="py-12 text-center text-gray-500 italic text-xs">
+                  No recent demands found.
+                </div>
+              ) : (
+                recentDemands.map((item) => {
+                  const isVerified = item.is_verified === 'Yes';
+                  const tagText = item.verified_text || (isVerified ? 'Verified' : 'Un-Verified');
+                  
+                  let tagClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+                  const lowerTag = tagText.toLowerCase();
+                  if (isVerified || lowerTag === 'verified') {
+                    tagClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                  } else if (lowerTag === 'un-verified') {
+                    tagClass = 'bg-red-500/10 text-red-400 border border-red-500/20';
+                  } else if (lowerTag.includes('paid') || lowerTag.includes('order')) {
+                    tagClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+                  }
+
+                  return (
+                    <div 
+                      key={item.demand_id || item.demand_no}
+                      onClick={() => setSelectedVerifyDemand(item)}
+                      className={`p-2 flex items-center justify-between gap-2 shadow-sm shrink-0 rounded-lg cursor-pointer transition-colors ${
+                        isVerified 
+                          ? 'bg-emerald-950/40 hover:bg-emerald-900/40 border border-emerald-500/20 text-emerald-100' 
+                          : 'bg-[#1f2536] hover:bg-[#232b3e] border border-gray-800/80'
+                      }`}
+                    >
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          {isVerified && (
+                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          )}
+                          <span 
+                            className="text-[11px] font-semibold text-white truncate max-w-[100px] xl:max-w-[130px]" 
+                            title={`${item.item_name} ${item.quantity_txt || item.quantity}`}
+                          >
+                            {item.item_name} {item.quantity_txt || item.quantity}
+                          </span>
+                        </div>
+                        <span className="text-[9px] text-gray-400 mt-0.5">
+                          {item.demand_date || '-'}
                         </span>
                       </div>
-                      <span className="text-[9px] text-gray-400 mt-0.5">
-                        {item.demand_date || '-'}
+                      <span className={`px-1 py-0.5 rounded text-[8px] font-bold shrink-0 ${tagClass}`}>
+                        {tagText}
                       </span>
                     </div>
-                    <span className={`px-1 py-0.5 rounded text-[8px] font-bold shrink-0 ${tagClass}`}>
-                      {tagText}
-                    </span>
-                  </div>
-                );
-              })
-            )}
+                  );
+                })
+              )}
 
-            {isRecentLoading && recentDemands.length > 0 && (
-              <div className="py-2 text-center text-gray-500">
-                <Loader2 className="w-4 h-4 animate-spin mx-auto text-blue-500" />
+              {isRecentLoading && recentDemands.length > 0 && (
+                <div className="py-2 text-center text-gray-500">
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto text-blue-500" />
+                </div>
+              )}
+            </div>
+
+            {/* Panel Footer: Load More button */}
+            {recentPage < recentTotalPages && (
+              <div className="p-4 border-t border-gray-800 bg-[#232b3e] flex justify-center shrink-0">
+                <button 
+                  onClick={handleLoadMoreRecent}
+                  disabled={isRecentLoading}
+                  className="w-full bg-[#1f2536] hover:bg-white/5 border border-gray-700 hover:border-gray-600 text-gray-300 font-semibold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  Load More
+                </button>
               </div>
             )}
+
           </div>
-
-          {/* Panel Footer: Load More button */}
-          {recentPage < recentTotalPages && (
-            <div className="p-4 border-t border-gray-800 bg-[#232b3e] flex justify-center shrink-0">
-              <button 
-                onClick={handleLoadMoreRecent}
-                disabled={isRecentLoading}
-                className="w-full bg-[#1f2536] hover:bg-white/5 border border-gray-700 hover:border-gray-600 text-gray-300 font-semibold py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
-              >
-                Load More
-              </button>
-            </div>
-          )}
-
-        </div>
+        )}
 
       </div>
 
@@ -777,6 +788,7 @@ export default function DemandsPage() {
         onClose={() => setSelectedDemandNo(null)}
         demandNo={selectedDemandNo}
         priorities={priorityOptions}
+        warehouses={warehouses}
         onSuccess={handleDemandActionSuccess}
       />
 
