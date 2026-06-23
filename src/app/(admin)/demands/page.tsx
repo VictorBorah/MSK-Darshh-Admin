@@ -77,6 +77,7 @@ export default function DemandsPage() {
   const [selectedVerifyDemand, setSelectedVerifyDemand] = useState<any | null>(null);
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [showRecentDemandsSetting, setShowRecentDemandsSetting] = useState(false);
+  const [enableDefaultProjectLoadingSetting, setEnableDefaultProjectLoadingSetting] = useState<boolean | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -111,6 +112,7 @@ export default function DemandsPage() {
           const appSettings = Array.isArray(configData.app_settings) ? configData.app_settings[0] : configData.app_settings;
           if (appSettings) {
             setShowRecentDemandsSetting(String(appSettings.showRecentDemands) === '1');
+            setEnableDefaultProjectLoadingSetting(String(appSettings.enableDefaultProjectLoading) === '1');
           }
         }
       } catch (err) {
@@ -123,18 +125,24 @@ export default function DemandsPage() {
   // Sync Default Project on Initial Load (copied from dashboard/page.tsx)
   useEffect(() => {
     if (hasInitializedProject.current) return;
-    if (!isLoadingAppData && projects && projects.length > 0) {
-      const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
+    if (enableDefaultProjectLoadingSetting === null) return; // Wait for config settings to resolve
 
-      if (hasDefaultProject) {
-        const matched = projects.find((p: any) => String(p.project_id) === String(defaultProject));
-        if (matched) {
-          setActiveProject(matched);
+    if (enableDefaultProjectLoadingSetting === true) {
+      if (!isLoadingAppData && projects && projects.length > 0) {
+        const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
+
+        if (hasDefaultProject) {
+          const matched = projects.find((p: any) => String(p.project_id) === String(defaultProject));
+          if (matched) {
+            setActiveProject(matched);
+          }
         }
       }
-      hasInitializedProject.current = true;
+    } else {
+      setActiveProject(null); // Keep activeProject null to display all projects
     }
-  }, [isLoadingAppData, defaultProject, projects]);
+    hasInitializedProject.current = true;
+  }, [isLoadingAppData, defaultProject, projects, enableDefaultProjectLoadingSetting]);
 
   // Fetch Demands Data from API
   const fetchDemandsData = useCallback(async () => {
@@ -326,7 +334,7 @@ export default function DemandsPage() {
     setRecentPage(1); // Reset recent demands page
 
     const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
-    if (hasDefaultProject && projects) {
+    if (enableDefaultProjectLoadingSetting && hasDefaultProject && projects) {
       const matched = projects.find((p: any) => String(p.project_id) === String(defaultProject));
       if (matched) {
         setActiveProject(matched);
