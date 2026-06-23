@@ -363,8 +363,10 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                           {isRowLocked && (
                             <Lock className="w-3.5 h-3.5 text-red-400 shrink-0" />
                           )}
-                          {isVerified && (
-                            <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
+                          {isVerified ? (
+                            <span className="px-1 py-0.5 border border-emerald-500/35 text-[9px] font-bold text-emerald-400 rounded bg-emerald-500/5 select-none shrink-0" title="Verified">V</span>
+                          ) : (
+                            <span className="px-1 py-0.5 border border-amber-500/35 text-[9px] font-bold text-amber-500 rounded bg-amber-500/5 select-none shrink-0" title="Un-Verified">UV</span>
                           )}
                         </div>
                       </td>
