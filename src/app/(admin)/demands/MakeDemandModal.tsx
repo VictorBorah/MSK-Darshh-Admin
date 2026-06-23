@@ -672,26 +672,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                       Remaining characters: {200 - (configureComment?.length || 0)}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Choose Priority</label>
-                    <Select
-                      options={priorities.map((p: any) => ({ value: String(p.id), label: p.priority }))}
-                      value={priorities.find(p => String(p.id) === configurePriority) ? { value: configurePriority, label: priorities.find((p: any) => String(p.id) === configurePriority)?.priority } : null}
-                      onChange={(val: any) => setConfigurePriority(val ? val.value : '3')}
-                      placeholder="Select priority..."
-                      isDisabled={isAutoGenerating}
-                      styles={{
-                        control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', fontWeight: 400, color: '#fff', boxShadow: 'none', cursor: 'pointer', fontSize: '13px' }),
-                        menuPortal: base => ({ ...base, zIndex: 99999 }),
-                        menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
-                        option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontWeight: 400, fontSize: '13px' }),
-                        singleValue: base => ({ ...base, color: '#fff', fontWeight: 400, fontSize: '13px' }),
-                        placeholder: base => ({ ...base, color: '#9ca3af', fontWeight: 400, fontSize: '13px' }),
-                        indicatorSeparator: () => ({ display: 'none' })
-                      }}
-                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                    />
-                  </div>
+
                </div>
                
                <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3">
