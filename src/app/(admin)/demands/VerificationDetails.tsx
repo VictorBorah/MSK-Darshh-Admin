@@ -103,8 +103,8 @@ export default function VerificationDetails({ isOpen, onClose, verificationData,
             </div>
           </div>
 
-          {/* Section 2: Requester Details */}
-          <div className={`p-4 rounded-lg border grid grid-cols-2 gap-4 ${cardBg}`}>
+          {/* Section 2: Requester & Demand Details */}
+          <div className={`p-4 rounded-lg border grid grid-cols-3 gap-4 ${cardBg}`}>
             
             {/* Raised By Staff */}
             <div className="flex flex-col gap-1">
@@ -120,6 +120,14 @@ export default function VerificationDetails({ isOpen, onClose, verificationData,
               <span className={`text-[10px] font-bold uppercase tracking-wider ${labelColor}`}>User Group / Role</span>
               <span className={`text-[13px] font-semibold ${textValColor}`}>
                 {verificationData.raised_by_usergroup_name || 'N/A'}
+              </span>
+            </div>
+
+            {/* Demand ID */}
+            <div className="flex flex-col gap-1">
+              <span className={`text-[10px] font-bold uppercase tracking-wider ${labelColor}`}>Demand ID</span>
+              <span className={`text-[13px] font-semibold font-mono ${textValColor}`}>
+                #{verificationData.demand_id || verificationData.id || 'N/A'}
               </span>
             </div>
 

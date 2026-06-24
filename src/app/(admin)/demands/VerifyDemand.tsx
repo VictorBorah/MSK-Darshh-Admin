@@ -201,6 +201,11 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
             <h2 className="text-[15px] font-bold text-white tracking-wide">
               Verify Demand
             </h2>
+            {(demand.demand_id || demand.id) && (
+              <span className="text-[13.5px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded uppercase tracking-wider font-mono">
+                ID: {demand.demand_id || demand.id}
+              </span>
+            )}
             {demand.project_code && (
               <span className="text-[13.5px] font-bold text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded uppercase tracking-wider">
                 {demand.project_code}
