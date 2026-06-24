@@ -289,7 +289,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
   return (
     <div className={`fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 transition-all`}>
       <div
-        className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'
+        className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1150px] max-w-[95vw] max-h-[90vh]'
           }`}
       >
         {/* Header */}
@@ -357,9 +357,9 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                           : 'hover:bg-white/5'
                         }`}
                     >
-                      <td className="px-4 py-3 text-white text-center font-medium">{idx + 1}</td>
-                      <td className="px-4 py-3 text-white font-mono">{row.demand_id || row.id || '-'}</td>
-                      <td className="px-4 py-3 text-white">
+                      <td className="px-4 py-3 text-white text-center font-medium whitespace-nowrap">{idx + 1}</td>
+                      <td className="px-4 py-3 text-white font-mono whitespace-nowrap">{row.demand_id || row.id || '-'}</td>
+                      <td className="px-4 py-3 text-white whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           {row.demand_date || '-'}
                           {isRowLocked && (
@@ -374,8 +374,8 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                       </td>
                       <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
                       <td className="px-4 py-3 text-white">{row.item_name || '-'}</td>
-                      <td className="px-4 py-3 text-white">{row.quantity_txt || row.quantity || '-'}</td>
-                      <td className="px-4 py-3 text-white text-xs">
+                      <td className="px-4 py-3 text-white whitespace-nowrap">{row.quantity_txt || row.quantity || '-'}</td>
+                      <td className="px-4 py-3 text-white text-xs whitespace-nowrap">
                         <span className={`px-2 py-1 rounded-sm shadow border ${(row.priority_txt || '').toLowerCase() === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (row.priority_txt || '').toLowerCase() === 'medium' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
                           {row.priority_txt || '-'}
                         </span>
