@@ -24,6 +24,7 @@ interface DemandRow {
   is_locked?: string | number;
   is_verified?: string;
   verified_text?: string;
+  raised_by_staff_name?: string;
 }
 
 export default function DemandsPage() {
@@ -552,6 +553,7 @@ export default function DemandsPage() {
                   <th className="px-5 py-4">DEMAND ID</th>
                   <th className="px-5 py-4">DATE</th>
                   <th className="px-5 py-4">PROJECT</th>
+                  <th className="px-5 py-4">RAISED BY</th>
                   <th className="px-5 py-4">ITEM</th>
                   <th className="px-5 py-4">QNTY</th>
                   <th className="px-5 py-4">PRIORITY</th>
@@ -561,14 +563,14 @@ export default function DemandsPage() {
               <tbody className="divide-y divide-gray-800 bg-[#161a25]">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-gray-500">
+                    <td colSpan={9} className="py-12 text-center text-gray-500">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />
                       Loading Demands...
                     </td>
                   </tr>
                 ) : demandsList.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="py-12 text-center text-gray-500 italic">
+                    <td colSpan={9} className="py-12 text-center text-gray-500 italic">
                       No demands found matching the selected criteria.
                     </td>
                   </tr>
@@ -604,6 +606,9 @@ export default function DemandsPage() {
                         </td>
                         <td className="px-5 py-4 text-gray-300">
                           {row.project_name || '-'}
+                        </td>
+                        <td className="px-5 py-4 text-gray-300">
+                          {row.raised_by_staff_name || '-'}
                         </td>
                         <td className="px-5 py-4 text-gray-300 truncate max-w-xs">
                           <div className="flex items-center gap-1.5">
