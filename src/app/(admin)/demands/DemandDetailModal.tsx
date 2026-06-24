@@ -331,6 +331,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
               <thead className="text-[12px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
                 <tr>
                   <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
+                  <th className="px-4 py-3 border-r border-[#bac4cf] w-20">DEMAND ID</th>
                   <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
                   <th className="px-4 py-3 border-r border-[#bac4cf]">PROJECT</th>
                   <th className="px-4 py-3 border-r border-[#bac4cf]">ITEM</th>
@@ -357,6 +358,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                         }`}
                     >
                       <td className="px-4 py-3 text-white text-center font-medium">{idx + 1}</td>
+                      <td className="px-4 py-3 text-white font-mono">{row.demand_id || row.id || '-'}</td>
                       <td className="px-4 py-3 text-white">
                         <div className="flex items-center gap-1.5">
                           {row.demand_date || '-'}
@@ -416,7 +418,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                 })}
                 {demandsData.length === 0 && (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">No demands found.</td>
+                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500">No demands found.</td>
                   </tr>
                 )}
               </tbody>
@@ -599,12 +601,12 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
         demand={
           verifyDemandData
             ? {
-                ...verifyDemandData,
-                project_code:
-                  verifyDemandData.project_code ||
-                  projects?.find((p: any) => String(p.project_id || p.id) === String(verifyDemandData.project_id))?.project_code ||
-                  ''
-              }
+              ...verifyDemandData,
+              project_code:
+                verifyDemandData.project_code ||
+                projects?.find((p: any) => String(p.project_id || p.id) === String(verifyDemandData.project_id))?.project_code ||
+                ''
+            }
             : null
         }
         warehouses={warehouses}

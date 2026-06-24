@@ -1,4 +1,4 @@
-import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2 } from 'lucide-react';
+import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2, ChevronDown } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
@@ -50,6 +50,8 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
   const [scheduleSelectedPriority, setScheduleSelectedPriority] = useState<string | null>(null);
   const [scheduleTargetDate, setScheduleTargetDate] = useState<string>('');
   const [scheduleSelectedStage, setScheduleSelectedStage] = useState<string | null>(null);
+  const [isStageDropdownOpen, setIsStageDropdownOpen] = useState(false);
+  const [stageSearchQuery, setStageSearchQuery] = useState('');
   const [isTargetDateLoading, setIsTargetDateLoading] = useState(false);
 
   const [isSearching, setIsSearching] = useState(false);
@@ -58,6 +60,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
   const lastSearchedQuery = useRef('');
   const abortControllerRef = useRef<AbortController | null>(null);
   const searchContainerRef = useRef<HTMLDivElement>(null);
+  const stageDropdownRef = useRef<HTMLDivElement>(null);
 
   const [isConfigureOpen, setIsConfigureOpen] = useState(false);
   const [configuringItem, setConfiguringItem] = useState<any>(null);
@@ -73,6 +76,9 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowSearchDropdown(false);
+      }
+      if (stageDropdownRef.current && !stageDropdownRef.current.contains(event.target as Node)) {
+        setIsStageDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -352,6 +358,8 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
         setIsScheduleModalOpen(false);
         setScheduleSelectedPriority(null);
         setScheduleSelectedStage(null);
+        setIsStageDropdownOpen(false);
+        setStageSearchQuery('');
         setScheduleTargetDate('');
       } else {
         toast.error(data.Message || "Failed to create demand");
@@ -368,6 +376,9 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
 
   const currentProjectObj = projects.find(p => String(p.id || p.project_id) === String(selectedProject));
   const stages = currentProjectObj?.stages_data || [];
+  const filteredStages = stages.filter((s: any) => 
+    s.stage_name.toLowerCase().includes(stageSearchQuery.toLowerCase())
+  );
 
   const totalItems = itemsList.reduce((sum, item) => sum + (Number(item.qnty) || 0), 0);
 
@@ -661,26 +672,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                       Remaining characters: {200 - (configureComment?.length || 0)}
                     </div>
                   </div>
-                  <div>
-                    <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Choose Priority</label>
-                    <Select
-                      options={priorities.map((p: any) => ({ value: String(p.id), label: p.priority }))}
-                      value={priorities.find(p => String(p.id) === configurePriority) ? { value: configurePriority, label: priorities.find((p: any) => String(p.id) === configurePriority)?.priority } : null}
-                      onChange={(val: any) => setConfigurePriority(val ? val.value : '3')}
-                      placeholder="Select priority..."
-                      isDisabled={isAutoGenerating}
-                      styles={{
-                        control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', fontWeight: 400, color: '#fff', boxShadow: 'none', cursor: 'pointer', fontSize: '13px' }),
-                        menuPortal: base => ({ ...base, zIndex: 99999 }),
-                        menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
-                        option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontWeight: 400, fontSize: '13px' }),
-                        singleValue: base => ({ ...base, color: '#fff', fontWeight: 400, fontSize: '13px' }),
-                        placeholder: base => ({ ...base, color: '#9ca3af', fontWeight: 400, fontSize: '13px' }),
-                        indicatorSeparator: () => ({ display: 'none' })
-                      }}
-                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                    />
-                  </div>
+
                </div>
                
                <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3">
@@ -737,25 +729,65 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                      menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                    />
                  </div>
-                 <div>
-                   <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Select Stage</label>
-                   <Select
-                     options={stages.map((s: any) => ({ value: String(s.stage_id), label: s.stage_name }))}
-                     value={stages.find((s: any) => String(s.stage_id) === scheduleSelectedStage) ? { value: scheduleSelectedStage, label: stages.find((s: any) => String(s.stage_id) === scheduleSelectedStage)?.stage_name } : null}
-                     onChange={(val: any) => setScheduleSelectedStage(val ? val.value : null)}
-                     placeholder="Select Stage..."
-                     styles={{
-                       control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', color: '#fff', boxShadow: 'none', cursor: 'pointer', fontSize: '13px' }),
-                       menuPortal: base => ({ ...base, zIndex: 99999 }),
-                       menu: base => ({ ...base, backgroundColor: '#161a25', border: '1px solid #4b5563', borderRadius: '4px' }),
-                       option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
-                       singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
-                       placeholder: base => ({ ...base, color: '#9ca3af', fontSize: '13px' }),
-                       indicatorSeparator: () => ({ display: 'none' })
-                     }}
-                     menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                   />
-                 </div>
+                  <div className="flex flex-col gap-1.5 relative" ref={stageDropdownRef}>
+                    <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Select Stage</label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setIsStageDropdownOpen(!isStageDropdownOpen);
+                        }}
+                        className="w-full bg-[#161a25] text-white rounded px-3 py-2.5 text-left font-normal text-[13px] flex items-center justify-between border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <span className={scheduleSelectedStage ? "text-white font-normal" : "text-gray-400 font-normal"}>
+                          {stages.find((s: any) => String(s.stage_id) === String(scheduleSelectedStage))?.stage_name || "Select Stage..."}
+                        </span>
+                        <ChevronDown className="w-4 h-4 text-gray-400 stroke-[2.5]" />
+                      </button>
+                      
+                      {isStageDropdownOpen && (
+                        <div className="absolute top-[42px] left-0 right-0 z-50 bg-[#161a25] border border-gray-600 rounded shadow-2xl overflow-hidden flex flex-col max-h-60">
+                          {/* Search input inside Stage select */}
+                          <div className="p-2 border-b border-gray-700">
+                            <input
+                              type="text"
+                              placeholder="Search stage..."
+                              value={stageSearchQuery}
+                              onChange={(e) => setStageSearchQuery(e.target.value)}
+                              className="w-full bg-[#232b3e] border border-gray-600 rounded px-3 py-1.5 text-xs text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 font-medium"
+                              autoFocus
+                            />
+                          </div>
+                          
+                          {/* Dropdown Options */}
+                          <div className="overflow-y-auto max-h-40 divide-y divide-gray-700">
+                            {filteredStages.length === 0 ? (
+                              <div className="p-3 text-center text-xs text-gray-400 font-semibold">
+                                No stages found
+                              </div>
+                            ) : (
+                              filteredStages.map((s: any) => (
+                                <button
+                                  key={s.stage_id}
+                                  type="button"
+                                  onClick={() => {
+                                    setScheduleSelectedStage(String(s.stage_id));
+                                    setIsStageDropdownOpen(false);
+                                    setStageSearchQuery('');
+                                  }}
+                                  className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-blue-600/20 text-white ${
+                                    String(s.stage_id) === String(scheduleSelectedStage) ? "bg-blue-600/30 text-blue-400" : ""
+                                  }`}
+                                >
+                                  {s.stage_name}
+                                </button>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                  <div>
                    <label className="block text-[13px] font-medium text-gray-300 mb-1.5">Target Date</label>
                    <input
@@ -767,13 +799,17 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                    />
                  </div>
                </div>
-               <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3">
-                 <button
-                   onClick={() => setIsScheduleModalOpen(false)}
-                   className="px-4 py-2 text-[13px] font-medium text-white bg-gray-600 hover:bg-gray-500 rounded transition-colors"
-                 >
-                   Cancel
-                 </button>
+                <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3">
+                  <button
+                    onClick={() => {
+                      setIsScheduleModalOpen(false);
+                      setIsStageDropdownOpen(false);
+                      setStageSearchQuery('');
+                    }}
+                    className="px-4 py-2 text-[13px] font-medium text-white bg-gray-600 hover:bg-gray-500 rounded transition-colors"
+                  >
+                    Cancel
+                  </button>
                  <button
                    onClick={handleConfirmDemand}
                    disabled={isSaving || !scheduleSelectedPriority || (stages.length > 0 && !scheduleSelectedStage)}

@@ -549,6 +549,7 @@ export default function DemandsPage() {
               <thead className="text-[12px] text-gray-400 font-medium bg-[#1f2536] border-b border-gray-800 sticky top-0 z-10">
                 <tr>
                   <th className="px-5 py-4 w-16">SL</th>
+                  <th className="px-5 py-4">DEMAND ID</th>
                   <th className="px-5 py-4">DATE</th>
                   <th className="px-5 py-4">PROJECT</th>
                   <th className="px-5 py-4">ITEM</th>
@@ -560,14 +561,14 @@ export default function DemandsPage() {
               <tbody className="divide-y divide-gray-800 bg-[#161a25]">
                 {isLoading ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-gray-500">
+                    <td colSpan={8} className="py-12 text-center text-gray-500">
                       <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />
                       Loading Demands...
                     </td>
                   </tr>
                 ) : demandsList.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-gray-500 italic">
+                    <td colSpan={8} className="py-12 text-center text-gray-500 italic">
                       No demands found matching the selected criteria.
                     </td>
                   </tr>
@@ -589,6 +590,9 @@ export default function DemandsPage() {
                       >
                         <td className="px-5 py-4 font-medium text-gray-400">
                           {(currentPage - 1) * 10 + idx + 1}
+                        </td>
+                        <td className="px-5 py-4 text-gray-300 font-mono">
+                          {row.demand_id || '-'}
                         </td>
                         <td className="px-5 py-4 text-gray-200">
                           <div className="flex items-center gap-1.5">
