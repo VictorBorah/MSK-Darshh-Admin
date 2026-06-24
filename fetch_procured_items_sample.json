@@ -1,0 +1,23 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "items_data": [
+            {
+                "purchase_id": "2",
+                "procurement_id": "2",
+                "item_id": "139",
+                "qnty": "10.00",
+                "item_name": "Plastic Bucket"
+            },
+            {
+                "purchase_id": "3",
+                "procurement_id": "3",
+                "item_id": "229",
+                "qnty": "10.00",
+                "item_name": "Hacksaw"
+            }
+        ],
+        "Message": "Fetched purchased items"
+    }
+]
