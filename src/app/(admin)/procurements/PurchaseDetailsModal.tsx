@@ -633,7 +633,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               {isVerified && canClose && (
                                  <button
                                     onClick={() => setShowFinalizeInvoiceModal(true)}
-                                    disabled={isFinalizing}
+                                    disabled={isFinalizing || isClosed || localItemData?.is_closed === 'Yes'}
                                     className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200"
                                  >
                                     {isFinalizing ? 'Finalizing...' : 'Finalize Purchase'}

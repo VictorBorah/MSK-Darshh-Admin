@@ -157,7 +157,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
     setIsFetchingDemands(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemandItems?project_id=${selectedProject}`, { headers: { 'Authorization': `Bearer ${token}` } });
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchDemandItems?project_id=${selectedProject}&is_material=1`, { headers: { 'Authorization': `Bearer ${token}` } });
       const text = await res.text();
       let arr; try { arr = JSON.parse(text); } catch (e) { }
       const data = arr && Array.isArray(arr) ? arr[0] : arr;
