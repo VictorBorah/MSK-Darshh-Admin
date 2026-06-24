@@ -35,6 +35,9 @@ interface Stage {
 }
 
 export default function GpsPhotos() {
+  const [isMounted, setIsMounted] = useState(false);
+  const hasInitializedProject = useRef(false);
+
   // Consume projects, default project from AuthContext
   const { projects, defaultProject, isLoadingAppData } = useAuth();
 
@@ -42,6 +45,9 @@ export default function GpsPhotos() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [stages, setStages] = useState<Stage[]>([]);
   const [selectedStageId, setSelectedStageId] = useState<string>('');
+
+  // Setting from sys/fetch_system_config
+  const [enableDefaultProjectLoadingSetting, setEnableDefaultProjectLoadingSetting] = useState<boolean | null>(null);
   
   // Date states (formatted as YYYY-MM-DD for native matching)
   const [fromDate, setFromDate] = useState<string>('');
@@ -101,21 +107,66 @@ export default function GpsPhotos() {
     }
   }, [toast]);
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Fetch system config settings
+  useEffect(() => {
+    if (!isMounted) return;
+    const fetchConfig = async () => {
+      try {
+        const token = localStorage.getItem('at_ki8Xq1iV');
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+        const res = await fetch(`${baseUrl}sys/fetch_system_config`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const text = await res.text();
+        const cleanedText = text.replace(/[\u0000-\u001f]/g, (ch) => {
+          if (ch === '\n') return '\\n';
+          if (ch === '\r') return '\\r';
+          if (ch === '\t') return '\\t';
+          return '';
+        });
+        const data = JSON.parse(cleanedText);
+        const configData = Array.isArray(data) ? data[0] : data;
+
+        if (configData && String(configData.Status) === '1') {
+          const appSettings = Array.isArray(configData.app_settings) ? configData.app_settings[0] : configData.app_settings;
+          if (appSettings) {
+            setEnableDefaultProjectLoadingSetting(String(appSettings.enableDefaultProjectLoading) === '1');
+          }
+        }
+      } catch (err) {
+        console.error('Error loading config:', err);
+      }
+    };
+    fetchConfig();
+  }, [isMounted]);
+
   // Sync Default Project on Initial Load
   useEffect(() => {
-    if (!isLoadingAppData && projects && projects.length > 0) {
-      const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
-      
-      if (hasDefaultProject && !selectedProject) {
-        const matched = projects.find((p: any) => String(p.project_id) === String(defaultProject));
-        if (matched) {
-          setSelectedProject(matched);
-          const projectStages = (matched as any).stages_data || [];
-          setStages(projectStages);
+    if (hasInitializedProject.current) return;
+    if (enableDefaultProjectLoadingSetting === null) return; // Wait for config settings to resolve
+
+    if (enableDefaultProjectLoadingSetting === true) {
+      if (!isLoadingAppData && projects && projects.length > 0) {
+        const hasDefaultProject = defaultProject && String(defaultProject) !== "0" && String(defaultProject).trim() !== "";
+        
+        if (hasDefaultProject) {
+          const matched = projects.find((p: any) => String(p.project_id) === String(defaultProject));
+          if (matched) {
+            setSelectedProject(matched);
+            const projectStages = (matched as any).stages_data || [];
+            setStages(projectStages);
+          }
         }
       }
+    } else {
+      setSelectedProject(null); // Keep selectedProject null to display placeholder
     }
-  }, [isLoadingAppData, defaultProject, projects, selectedProject]);
+    hasInitializedProject.current = true;
+  }, [isLoadingAppData, defaultProject, projects, enableDefaultProjectLoadingSetting]);
 
   // Helper: Convert YYYY-MM-DD date string to API expected DD-MM-YYYY
   const convertInputToApiDate = (dateStr: string) => {
@@ -428,6 +479,8 @@ export default function GpsPhotos() {
   const filteredStages = stages.filter((stage) =>
     (stage.stage_name || '').toLowerCase().includes(stageSearchQuery.toLowerCase())
   );
+
+  if (!isMounted) return null;
 
   if (isLoadingAppData) {
     return (
