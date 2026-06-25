@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/components/providers/AuthProvider';
 import ApprovePurchase from './ApprovePurchase';
 import FinalizeInvoiceModal from './FinalizeInvoiceModal';
+import EditAdditionalExpense from './EditAdditionalExpense';
 
 interface PurchaseDetailsModalProps {
    isOpen: boolean;
@@ -34,10 +35,9 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [showFinalizeInvoiceModal, setShowFinalizeInvoiceModal] = useState<boolean>(false);
    const [isFinalizing, setIsFinalizing] = useState(false);
    const [isMaximized, setIsMaximized] = useState(false);
-   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
-   const [expenseEditName, setExpenseEditName] = useState('');
-   const [expenseEditRate, setExpenseEditRate] = useState('');
-   const [expenseEditQty, setExpenseEditQty] = useState('');
+   const [paymentModes, setPaymentModes] = useState<any[]>([]);
+   const [selectedEditExpense, setSelectedEditExpense] = useState<any | null>(null);
+   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false);
 
    // Local editable states and calculated data
    const [localItemData, setLocalItemData] = useState<any>(itemRow);
@@ -64,21 +64,26 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
          try { arr = JSON.parse(cleanedText); } catch (e) { arr = {}; }
          const data = Array.isArray(arr) ? arr[0] : arr;
 
-         if (data && String(data.Status) === '1' && Array.isArray(data.warehouse_data)) {
-            setWarehouses(data.warehouse_data);
+         if (data && String(data.Status) === '1') {
+            if (Array.isArray(data.warehouse_data)) {
+               setWarehouses(data.warehouse_data);
 
-            const histId = localItemData?.warehouse_id || itemRow?.warehouse_id;
-            const isHistValid = histId && String(histId) !== '0' && String(histId).trim() !== '';
+               const histId = localItemData?.warehouse_id || itemRow?.warehouse_id;
+               const isHistValid = histId && String(histId) !== '0' && String(histId).trim() !== '';
 
-            if (isHistValid) {
-               setSelectedWarehouse(String(histId));
-            } else {
-               const defaultWh = data.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
-               if (defaultWh) {
-                  setSelectedWarehouse(String(defaultWh.id));
+               if (isHistValid) {
+                  setSelectedWarehouse(String(histId));
                } else {
-                  setSelectedWarehouse('');
+                  const defaultWh = data.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
+                  if (defaultWh) {
+                     setSelectedWarehouse(String(defaultWh.id));
+                  } else {
+                     setSelectedWarehouse('');
+                  }
                }
+            }
+            if (Array.isArray(data.payment_modes)) {
+               setPaymentModes(data.payment_modes);
             }
          }
       } catch (err) {
@@ -276,36 +281,16 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    };
 
    const handleStartEditExpense = (expense: any) => {
-      setEditingExpenseId(String(expense.expense_id));
-      setExpenseEditName(expense.item_name || '');
-      setExpenseEditRate(String(expense.unit_price || ''));
-      setExpenseEditQty(String(expense.qnty || ''));
+      setSelectedEditExpense(expense);
+      setIsEditExpenseOpen(true);
    };
 
-   const handleSaveExpense = (expenseId: string) => {
-      const rateVal = parseFloat(expenseEditRate);
-      const qtyVal = parseFloat(expenseEditQty);
-
-      if (isNaN(rateVal) || rateVal < 0 || expenseEditRate === '') {
-         toast.error('Invalid unit price');
-         return;
-      }
-      if (isNaN(qtyVal) || qtyVal < 0 || expenseEditQty === '') {
-         toast.error('Invalid quantity');
-         return;
-      }
-
+   const handleUpdateExpenseLocal = (updatedExpense: any) => {
       setLocalItemData((prev: any) => {
          if (!prev) return prev;
          const updatedExpenses = (prev.additional_expenses || []).map((exp: any) => {
-            if (String(exp.expense_id) === String(expenseId)) {
-               return {
-                  ...exp,
-                  item_name: exp.item_name,
-                  unit_price: rateVal.toFixed(2),
-                  qnty: qtyVal.toString(),
-                  total_amount: (rateVal * qtyVal).toFixed(2)
-               };
+            if (String(exp.expense_id) === String(updatedExpense.expense_id)) {
+               return updatedExpense;
             }
             return exp;
          });
@@ -314,7 +299,14 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
             additional_expenses: updatedExpenses
          };
       });
-      setEditingExpenseId(null);
+      toast.success("Additional expense updated successfully (Staging Placeholder)", {
+         style: {
+            background: '#10b981',
+            color: '#fff',
+         }
+      });
+      setIsEditExpenseOpen(false);
+      setSelectedEditExpense(null);
    };
 
    const handleRemoveExpense = (expenseId: string) => {
@@ -753,103 +745,49 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               </thead>
                               <tbody className="divide-y divide-gray-700/30">
                                  {(localItemData?.additional_expenses || []).map((row: any, idx: number) => {
-                                    const isEditing = String(editingExpenseId) === String(row.expense_id);
-
                                     return (
                                        <tr
                                           key={row.expense_id || idx}
-                                          className={`group transition-colors ${isEditing ? 'bg-blue-500/5' : 'hover:bg-white/5'}`}
+                                          className="group hover:bg-white/5 transition-colors"
                                        >
-                                          {isEditing ? (
-                                             <>
-                                                <td className="py-2 pr-1 text-gray-400 font-medium break-words">
-                                                   {row.item_name}
-                                                </td>
-                                                <td className="py-2 px-1">
-                                                   <input
-                                                      type="number"
-                                                      min="0"
-                                                      step="0.01"
-                                                      value={expenseEditRate}
-                                                      onChange={(e) => setExpenseEditRate(e.target.value)}
-                                                      className="w-20 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
-                                                   />
-                                                </td>
-                                                <td className="py-2 px-1">
-                                                   <input
-                                                      type="number"
-                                                      min="0"
-                                                      step="1"
-                                                      value={expenseEditQty}
-                                                      onChange={(e) => setExpenseEditQty(e.target.value)}
-                                                      className="w-14 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
-                                                   />
-                                                </td>
-                                                <td className="py-3 px-1 text-right text-gray-400 font-semibold">
-                                                   {(
-                                                      (parseFloat(expenseEditRate) || 0) *
-                                                      (parseFloat(expenseEditQty) || 0)
-                                                   ).toFixed(2)}
-                                                </td>
-                                                <td className="py-2 text-center">
-                                                   <div className="flex items-center justify-center gap-1">
-                                                      <button
-                                                         onClick={() => handleSaveExpense(row.expense_id)}
-                                                         className="text-emerald-400 hover:text-emerald-300 font-bold text-[10px] uppercase underline cursor-pointer"
-                                                      >
-                                                         Save
-                                                      </button>
-                                                      <button
-                                                         onClick={() => setEditingExpenseId(null)}
-                                                         className="text-gray-400 hover:text-white font-bold text-[10px] uppercase underline cursor-pointer"
-                                                      >
-                                                         Esc
-                                                      </button>
-                                                   </div>
-                                                 </td>
-                                             </>
-                                          ) : (
-                                             <>
-                                                <td className="py-3 pr-1 text-white font-medium break-words">
-                                                   {row.item_name}
-                                                </td>
-                                                <td className="py-3 px-1 text-center text-gray-300">
-                                                   {parseFloat(row.unit_price || 0).toFixed(2)}
-                                                </td>
-                                                <td className="py-3 px-1 text-center text-gray-300">
-                                                   {row.qnty}
-                                                 </td>
-                                                <td className="py-3 px-1.5 text-right text-gray-400 font-semibold">
-                                                   {parseFloat(row.total_amount || 0).toFixed(2)}
-                                                </td>
-                                                <td className="py-2 text-center">
-                                                   <div className="flex items-center justify-center gap-1">
-                                                      <button
-                                                         onClick={() => !isClosedPurchase && handleStartEditExpense(row)}
-                                                         title={isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
-                                                         className={`p-1 rounded transition-colors ${
-                                                            isClosedPurchase
-                                                               ? 'text-gray-600 cursor-not-allowed opacity-50'
-                                                               : 'text-gray-400 hover:text-white hover:bg-white/10'
-                                                         }`}
-                                                      >
-                                                         <Pencil className="w-3.5 h-3.5" />
-                                                      </button>
-                                                      <button
-                                                         onClick={() => !isClosedPurchase && handleRemoveExpense(row.expense_id)}
-                                                         title={isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
-                                                         className={`p-1 rounded transition-colors ${
-                                                            isClosedPurchase
-                                                               ? 'text-gray-600 cursor-not-allowed opacity-50'
-                                                               : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
-                                                         }`}
-                                                      >
-                                                         <Trash2 className="w-3.5 h-3.5" />
-                                                      </button>
-                                                   </div>
-                                                </td>
-                                             </>
-                                          )}
+                                          <td className="py-3 pr-1 text-white font-medium break-words">
+                                             {row.item_name}
+                                          </td>
+                                          <td className="py-3 px-1 text-center text-gray-300">
+                                             {parseFloat(row.unit_price || 0).toFixed(2)}
+                                          </td>
+                                          <td className="py-3 px-1 text-center text-gray-300">
+                                             {row.qnty}
+                                          </td>
+                                          <td className="py-3 px-1.5 text-right text-gray-400 font-semibold">
+                                             {parseFloat(row.total_amount || 0).toFixed(2)}
+                                          </td>
+                                          <td className="py-2 text-center">
+                                             <div className="flex items-center justify-center gap-1">
+                                                <button
+                                                   onClick={() => !isClosedPurchase && handleStartEditExpense(row)}
+                                                   title={isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
+                                                   className={`p-1 rounded transition-colors ${
+                                                      isClosedPurchase
+                                                         ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                                         : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                                   }`}
+                                                >
+                                                   <Pencil className="w-3.5 h-3.5" />
+                                                </button>
+                                                <button
+                                                   onClick={() => !isClosedPurchase && handleRemoveExpense(row.expense_id)}
+                                                   title={isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
+                                                   className={`p-1 rounded transition-colors ${
+                                                      isClosedPurchase
+                                                         ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                                         : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
+                                                   }`}
+                                                >
+                                                   <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                             </div>
+                                          </td>
                                        </tr>
                                     );
                                  })}
@@ -1053,6 +991,17 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
             itemRow={localItemData}
             onConfirm={handleFinalizePurchase}
             isSaving={isFinalizing}
+         />
+
+         <EditAdditionalExpense
+            isOpen={isEditExpenseOpen}
+            onClose={() => {
+               setIsEditExpenseOpen(false);
+               setSelectedEditExpense(null);
+            }}
+            expense={selectedEditExpense}
+            paymentModes={paymentModes}
+            onSave={handleUpdateExpenseLocal}
          />
       </>
    );
