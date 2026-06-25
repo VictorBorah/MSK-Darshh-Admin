@@ -752,7 +752,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                 invoice_file_string: row.invoice_file || "",
                 tax_inv_no: row.invoice_number || "",
                 utility_tag: String(row.utility_tag || ""),
-                warehouse_id: String(row.warehouse_id || "")
+                warehouse_id: String(row.warehouse_id || ""),
+                additional_expenses: row.additional_expenses || []
               };
             });
 
