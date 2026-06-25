@@ -424,7 +424,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div
                className={`bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative transition-all duration-300 ${
-                  isMaximized ? 'w-full h-full rounded-none' : 'w-[1100px] max-w-[95vw] h-[82vh] max-h-[82vh] rounded-xl'
+                  isMaximized ? 'w-full h-full rounded-none' : 'w-[1250px] max-w-[95vw] h-[82vh] max-h-[82vh] rounded-xl'
                }`}
                onClick={handleModalClick}
             >
@@ -451,8 +451,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                <div className="p-6 bg-[#161a25] overflow-y-auto flex-1">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                     {/* Left Column: Basic Pricing & Info (Span 5) */}
-                     <div ref={itemDetailsRef} className="lg:col-span-5 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
+                     {/* Left Column: Basic Pricing & Info (Span 4) */}
+                     <div ref={itemDetailsRef} className="lg:col-span-4 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
                         <div className="flex items-start justify-between">
                            <div>
                               <h3 className="text-white font-bold text-[15px]">{localItemData?.item_name || 'N/A'}</h3>
@@ -734,8 +734,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         </div>
                      </div>
 
-                     {/* Middle Column: Additional Expenses (Span 3) */}
-                     <div className="lg:col-span-3 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3 self-stretch">
+                     {/* Middle Column: Additional Expenses (Span 4) */}
+                     <div className="lg:col-span-4 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3 self-stretch">
                         <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pb-1.5 border-b border-gray-700/50">
                            Additional Expenses
                         </h4>
@@ -745,10 +745,10 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <thead>
                                  <tr className="text-gray-500 font-bold uppercase border-b border-gray-700/50 text-[10px]">
                                     <th className="py-2 pr-1.5">Item</th>
-                                    <th className="py-2 px-1 text-center w-16">Rate</th>
-                                    <th className="py-2 px-1 text-center w-12">Qnty</th>
-                                    <th className="py-2 px-1.5 text-right w-16">Total</th>
-                                    <th className="py-2 w-16 text-center"></th>
+                                    <th className="py-2 px-1 text-center w-20">Rate</th>
+                                    <th className="py-2 px-1 text-center w-14">Qnty</th>
+                                    <th className="py-2 px-1.5 text-right w-20">Total</th>
+                                    <th className="py-2 w-20 text-center"></th>
                                  </tr>
                               </thead>
                               <tbody className="divide-y divide-gray-700/30">
@@ -777,7 +777,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                       step="0.01"
                                                       value={expenseEditRate}
                                                       onChange={(e) => setExpenseEditRate(e.target.value)}
-                                                      className="w-16 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
+                                                      className="w-20 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
                                                    />
                                                 </td>
                                                 <td className="py-2 px-1">
@@ -787,7 +787,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                       step="1"
                                                       value={expenseEditQty}
                                                       onChange={(e) => setExpenseEditQty(e.target.value)}
-                                                      className="w-12 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
+                                                      className="w-14 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
                                                    />
                                                 </td>
                                                 <td className="py-3 px-1 text-right text-gray-400 font-semibold">
