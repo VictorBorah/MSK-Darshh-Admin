@@ -4,6 +4,7 @@ import Select from 'react-select';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '@/components/WarningAlertModal';
 import { useModalEscape } from '@/hooks/useModalEscape';
+import AdditionalExpenses from './AdditionalExpenses';
 
 interface TaxationDetailsModalProps {
   isOpen: boolean;
@@ -55,6 +56,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   const [showMathModal, setShowMathModal] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
 
+  const [additionalExpenses, setAdditionalExpenses] = useState<any[]>([]);
+  const [paymentModes, setPaymentModes] = useState<any[]>([]);
+  const [showAdditionalExpensesModal, setShowAdditionalExpensesModal] = useState(false);
+
   // Track if manually edited
   const [isManuallyEdited, setIsManuallyEdited] = useState(false);
   const skipNextFetchRef = useRef(false);
@@ -84,6 +89,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setIsManuallyEdited(false);
       setSelectedTag(item.utility_tag || '');
       setSelectedWarehouse(item.warehouse_id || '');
+      setAdditionalExpenses(item.additional_expenses || []);
       fetchInitialData();
     }
   }, [isOpen, item]);
@@ -129,6 +135,10 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
             setSelectedWarehouse(String(defaultWh.id));
           }
         }
+      }
+
+      if (configData && String(configData.Status) === '1' && Array.isArray(configData.payment_modes)) {
+        setPaymentModes(configData.payment_modes);
       }
 
       const defaultGst = appDataRaw?.System_Data?.default_gst || '';
@@ -854,6 +864,13 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
               Close
             </button>
             <button
+              type="button"
+              onClick={() => setShowAdditionalExpensesModal(true)}
+              className="px-6 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm"
+            >
+              Add Additional Expenses
+            </button>
+            <button
               onClick={() => {
                 onApply({
                   vendor_id: buyingVendor,
@@ -869,7 +886,8 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                   amount: taxData?.final_amount ? String(taxData.final_amount).replace(/[^0-9.]/g, '') : item?.amount,
                   taxData: taxData,
                   utility_tag: selectedTag,
-                  warehouse_id: selectedWarehouse
+                  warehouse_id: selectedWarehouse,
+                  additional_expenses: additionalExpenses
                 });
                 onClose();
               }}
@@ -957,6 +975,16 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
             content="Are you sure you want to delete this uploaded invoice file? This action cannot be undone."
             onConfirm={handleFileDelete}
             isLoading={isDeletingInvoice}
+          />
+          <AdditionalExpenses
+            isOpen={showAdditionalExpensesModal}
+            onClose={() => setShowAdditionalExpensesModal(false)}
+            projectId={item.project_id || ''}
+            paymentModes={paymentModes}
+            initialExpenses={additionalExpenses}
+            onAdd={(expenses) => {
+              setAdditionalExpenses(expenses);
+            }}
           />
         </div>
       </div>
