@@ -516,7 +516,7 @@ export default function ProcurementsPage() {
                         ) : isUnverified ? (
                           <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                         ) : null}
-                        {row.is_closed === 'Yes' && (
+                        {row.is_closed !== 'No' && (
                           <span title="Closed Purchase" className="inline-flex shrink-0">
                             <Lock className="w-3.5 h-3.5 text-emerald-400" />
                           </span>

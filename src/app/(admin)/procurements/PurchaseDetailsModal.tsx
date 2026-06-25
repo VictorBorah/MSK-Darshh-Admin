@@ -417,6 +417,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
    const privileges = procurementsMenuItem?.privileges_array?.[0] || {};
    const canApprove = privileges.approve_purchase === '1';
    const canClose = privileges.close_purchase === '1';
+   const isClosedPurchase = localItemData?.is_closed !== 'No';
 
    return (
       <>
@@ -476,15 +477,24 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <div className="flex items-center gap-2">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Quantity</span>
                                  {isVerified && canClose && !isEditingQty && (
-                                    <button
-                                       onClick={(e) => {
-                                          e.stopPropagation();
-                                          setIsEditingQty(true);
-                                       }}
-                                       className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
-                                    >
-                                       edit
-                                    </button>
+                                    isClosedPurchase ? (
+                                       <span 
+                                          title="Purchase Closed" 
+                                          className="text-[10px] text-gray-500 cursor-not-allowed underline lowercase font-semibold select-none"
+                                       >
+                                          edit
+                                       </span>
+                                    ) : (
+                                       <button
+                                          onClick={(e) => {
+                                             e.stopPropagation();
+                                             setIsEditingQty(true);
+                                          }}
+                                          className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
+                                       >
+                                          edit
+                                       </button>
+                                    )
                                  )}
                               </div>
                               {isEditingQty ? (
@@ -504,15 +514,24 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <div className="flex items-center gap-2">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Unit Price</span>
                                  {isVerified && canClose && !isEditingPrice && (
-                                    <button
-                                       onClick={(e) => {
-                                          e.stopPropagation();
-                                          setIsEditingPrice(true);
-                                       }}
-                                       className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
-                                    >
-                                       edit
-                                    </button>
+                                    isClosedPurchase ? (
+                                       <span 
+                                          title="Purchase Closed" 
+                                          className="text-[10px] text-gray-500 cursor-not-allowed underline lowercase font-semibold select-none"
+                                       >
+                                          edit
+                                       </span>
+                                    ) : (
+                                       <button
+                                          onClick={(e) => {
+                                             e.stopPropagation();
+                                             setIsEditingPrice(true);
+                                          }}
+                                          className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
+                                       >
+                                          edit
+                                       </button>
+                                    )
                                  )}
                               </div>
                               {isEditingPrice ? (
@@ -705,7 +724,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               {isVerified && canClose && (
                                  <button
                                     onClick={() => setShowFinalizeInvoiceModal(true)}
-                                    disabled={isFinalizing || isClosed || localItemData?.is_closed === 'Yes'}
+                                    disabled={isFinalizing || isClosed || isClosedPurchase}
                                     className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200"
                                  >
                                     {isFinalizing ? 'Finalizing...' : 'Finalize Purchase'}
@@ -735,7 +754,6 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <tbody className="divide-y divide-gray-700/30">
                                  {(localItemData?.additional_expenses || []).map((row: any, idx: number) => {
                                     const isEditing = String(editingExpenseId) === String(row.expense_id);
-                                    const isClosedPurchase = localItemData?.is_closed === 'Yes';
 
                                     return (
                                        <tr
@@ -813,11 +831,10 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                    <div className="flex items-center justify-center gap-1">
                                                       <button
                                                          onClick={() => !isClosedPurchase && handleStartEditExpense(row)}
-                                                         disabled={isClosedPurchase}
                                                          title={isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
                                                          className={`p-1 rounded transition-colors ${
                                                             isClosedPurchase
-                                                               ? 'text-gray-600 cursor-not-allowed'
+                                                               ? 'text-gray-600 cursor-not-allowed opacity-50'
                                                                : 'text-gray-400 hover:text-white hover:bg-white/10'
                                                          }`}
                                                       >
@@ -825,11 +842,10 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                       </button>
                                                       <button
                                                          onClick={() => !isClosedPurchase && handleRemoveExpense(row.expense_id)}
-                                                         disabled={isClosedPurchase}
                                                          title={isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
                                                          className={`p-1 rounded transition-colors ${
                                                             isClosedPurchase
-                                                               ? 'text-gray-600 cursor-not-allowed'
+                                                               ? 'text-gray-600 cursor-not-allowed opacity-50'
                                                                : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
                                                          }`}
                                                       >

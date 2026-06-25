@@ -341,7 +341,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
           </button>
           <button
             onClick={handleUpdate}
-            disabled={!isUpdateEnabled || purchaseDetails?.is_closed === 'Yes'}
+            disabled={!isUpdateEnabled || purchaseDetails?.is_closed !== 'No'}
             className="px-6 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2 focus:outline-none"
           >
             Update
@@ -359,7 +359,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
           setIsItemModalOpen(false);
           setIsConnectDemandOpen(true);
         }}
-        isClosed={purchaseDetails?.is_closed === 'Yes'}
+        isClosed={purchaseDetails?.is_closed !== 'No'}
         onSuccess={() => {
           setIsItemModalOpen(false);
           fetchDetails();
@@ -376,7 +376,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
         }}
         purchaseId={selectedItem?.id || selectedItem?.purchase_id || null}
         oldDemandId={selectedItem?.connected_demand_info?.demand_id || selectedItem?.connected_demand_id || null}
-        isClosed={purchaseDetails?.is_closed === 'Yes'}
+        isClosed={purchaseDetails?.is_closed !== 'No'}
       />
 
       <WarningAlertModal
