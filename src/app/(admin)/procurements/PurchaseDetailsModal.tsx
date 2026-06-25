@@ -301,7 +301,7 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
             if (String(exp.expense_id) === String(expenseId)) {
                return {
                   ...exp,
-                  item_name: expenseEditName,
+                  item_name: exp.item_name,
                   unit_price: rateVal.toFixed(2),
                   qnty: qtyVal.toString(),
                   total_amount: (rateVal * qtyVal).toFixed(2)
@@ -762,13 +762,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                        >
                                           {isEditing ? (
                                              <>
-                                                <td className="py-2 pr-1">
-                                                   <input
-                                                      type="text"
-                                                      value={expenseEditName}
-                                                      onChange={(e) => setExpenseEditName(e.target.value)}
-                                                      className="w-full bg-[#11141e] border border-gray-600 rounded px-1.5 py-0.5 text-white text-[12px] focus:outline-none focus:border-blue-500 font-medium"
-                                                   />
+                                                <td className="py-2 pr-1 text-gray-400 font-medium break-words">
+                                                   {row.item_name}
                                                 </td>
                                                 <td className="py-2 px-1">
                                                    <input
