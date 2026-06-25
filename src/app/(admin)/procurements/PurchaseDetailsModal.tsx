@@ -736,7 +736,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <table className="w-full text-[12px] text-left border-collapse">
                               <thead>
                                  <tr className="text-gray-500 font-bold uppercase border-b border-gray-700/50 text-[10px]">
-                                    <th className="py-2 pr-1.5">Item</th>
+                                    <th className="py-2 pl-4 pr-1.5">Item</th>
                                     <th className="py-2 px-1 text-center w-20">Rate</th>
                                     <th className="py-2 px-1 text-center w-14">Qnty</th>
                                     <th className="py-2 px-1.5 text-right w-20">Total</th>
@@ -750,7 +750,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                           key={row.expense_id || idx}
                                           className="group hover:bg-white/5 transition-colors"
                                        >
-                                          <td className="py-3 pr-1 text-white font-medium break-words">
+                                          <td className="py-3 pl-4 pr-1 text-white font-medium break-words">
                                              {row.item_name}
                                           </td>
                                           <td className="py-3 px-1 text-center text-gray-300">
