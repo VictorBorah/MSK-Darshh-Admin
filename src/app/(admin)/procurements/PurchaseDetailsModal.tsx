@@ -1,4 +1,4 @@
-import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check, Loader2, AlertTriangle, Maximize2, Minimize2, Pencil, Trash2 } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import { useState, useRef, useEffect } from 'react';
 import { generatePdfFromElement } from '@/utils/pdfGenerator';
@@ -33,6 +33,11 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
    const [showFinalizeInvoiceModal, setShowFinalizeInvoiceModal] = useState<boolean>(false);
    const [isFinalizing, setIsFinalizing] = useState(false);
+   const [isMaximized, setIsMaximized] = useState(false);
+   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
+   const [expenseEditName, setExpenseEditName] = useState('');
+   const [expenseEditRate, setExpenseEditRate] = useState('');
+   const [expenseEditQty, setExpenseEditQty] = useState('');
 
    // Local editable states and calculated data
    const [localItemData, setLocalItemData] = useState<any>(itemRow);
@@ -270,6 +275,62 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       }
    };
 
+   const handleStartEditExpense = (expense: any) => {
+      setEditingExpenseId(String(expense.expense_id));
+      setExpenseEditName(expense.item_name || '');
+      setExpenseEditRate(String(expense.unit_price || ''));
+      setExpenseEditQty(String(expense.qnty || ''));
+   };
+
+   const handleSaveExpense = (expenseId: string) => {
+      const rateVal = parseFloat(expenseEditRate);
+      const qtyVal = parseFloat(expenseEditQty);
+
+      if (isNaN(rateVal) || rateVal < 0 || expenseEditRate === '') {
+         toast.error('Invalid unit price');
+         return;
+      }
+      if (isNaN(qtyVal) || qtyVal < 0 || expenseEditQty === '') {
+         toast.error('Invalid quantity');
+         return;
+      }
+
+      setLocalItemData((prev: any) => {
+         if (!prev) return prev;
+         const updatedExpenses = (prev.additional_expenses || []).map((exp: any) => {
+            if (String(exp.expense_id) === String(expenseId)) {
+               return {
+                  ...exp,
+                  item_name: expenseEditName,
+                  unit_price: rateVal.toFixed(2),
+                  qnty: qtyVal.toString(),
+                  total_amount: (rateVal * qtyVal).toFixed(2)
+               };
+            }
+            return exp;
+         });
+         return {
+            ...prev,
+            additional_expenses: updatedExpenses
+         };
+      });
+      setEditingExpenseId(null);
+   };
+
+   const handleRemoveExpense = (expenseId: string) => {
+      setLocalItemData((prev: any) => {
+         if (!prev) return prev;
+         const updatedExpenses = (prev.additional_expenses || []).filter(
+            (exp: any) => String(exp.expense_id) !== String(expenseId)
+         );
+         return {
+            ...prev,
+            additional_expenses: updatedExpenses
+         };
+      });
+      toast.success('Expense removed locally');
+   };
+
    // Double-layered Safety: Early return immediately after hook declarations
    if (!isOpen || !itemRow) return null;
 
@@ -361,25 +422,36 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
       <>
          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div
-               className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[1100px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+               className={`bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative transition-all duration-300 ${
+                  isMaximized ? 'w-full h-full rounded-none' : 'w-[1100px] max-w-[95vw] h-[82vh] max-h-[82vh] rounded-xl'
+               }`}
                onClick={handleModalClick}
             >
 
-               <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25]">
+               <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25] shrink-0">
                   <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
                      <Box className="w-5 h-5 text-emerald-400" />
                      Item Details
                   </h2>
-                  <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Close">
-                     <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                     <button
+                        onClick={() => setIsMaximized(!isMaximized)}
+                        className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+                        title={isMaximized ? "Restore Size" : "Maximize"}
+                     >
+                        {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                     </button>
+                     <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Close">
+                        <X className="w-5 h-5" />
+                     </button>
+                  </div>
                </div>
 
-               <div className="p-6 bg-[#161a25] overflow-y-auto max-h-[82vh]">
+               <div className="p-6 bg-[#161a25] overflow-y-auto flex-1">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                     {/* Left Column: Basic Pricing & Info (Span 7) */}
-                     <div ref={itemDetailsRef} className="lg:col-span-7 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
+                     {/* Left Column: Basic Pricing & Info (Span 5) */}
+                     <div ref={itemDetailsRef} className="lg:col-span-5 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
                         <div className="flex items-start justify-between">
                            <div>
                               <h3 className="text-white font-bold text-[15px]">{localItemData?.item_name || 'N/A'}</h3>
@@ -643,8 +715,161 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         </div>
                      </div>
 
-                     {/* Right Column: Warehouse Setup & Demand Links (Span 5) */}
-                     <div className="lg:col-span-5 flex flex-col gap-6">
+                     {/* Middle Column: Additional Expenses (Span 3) */}
+                     <div className="lg:col-span-3 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3 self-stretch">
+                        <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pb-1.5 border-b border-gray-700/50">
+                           Additional Expenses
+                        </h4>
+
+                        <div className="overflow-x-auto overflow-y-auto max-h-[300px] flex-1">
+                           <table className="w-full text-[12px] text-left border-collapse">
+                              <thead>
+                                 <tr className="text-gray-500 font-bold uppercase border-b border-gray-700/50 text-[10px]">
+                                    <th className="py-2 pr-1.5">Item</th>
+                                    <th className="py-2 px-1 text-center w-16">Rate</th>
+                                    <th className="py-2 px-1 text-center w-12">Qnty</th>
+                                    <th className="py-2 px-1.5 text-right w-16">Total</th>
+                                    <th className="py-2 w-16 text-center"></th>
+                                 </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-700/30">
+                                 {(localItemData?.additional_expenses || []).map((row: any, idx: number) => {
+                                    const isEditing = String(editingExpenseId) === String(row.expense_id);
+                                    const isClosedPurchase = localItemData?.is_closed === 'Yes';
+
+                                    return (
+                                       <tr
+                                          key={row.expense_id || idx}
+                                          className={`group transition-colors ${isEditing ? 'bg-blue-500/5' : 'hover:bg-white/5'}`}
+                                       >
+                                          {isEditing ? (
+                                             <>
+                                                <td className="py-2 pr-1">
+                                                   <input
+                                                      type="text"
+                                                      value={expenseEditName}
+                                                      onChange={(e) => setExpenseEditName(e.target.value)}
+                                                      className="w-full bg-[#11141e] border border-gray-600 rounded px-1.5 py-0.5 text-white text-[12px] focus:outline-none focus:border-blue-500 font-medium"
+                                                   />
+                                                </td>
+                                                <td className="py-2 px-1">
+                                                   <input
+                                                      type="number"
+                                                      min="0"
+                                                      step="0.01"
+                                                      value={expenseEditRate}
+                                                      onChange={(e) => setExpenseEditRate(e.target.value)}
+                                                      className="w-16 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
+                                                   />
+                                                </td>
+                                                <td className="py-2 px-1">
+                                                   <input
+                                                      type="number"
+                                                      min="0"
+                                                      step="1"
+                                                      value={expenseEditQty}
+                                                      onChange={(e) => setExpenseEditQty(e.target.value)}
+                                                      className="w-12 bg-[#11141e] border border-gray-600 rounded px-1 py-0.5 text-white text-center text-[12px] focus:outline-none focus:border-blue-500 font-medium"
+                                                   />
+                                                </td>
+                                                <td className="py-3 px-1 text-right text-gray-400 font-semibold">
+                                                   {(
+                                                      (parseFloat(expenseEditRate) || 0) *
+                                                      (parseFloat(expenseEditQty) || 0)
+                                                   ).toFixed(2)}
+                                                </td>
+                                                <td className="py-2 text-center">
+                                                   <div className="flex items-center justify-center gap-1">
+                                                      <button
+                                                         onClick={() => handleSaveExpense(row.expense_id)}
+                                                         className="text-emerald-400 hover:text-emerald-300 font-bold text-[10px] uppercase underline cursor-pointer"
+                                                      >
+                                                         Save
+                                                      </button>
+                                                      <button
+                                                         onClick={() => setEditingExpenseId(null)}
+                                                         className="text-gray-400 hover:text-white font-bold text-[10px] uppercase underline cursor-pointer"
+                                                      >
+                                                         Esc
+                                                      </button>
+                                                   </div>
+                                                 </td>
+                                             </>
+                                          ) : (
+                                             <>
+                                                <td className="py-3 pr-1 text-white font-medium break-words">
+                                                   {row.item_name}
+                                                </td>
+                                                <td className="py-3 px-1 text-center text-gray-300">
+                                                   {parseFloat(row.unit_price || 0).toFixed(2)}
+                                                </td>
+                                                <td className="py-3 px-1 text-center text-gray-300">
+                                                   {row.qnty}
+                                                 </td>
+                                                <td className="py-3 px-1.5 text-right text-gray-400 font-semibold">
+                                                   {parseFloat(row.total_amount || 0).toFixed(2)}
+                                                </td>
+                                                <td className="py-2 text-center">
+                                                   <div className="flex items-center justify-center gap-1">
+                                                      <button
+                                                         onClick={() => !isClosedPurchase && handleStartEditExpense(row)}
+                                                         disabled={isClosedPurchase}
+                                                         title={isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
+                                                         className={`p-1 rounded transition-colors ${
+                                                            isClosedPurchase
+                                                               ? 'text-gray-600 cursor-not-allowed'
+                                                               : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                                         }`}
+                                                      >
+                                                         <Pencil className="w-3.5 h-3.5" />
+                                                      </button>
+                                                      <button
+                                                         onClick={() => !isClosedPurchase && handleRemoveExpense(row.expense_id)}
+                                                         disabled={isClosedPurchase}
+                                                         title={isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
+                                                         className={`p-1 rounded transition-colors ${
+                                                            isClosedPurchase
+                                                               ? 'text-gray-600 cursor-not-allowed'
+                                                               : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
+                                                         }`}
+                                                      >
+                                                         <Trash2 className="w-3.5 h-3.5" />
+                                                      </button>
+                                                   </div>
+                                                </td>
+                                             </>
+                                          )}
+                                       </tr>
+                                    );
+                                 })}
+                                 {(localItemData?.additional_expenses || []).length === 0 && (
+                                    <tr>
+                                       <td colSpan={5} className="py-8 text-center text-gray-500 italic">
+                                          No additional expenses added.
+                                       </td>
+                                    </tr>
+                                 )}
+                              </tbody>
+                           </table>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-3 border-t border-gray-700 mt-auto select-none">
+                           <span className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">
+                              Total Additional expenses:
+                           </span>
+                           <span className="text-[14px] text-emerald-400 font-bold">
+                              ₹ {
+                                 (localItemData?.additional_expenses || []).reduce(
+                                    (acc: number, cur: any) => acc + (parseFloat(cur.total_amount) || 0),
+                                    0
+                                 ).toFixed(2)
+                              }
+                           </span>
+                        </div>
+                     </div>
+
+                     {/* Right Column: Warehouse Setup & Demand Links (Span 4) */}
+                     <div className="lg:col-span-4 flex flex-col gap-6">
 
                         {/* Warehouse Configuration Block */}
                         <div className="flex flex-col gap-3 relative bg-[#1b202c] p-5 rounded-lg border border-gray-700">
