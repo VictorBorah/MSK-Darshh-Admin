@@ -596,10 +596,10 @@ export default function ClientPaymentModal({ isOpen, onClose, client }: ClientPa
                             key={idx}
                             onClick={() => !isFuture && handleDateClick(day.date)}
                             className={`h-7 w-7 flex items-center justify-center rounded-lg text-[10px] font-bold transition-all ${isFuture
-                                ? 'text-gray-700 opacity-25 cursor-not-allowed bg-transparent'
-                                : !day.isCurrentMonth
-                                  ? 'text-gray-600 opacity-40 hover:bg-gray-800/40 cursor-pointer'
-                                  : 'text-white hover:bg-gray-800 cursor-pointer'
+                              ? 'text-gray-700 opacity-25 cursor-not-allowed bg-transparent'
+                              : !day.isCurrentMonth
+                                ? 'text-gray-600 opacity-40 hover:bg-gray-800/40 cursor-pointer'
+                                : 'text-white hover:bg-gray-800 cursor-pointer'
                               } ${isSelected && !isFuture
                                 ? 'bg-blue-600 text-white rounded-lg font-extrabold'
                                 : isInBetween && !isFuture
@@ -740,6 +740,19 @@ export default function ClientPaymentModal({ isOpen, onClose, client }: ClientPa
                     })
                   )}
                 </tbody>
+                <tfoot className="bg-[#1f2536] border-t border-gray-800 font-bold text-white text-[13px] sticky bottom-0 z-10">
+                  <tr>
+                    <td colSpan={4} className="px-5 py-4 text-right uppercase tracking-wider text-gray-400 font-semibold">Total Amount:</td>
+                    <td data-html2canvas-ignore="true" className="px-5 py-4"></td>
+                    <td data-html2canvas-ignore="true" className="px-5 py-4"></td>
+                    <td className="px-5 py-4 text-right font-black text-emerald-400 text-[13.5px]">
+                      <div className="flex items-center justify-end gap-0.5">
+                        <IndianRupee className="w-3.5 h-3.5" />
+                        {totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </div>
+                    </td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
 

@@ -48,6 +48,25 @@ export const generatePdfFromElement = async (
       htmlEl.style.setProperty('color', '#000000', 'important');
       // Force border color light gray to avoid invisible borders on white background
       htmlEl.style.setProperty('border-color', '#d1d5db', 'important');
+      // Clear backgrounds to avoid dark background with dark text
+      htmlEl.style.setProperty('background-color', 'transparent', 'important');
+      htmlEl.style.setProperty('background', 'none', 'important');
+      
+      // Ensure SVG icons or lines print cleanly in black
+      const tagName = htmlEl.tagName.toLowerCase();
+      if (tagName === 'svg') {
+        htmlEl.style.setProperty('stroke', '#000000', 'important');
+      }
+      if (tagName === 'path' || tagName === 'circle' || tagName === 'rect' || tagName === 'line') {
+        const strokeAttr = htmlEl.getAttribute('stroke');
+        const fillAttr = htmlEl.getAttribute('fill');
+        if (strokeAttr && strokeAttr !== 'none') {
+          htmlEl.style.setProperty('stroke', '#000000', 'important');
+        }
+        if (fillAttr && fillAttr !== 'none' && fillAttr !== 'transparent') {
+          htmlEl.style.setProperty('fill', '#000000', 'important');
+        }
+      }
     });
 
     document.body.appendChild(clone);
