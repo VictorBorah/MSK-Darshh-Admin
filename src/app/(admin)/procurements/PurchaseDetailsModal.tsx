@@ -1,4 +1,4 @@
-import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check, Loader2, AlertTriangle } from 'lucide-react';
+import { X, Box, FileText, Anchor, Printer, Info, Share2, MessageCircle, Send, Mail, MessageSquare, Copy, Check, Loader2, AlertTriangle, Maximize2, Minimize2, Pencil, Trash2, Search, XCircle } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
 import { useState, useRef, useEffect } from 'react';
 import { generatePdfFromElement } from '@/utils/pdfGenerator';
@@ -7,6 +7,8 @@ import toast from 'react-hot-toast';
 import { useAuth } from '@/components/providers/AuthProvider';
 import ApprovePurchase from './ApprovePurchase';
 import FinalizeInvoiceModal from './FinalizeInvoiceModal';
+import EditAdditionalExpense from './EditAdditionalExpense';
+import WarningAlertModal from '@/components/WarningAlertModal';
 
 interface PurchaseDetailsModalProps {
    isOpen: boolean;
@@ -16,9 +18,11 @@ interface PurchaseDetailsModalProps {
    isClosed?: boolean;
    voucherNumber?: string;
    onSuccess?: () => void;
+   projectId?: string;
+   onRefresh?: () => void;
 }
 
-export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false, voucherNumber, onSuccess }: PurchaseDetailsModalProps) {
+export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDemandAction, isClosed = false, voucherNumber, onSuccess, projectId, onRefresh }: PurchaseDetailsModalProps) {
    useModalEscape(isOpen, onClose, 300);
    const itemDetailsRef = useRef<HTMLDivElement>(null);
    const { menu } = useAuth();
@@ -33,6 +37,13 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [showApproveModal, setShowApproveModal] = useState<boolean>(false);
    const [showFinalizeInvoiceModal, setShowFinalizeInvoiceModal] = useState<boolean>(false);
    const [isFinalizing, setIsFinalizing] = useState(false);
+   const [isMaximized, setIsMaximized] = useState(false);
+   const [paymentModes, setPaymentModes] = useState<any[]>([]);
+   const [selectedEditExpense, setSelectedEditExpense] = useState<any | null>(null);
+   const [isEditExpenseOpen, setIsEditExpenseOpen] = useState(false);
+   const [isSavingExpenses, setIsSavingExpenses] = useState<boolean>(false);
+   const [expenseToDelete, setExpenseToDelete] = useState<any | null>(null);
+   const [isDeletingExpense, setIsDeletingExpense] = useState<boolean>(false);
 
    // Local editable states and calculated data
    const [localItemData, setLocalItemData] = useState<any>(itemRow);
@@ -40,6 +51,16 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [isEditingPrice, setIsEditingPrice] = useState(false);
    const [editQty, setEditQty] = useState(String(itemRow?.qnty || ''));
    const [editPrice, setEditPrice] = useState(String(itemRow?.unit_price || ''));
+
+   // Item search autocomplete states and refs
+   const [itemSearch, setItemSearch] = useState('');
+   const [isSearching, setIsSearching] = useState(false);
+   const [searchResults, setSearchResults] = useState<any[]>([]);
+   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+
+   const lastSearchedQuery = useRef('');
+   const abortControllerRef = useRef<AbortController | null>(null);
+   const searchContainerRef = useRef<HTMLDivElement>(null);
 
    const fetchSystemConfig = async () => {
       setIsConfigLoading(true);
@@ -59,21 +80,26 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
          try { arr = JSON.parse(cleanedText); } catch (e) { arr = {}; }
          const data = Array.isArray(arr) ? arr[0] : arr;
 
-         if (data && String(data.Status) === '1' && Array.isArray(data.warehouse_data)) {
-            setWarehouses(data.warehouse_data);
+         if (data && String(data.Status) === '1') {
+            if (Array.isArray(data.warehouse_data)) {
+               setWarehouses(data.warehouse_data);
 
-            const histId = localItemData?.warehouse_id || itemRow?.warehouse_id;
-            const isHistValid = histId && String(histId) !== '0' && String(histId).trim() !== '';
+               const histId = localItemData?.warehouse_id || itemRow?.warehouse_id;
+               const isHistValid = histId && String(histId) !== '0' && String(histId).trim() !== '';
 
-            if (isHistValid) {
-               setSelectedWarehouse(String(histId));
-            } else {
-               const defaultWh = data.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
-               if (defaultWh) {
-                  setSelectedWarehouse(String(defaultWh.id));
+               if (isHistValid) {
+                  setSelectedWarehouse(String(histId));
                } else {
-                  setSelectedWarehouse('');
+                  const defaultWh = data.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
+                  if (defaultWh) {
+                     setSelectedWarehouse(String(defaultWh.id));
+                  } else {
+                     setSelectedWarehouse('');
+                  }
                }
+            }
+            if (Array.isArray(data.payment_modes)) {
+               setPaymentModes(data.payment_modes);
             }
          }
       } catch (err) {
@@ -96,8 +122,91 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
          setEditPrice(String(itemRow.unit_price || ''));
          setIsEditingQty(false);
          setIsEditingPrice(false);
+         setItemSearch('');
+         setSearchResults([]);
+         setShowSearchDropdown(false);
+         lastSearchedQuery.current = '';
       }
    }, [itemRow]);
+
+   // Click outside listener for search dropdown
+   useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+         if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+            setShowSearchDropdown(false);
+         }
+      };
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+   }, []);
+
+   // Search logic (debounced)
+   useEffect(() => {
+      if (itemSearch.length === 0) {
+         if (lastSearchedQuery.current !== '') {
+            lastSearchedQuery.current = '';
+            setSearchResults([]);
+            setShowSearchDropdown(false);
+         }
+         return;
+      }
+
+      if (!projectId) return;
+
+      if (itemSearch.length < 3) {
+         setSearchResults([]);
+         setShowSearchDropdown(false);
+         return;
+      }
+
+      if (itemSearch === lastSearchedQuery.current) return;
+
+      const performSearch = async () => {
+         if (abortControllerRef.current) abortControllerRef.current.abort();
+
+         const controller = new AbortController();
+         abortControllerRef.current = controller;
+
+         setIsSearching(true);
+         try {
+            const token = localStorage.getItem('at_ki8Xq1iV');
+            const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/searchItem?query_str=${encodeURIComponent(itemSearch)}&project_id=${projectId}`;
+
+            const res = await fetch(endpoint, {
+               method: 'GET',
+               headers: { 'Authorization': `Bearer ${token}` },
+               signal: controller.signal
+            });
+
+            const rawText = await res.text();
+            let arr;
+            try { arr = JSON.parse(rawText); } catch (e) { throw new Error('Invalid JSON response'); }
+            const data = Array.isArray(arr) ? arr[0] : arr;
+
+            if (data && String(data.Status) === '1' && data.items_data) {
+               setSearchResults(data.items_data);
+               setShowSearchDropdown(true);
+               lastSearchedQuery.current = itemSearch;
+            } else {
+               setSearchResults([]);
+               setShowSearchDropdown(true);
+               lastSearchedQuery.current = itemSearch;
+            }
+         } catch (error: any) {
+            if (error.name !== 'AbortError') {
+               setSearchResults([]);
+            }
+         } finally {
+            setIsSearching(false);
+         }
+      };
+
+      const timer = setTimeout(() => {
+         performSearch();
+      }, 500);
+
+      return () => clearTimeout(timer);
+   }, [itemSearch, projectId]);
 
    const handleTaxationFetch = async (newQty: string, newPrice: string) => {
       try {
@@ -270,6 +379,225 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       }
    };
 
+   const handleStartEditExpense = (expense: any) => {
+      setSelectedEditExpense(expense);
+      setIsEditExpenseOpen(true);
+   };
+
+   const handleUpdateExpenseLocal = (updatedExpense: any) => {
+      setLocalItemData((prev: any) => {
+         if (!prev) return prev;
+         const updatedExpenses = (prev.additional_expenses || []).map((exp: any) => {
+            if (String(exp.expense_id) === String(updatedExpense.expense_id)) {
+               return updatedExpense;
+            }
+            return exp;
+         });
+         return {
+            ...prev,
+            additional_expenses: updatedExpenses
+         };
+      });
+      setIsEditExpenseOpen(false);
+      setSelectedEditExpense(null);
+   };
+
+   const handleConfirmRemoveExpense = async () => {
+      if (!expenseToDelete) return;
+
+      const { expense_id, isNew } = expenseToDelete;
+
+      if (isNew) {
+         setLocalItemData((prev: any) => {
+            if (!prev) return prev;
+            const updatedExpenses = (prev.additional_expenses || []).filter(
+               (exp: any) => String(exp.expense_id) !== String(expense_id)
+            );
+            return {
+               ...prev,
+               additional_expenses: updatedExpenses
+            };
+         });
+         toast.success('Expense removed locally');
+         setExpenseToDelete(null);
+         return;
+      }
+
+      setIsDeletingExpense(true);
+      const toastId = toast.loading('Removing additional expense...');
+
+      try {
+         const token = localStorage.getItem('at_ki8Xq1iV');
+         const formData = new FormData();
+         formData.append('expense_id', String(expense_id));
+
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/removeAdditionalExpense`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+         });
+
+         const text = await res.text();
+         let arr;
+         try { arr = JSON.parse(text); } catch (e) { }
+         const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+         if (data && String(data.Status) === '1') {
+            toast.success(data.Message || 'Removed Additional Expense', { id: toastId });
+
+            setLocalItemData((prev: any) => {
+               if (!prev) return prev;
+               const updatedExpenses = (prev.additional_expenses || []).filter(
+                  (exp: any) => String(exp.expense_id) !== String(expense_id)
+               );
+               return {
+                  ...prev,
+                  additional_expenses: updatedExpenses
+               };
+            });
+
+            if (onRefresh) {
+               onRefresh();
+            }
+            setExpenseToDelete(null);
+         } else {
+            toast.error(data?.Message || 'Failed to remove additional expense', { id: toastId });
+         }
+      } catch (err: any) {
+         console.error('Failed to remove additional expense:', err);
+         toast.error(err.message || 'An error occurred while removing additional expense', { id: toastId });
+      } finally {
+         setIsDeletingExpense(false);
+      }
+   };
+
+   const handleSelectItem = (item: any) => {
+      const existingExpenses = localItemData?.additional_expenses || [];
+      const isDuplicate = existingExpenses.some((e: any) => String(e.item_id) === String(item.item_id));
+      if (isDuplicate) {
+         toast.error('Item already added');
+         return;
+      }
+
+      // Default payment mode is the first available one
+      const defaultPaymentMode = paymentModes && paymentModes.length > 0 ? String(paymentModes[0].id) : '';
+      const defaultPaymentModeText = paymentModes && paymentModes.length > 0 ? String(paymentModes[0].mode) : 'N/A';
+
+      const defaultPrice = item.default_price ? String(item.default_price).replace(/[^0-9.]/g, '') : '0.00';
+
+      const newExpense = {
+         expense_id: 'new_' + Math.random().toString(36).substr(2, 9),
+         item_id: String(item.item_id),
+         item_name: item.item_name,
+         unit_price: defaultPrice,
+         qnty: '1',
+         payment_mode: defaultPaymentMode,
+         payment_mode_txt: defaultPaymentModeText,
+         total_amount: defaultPrice,
+         isNew: true
+      };
+
+      setLocalItemData((prev: any) => {
+         if (!prev) return prev;
+         return {
+            ...prev,
+            additional_expenses: [...(prev.additional_expenses || []), newExpense]
+         };
+      });
+
+      setItemSearch('');
+      setSearchResults([]);
+      setShowSearchDropdown(false);
+      lastSearchedQuery.current = '';
+   };
+
+    const handleAddNewExpenses = async () => {
+       const newExpenses = (localItemData?.additional_expenses || []).filter((exp: any) => exp.isNew);
+       if (newExpenses.length === 0) return;
+
+       // Validation: qnty !== 0, unit_price !== 0 or empty, and payment_mode is not null or empty
+       for (const expense of newExpenses) {
+          const up = parseFloat(expense.unit_price);
+          const q = parseFloat(expense.qnty);
+
+          if (isNaN(up) || up <= 0 || expense.unit_price === '') {
+             toast.error(`Please enter a valid non-zero rate for "${expense.item_name}"`);
+             return;
+          }
+          if (isNaN(q) || q <= 0) {
+             toast.error(`Please enter a valid non-zero quantity for "${expense.item_name}"`);
+             return;
+          }
+          if (!expense.payment_mode) {
+             toast.error(`Please select a payment mode for "${expense.item_name}"`);
+             return;
+          }
+       }
+
+       setIsSavingExpenses(true);
+       const toastId = toast.loading('Saving additional expenses...');
+
+       try {
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          const purchaseId = String(localItemData?.purchase_id || '');
+
+          const payload = {
+             expenses_data: newExpenses.map((exp: any) => ({
+                item_id: String(exp.item_id),
+                qnty: String(exp.qnty),
+                unit_price: parseFloat(exp.unit_price).toFixed(2),
+                total_price: (parseFloat(exp.unit_price) * parseFloat(exp.qnty)).toFixed(2),
+                payment_mode: String(exp.payment_mode)
+             }))
+          };
+
+          const formData = new FormData();
+          formData.append('purchase_id', purchaseId);
+          formData.append('expense_json', JSON.stringify(payload));
+
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/addNewAdditionalExpenses`, {
+             method: 'POST',
+             headers: { 'Authorization': `Bearer ${token}` },
+             body: formData
+          });
+
+          const text = await res.text();
+          let arr;
+          try { arr = JSON.parse(text); } catch (e) { }
+          const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+          if (data && String(data.Status) === '1') {
+             toast.success(data.Message || 'Additional Expense Added', { id: toastId });
+
+             setLocalItemData((prev: any) => {
+                if (!prev) return prev;
+                const updatedExpenses = (prev.additional_expenses || []).map((exp: any) => {
+                   if (exp.isNew) {
+                      const { isNew, ...rest } = exp;
+                      return rest;
+                   }
+                   return exp;
+                });
+                return {
+                   ...prev,
+                   additional_expenses: updatedExpenses
+                };
+             });
+
+             if (onRefresh) {
+                onRefresh();
+             }
+          } else {
+             toast.error(data?.Message || 'Failed to add additional expenses', { id: toastId });
+          }
+       } catch (err: any) {
+          console.error('Failed to add additional expenses:', err);
+          toast.error(err.message || 'An error occurred while saving expenses', { id: toastId });
+       } finally {
+          setIsSavingExpenses(false);
+       }
+    };
+
    // Double-layered Safety: Early return immediately after hook declarations
    if (!isOpen || !itemRow) return null;
 
@@ -356,30 +684,41 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
    const privileges = procurementsMenuItem?.privileges_array?.[0] || {};
    const canApprove = privileges.approve_purchase === '1';
    const canClose = privileges.close_purchase === '1';
+   const isClosedPurchase = localItemData?.is_closed !== 'No';
 
    return (
       <>
          <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div
-               className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[1100px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+               className={`bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative transition-all duration-300 ${isMaximized ? 'w-full h-full rounded-none' : 'w-[1250px] max-w-[95vw] h-[82vh] max-h-[82vh] rounded-xl'
+                  }`}
                onClick={handleModalClick}
             >
 
-               <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25]">
+               <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25] shrink-0">
                   <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
                      <Box className="w-5 h-5 text-emerald-400" />
                      Item Details
                   </h2>
-                  <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Close">
-                     <X className="w-5 h-5" />
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                     <button
+                        onClick={() => setIsMaximized(!isMaximized)}
+                        className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+                        title={isMaximized ? "Restore Size" : "Maximize"}
+                     >
+                        {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                     </button>
+                     <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors" title="Close">
+                        <X className="w-5 h-5" />
+                     </button>
+                  </div>
                </div>
 
-               <div className="p-6 bg-[#161a25] overflow-y-auto max-h-[82vh]">
+               <div className="p-6 bg-[#161a25] overflow-y-auto flex-1">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                     {/* Left Column: Basic Pricing & Info (Span 7) */}
-                     <div ref={itemDetailsRef} className="lg:col-span-7 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
+                     {/* Left Column: Basic Pricing & Info (Span 4) */}
+                     <div ref={itemDetailsRef} className="lg:col-span-4 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
                         <div className="flex items-start justify-between">
                            <div>
                               <h3 className="text-white font-bold text-[15px]">{localItemData?.item_name || 'N/A'}</h3>
@@ -404,15 +743,24 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <div className="flex items-center gap-2">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Quantity</span>
                                  {isVerified && canClose && !isEditingQty && (
-                                    <button
-                                       onClick={(e) => {
-                                          e.stopPropagation();
-                                          setIsEditingQty(true);
-                                       }}
-                                       className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
-                                    >
-                                       edit
-                                    </button>
+                                    isClosedPurchase ? (
+                                       <span
+                                          title="Purchase Closed"
+                                          className="text-[10px] text-gray-500 cursor-not-allowed underline lowercase font-semibold select-none"
+                                       >
+                                          edit
+                                       </span>
+                                    ) : (
+                                       <button
+                                          onClick={(e) => {
+                                             e.stopPropagation();
+                                             setIsEditingQty(true);
+                                          }}
+                                          className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
+                                       >
+                                          edit
+                                       </button>
+                                    )
                                  )}
                               </div>
                               {isEditingQty ? (
@@ -432,15 +780,24 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <div className="flex items-center gap-2">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Unit Price</span>
                                  {isVerified && canClose && !isEditingPrice && (
-                                    <button
-                                       onClick={(e) => {
-                                          e.stopPropagation();
-                                          setIsEditingPrice(true);
-                                       }}
-                                       className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
-                                    >
-                                       edit
-                                    </button>
+                                    isClosedPurchase ? (
+                                       <span
+                                          title="Purchase Closed"
+                                          className="text-[10px] text-gray-500 cursor-not-allowed underline lowercase font-semibold select-none"
+                                       >
+                                          edit
+                                       </span>
+                                    ) : (
+                                       <button
+                                          onClick={(e) => {
+                                             e.stopPropagation();
+                                             setIsEditingPrice(true);
+                                          }}
+                                          className="text-[10px] text-blue-400 hover:text-blue-300 underline lowercase font-semibold"
+                                       >
+                                          edit
+                                       </button>
+                                    )
                                  )}
                               </div>
                               {isEditingPrice ? (
@@ -633,7 +990,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               {isVerified && canClose && (
                                  <button
                                     onClick={() => setShowFinalizeInvoiceModal(true)}
-                                    disabled={isFinalizing || isClosed || localItemData?.is_closed === 'Yes'}
+                                    disabled={isFinalizing || isClosed || isClosedPurchase}
                                     className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200"
                                  >
                                     {isFinalizing ? 'Finalizing...' : 'Finalize Purchase'}
@@ -643,8 +1000,178 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         </div>
                      </div>
 
-                     {/* Right Column: Warehouse Setup & Demand Links (Span 5) */}
-                     <div className="lg:col-span-5 flex flex-col gap-6">
+                     {/* Middle Column: Additional Expenses (Span 4) */}
+                     <div className="lg:col-span-4 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3 self-stretch">
+                        <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pb-1.5 border-b border-gray-700/50">
+                           Additional Expenses
+                        </h4>
+
+                        {/* Item Search box */}
+                        <div className="flex flex-col gap-2 relative z-10" ref={searchContainerRef}>
+                           <div className="relative">
+                              <input
+                                 type="text"
+                                 value={itemSearch}
+                                 onChange={(e) => setItemSearch(e.target.value)}
+                                 placeholder="Search item to add..."
+                                 disabled={isClosedPurchase}
+                                 className="w-full bg-[#232b3e] border border-gray-600 rounded pl-9 pr-8 py-1.5 text-white text-[12px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                              />
+                              <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+
+                              <div className="absolute right-2 top-2 flex items-center gap-1.5">
+                                 {isSearching && <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />}
+                                 {itemSearch && (
+                                    <button
+                                       onClick={() => {
+                                          setItemSearch('');
+                                          setSearchResults([]);
+                                          setShowSearchDropdown(false);
+                                       }}
+                                       className="text-gray-400 hover:text-white transition-colors"
+                                       title="Clear Search"
+                                    >
+                                       <XCircle className="w-3.5 h-3.5" />
+                                    </button>
+                                 )}
+                              </div>
+
+                              {showSearchDropdown && (
+                                 <div className="absolute top-full left-0 right-0 mt-1 bg-[#191e2b] border border-gray-700 rounded shadow-2xl z-[150] max-h-[200px] overflow-y-auto">
+                                    {searchResults.length === 0 ? (
+                                       <div className="px-4 py-3 text-[12px] text-gray-400 text-center italic">No items found</div>
+                                    ) : (
+                                       <ul className="py-1">
+                                          {searchResults.map((result: any) => (
+                                             <li
+                                                key={result.item_id}
+                                                onClick={() => handleSelectItem(result)}
+                                                className="px-4 py-2 hover:bg-[#11141e] cursor-pointer text-[12px] text-gray-300 border-b border-gray-700/50 last:border-0 transition-colors flex justify-between items-center"
+                                             >
+                                                <div className="flex flex-col">
+                                                   <span className="font-medium text-white">{result.item_name}</span>
+                                                   <span className="text-[10px] text-gray-500">{result.category_name} &bull; {result.unit_name}</span>
+                                                </div>
+                                             </li>
+                                          ))}
+                                       </ul>
+                                    )}
+                                 </div>
+                              )}
+                           </div>
+                        </div>
+
+                        <div className="overflow-x-auto overflow-y-auto max-h-[300px] flex-1">
+                           <table className="w-full text-[12px] text-left border-collapse">
+                              <thead>
+                                 <tr className="text-gray-500 font-bold uppercase border-b border-gray-700/50 text-[10px]">
+                                    <th className="py-2 pl-4 pr-1.5">Item</th>
+                                    <th className="py-2 px-1 text-center w-20">Rate</th>
+                                    <th className="py-2 px-1 text-center w-14">Qnty</th>
+                                    <th className="py-2 px-1.5 text-right w-20">Total</th>
+                                    <th className="py-2 w-20 text-center"></th>
+                                 </tr>
+                              </thead>
+                              <tbody className="divide-y divide-gray-700/30">
+                                 {(localItemData?.additional_expenses || []).map((row: any, idx: number) => {
+                                    return (
+                                       <tr
+                                          key={row.expense_id || idx}
+                                          className={`group hover:bg-white/5 transition-colors ${row.isNew ? 'bg-emerald-950/20' : ''}`}
+                                       >
+                                          <td className="py-3 pl-4 pr-1 text-white font-medium break-words">
+                                             <div className="flex items-center gap-1.5 flex-wrap">
+                                                <span>{row.item_name}</span>
+                                                {row.isNew && (
+                                                   <span className="px-1 py-0.5 text-[8px] font-extrabold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded tracking-wider">
+                                                      New
+                                                   </span>
+                                                )}
+                                             </div>
+                                          </td>
+                                          <td className="py-3 px-1 text-center text-gray-300">
+                                             {parseFloat(row.unit_price || 0).toFixed(2)}
+                                          </td>
+                                          <td className="py-3 px-1 text-center text-gray-300">
+                                             {row.qnty}
+                                          </td>
+                                          <td className="py-3 px-1.5 text-right text-gray-400 font-semibold">
+                                             {parseFloat(row.total_amount || 0).toFixed(2)}
+                                          </td>
+                                          <td className="py-2 text-center">
+                                             <div className="flex items-center justify-center gap-1">
+                                                <button
+                                                   onClick={() => !isClosedPurchase && handleStartEditExpense(row)}
+                                                   title={isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
+                                                   className={`p-1 rounded transition-colors ${isClosedPurchase
+                                                      ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                                      : 'text-gray-400 hover:text-white hover:bg-white/10'
+                                                      }`}
+                                                >
+                                                   <Pencil className="w-3.5 h-3.5" />
+                                                </button>
+                                                <button
+                                                   onClick={() => !isClosedPurchase && setExpenseToDelete(row)}
+                                                   title={isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
+                                                   className={`p-1 rounded transition-colors ${isClosedPurchase
+                                                      ? 'text-gray-600 cursor-not-allowed opacity-50'
+                                                      : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
+                                                      }`}
+                                                >
+                                                   <Trash2 className="w-3.5 h-3.5" />
+                                                </button>
+                                             </div>
+                                          </td>
+                                       </tr>
+                                    );
+                                 })}
+                                 {(localItemData?.additional_expenses || []).length === 0 && (
+                                    <tr>
+                                       <td colSpan={5} className="py-8 text-center text-gray-500 italic">
+                                          No additional expenses added.
+                                       </td>
+                                    </tr>
+                                 )}
+                              </tbody>
+                           </table>
+                        </div>
+
+                        {(localItemData?.additional_expenses || []).some((exp: any) => exp.isNew) && (
+                           <div className="flex justify-end select-none animate-in fade-in duration-150 pt-2 pb-1 border-t border-gray-700/50">
+                              <button
+                                 onClick={handleAddNewExpenses}
+                                 disabled={isSavingExpenses}
+                                 className="text-[11px] font-bold text-white uppercase tracking-wider bg-[#10b981] hover:bg-[#059669] disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200 flex items-center gap-1.5"
+                              >
+                                 {isSavingExpenses ? (
+                                    <>
+                                       <Loader2 className="w-3 h-3 animate-spin" />
+                                       Saving...
+                                    </>
+                                 ) : (
+                                    'Add new expenses'
+                                 )}
+                              </button>
+                           </div>
+                        )}
+
+                        <div className="flex justify-between items-center pt-3 border-t border-gray-700 mt-auto select-none">
+                           <span className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">
+                              Total Additional expenses:
+                           </span>
+                           <span className="text-[14px] text-emerald-400 font-bold">
+                              ₹ {
+                                 (localItemData?.additional_expenses || []).reduce(
+                                    (acc: number, cur: any) => acc + (parseFloat(cur.total_amount) || 0),
+                                    0
+                                 ).toFixed(2)
+                              }
+                           </span>
+                        </div>
+                     </div>
+
+                     {/* Right Column: Warehouse Setup & Demand Links (Span 4) */}
+                     <div className="lg:col-span-4 flex flex-col gap-6">
 
                         {/* Warehouse Configuration Block */}
                         <div className="flex flex-col gap-3 relative bg-[#1b202c] p-5 rounded-lg border border-gray-700">
@@ -817,6 +1344,26 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
             itemRow={localItemData}
             onConfirm={handleFinalizePurchase}
             isSaving={isFinalizing}
+         />
+
+         <EditAdditionalExpense
+            isOpen={isEditExpenseOpen}
+            onClose={() => {
+               setIsEditExpenseOpen(false);
+               setSelectedEditExpense(null);
+            }}
+            expense={selectedEditExpense}
+            paymentModes={paymentModes}
+            onSave={handleUpdateExpenseLocal}
+         />
+
+         <WarningAlertModal
+            isOpen={expenseToDelete !== null}
+            onClose={() => !isDeletingExpense && setExpenseToDelete(null)}
+            title="Warning"
+            content="Remove this expense? This action is not reversible!"
+            onConfirm={handleConfirmRemoveExpense}
+            isLoading={isDeletingExpense}
          />
       </>
    );
