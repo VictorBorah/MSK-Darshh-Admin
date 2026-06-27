@@ -462,7 +462,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                 <div>
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Select Budget Head</label>
                   <Select
-                    value={budgetHeads.find(b => String(b.id) === formData.budget_head) ? { value: formData.budget_head, label: budgetHeads.find(b => String(b.id) === formData.budget_head)?.head } : null}
+                    value={budgetHeads.find(b => String(b.id) === String(formData.budget_head)) ? { value: String(formData.budget_head), label: budgetHeads.find(b => String(b.id) === String(formData.budget_head))?.head } : null}
                     options={budgetHeads.map((b: any) => ({ value: String(b.id), label: b.head }))}
                     onChange={(val: any) => setFormData({ ...formData, budget_head: val ? val.value : '' })}
                     placeholder="Select Budget Head..."
@@ -584,7 +584,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                 <div>
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Demand Privilege <span className="text-red-400">*</span></label>
                   <Select
-                    value={usergroups.find(g => String(g.id) === formData.demand_privilege) ? { value: formData.demand_privilege, label: usergroups.find(g => String(g.id) === formData.demand_privilege)?.group_name } : null}
+                    value={usergroups.find(g => String(g.id) === String(formData.demand_privilege)) ? { value: String(formData.demand_privilege), label: usergroups.find(g => String(g.id) === String(formData.demand_privilege))?.group_name } : null}
                     options={usergroups.map((g: any) => ({ value: String(g.id), label: String(g.group_name) }))}
                     onChange={(val: any) => setFormData({ ...formData, demand_privilege: val ? val.value : '' })}
                     placeholder="Select Demand Privilege..."
@@ -602,7 +602,7 @@ export default function EditItemModal({ isOpen, itemId, onClose, onSuccess }: Ed
                 <div>
                   <label className="text-[13px] text-[#ccd6f6] font-medium mb-1.5 block">Purchase Privilege <span className="text-red-400">*</span></label>
                   <Select
-                    value={usergroups.find(g => String(g.id) === formData.purchase_privilege) ? { value: formData.purchase_privilege, label: usergroups.find(g => String(g.id) === formData.purchase_privilege)?.group_name } : null}
+                    value={usergroups.find(g => String(g.id) === String(formData.purchase_privilege)) ? { value: String(formData.purchase_privilege), label: usergroups.find(g => String(g.id) === String(formData.purchase_privilege))?.group_name } : null}
                     options={usergroups.map((g: any) => ({ value: String(g.id), label: String(g.group_name) }))}
                     onChange={(val: any) => setFormData({ ...formData, purchase_privilege: val ? val.value : '' })}
                     placeholder="Select Purchase Privilege..."
