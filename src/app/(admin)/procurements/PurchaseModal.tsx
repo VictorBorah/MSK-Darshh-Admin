@@ -320,6 +320,11 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   };
 
   const handleFieldChange = (id: string, field: string, value: any) => {
+    const targetRow = tableItems.find(item => item.id === id);
+    if ((field === 'qnty' || field === 'price') && (!targetRow || !targetRow.vendor_id)) {
+      setShowVendorRequiredWarning(true);
+      return;
+    }
     setTableItems(prev => {
       const newItems = prev.map(item => {
         if (item.id === id) {
@@ -570,11 +575,26 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                         <td className="px-4 py-2">
                           <Select
                             options={vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name || v.name })) || []}
-                            value={vendors?.find(v => String(v.id) === String(row.vendor_id)) ? { value: String(row.vendor_id), label: vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.vendor_name || vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.name } : null}
+                            value={row.vendor_id ? (vendors?.find(v => String(v.id) === String(row.vendor_id)) ? { value: String(row.vendor_id), label: vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.vendor_name || vendors.find((v: any) => String(v.id) === String(row.vendor_id))?.name } : { value: String(row.vendor_id), label: 'Invalid Vendor' }) : null}
                             onChange={(val: any) => handleFieldChange(row.id, 'vendor_id', val ? val.value : '')}
                             placeholder="Select vendor..."
                             styles={{
-                              control: (base) => ({ ...base, backgroundColor: '#191e2b', borderColor: '#374151', minHeight: '32px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
+                              control: (base, state) => {
+                                const isVendorPresent = !row.vendor_id || (vendors && vendors.some((v: any) => String(v.id) === String(row.vendor_id)));
+                                return {
+                                  ...base,
+                                  backgroundColor: '#191e2b',
+                                  borderColor: !isVendorPresent ? '#ef4444' : state.isFocused ? '#3b82f6' : '#374151',
+                                  '&:hover': {
+                                    borderColor: !isVendorPresent ? '#ef4444' : state.isFocused ? '#3b82f6' : '#374151'
+                                  },
+                                  minHeight: '32px',
+                                  borderRadius: '4px',
+                                  color: '#fff',
+                                  fontSize: '13px',
+                                  boxShadow: !isVendorPresent ? '0 0 0 1px #ef4444' : 'none'
+                                };
+                              },
                               menuPortal: base => ({ ...base, zIndex: 99999 }),
                               menu: base => ({ ...base, backgroundColor: '#191e2b', border: '1px solid #4b5563', borderRadius: '4px' }),
                               option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px' }),
