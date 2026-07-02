@@ -697,14 +697,14 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
          {/* Schedule Demand Modal */}
          {isScheduleModalOpen && (
            <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-             <div className="relative bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl w-[400px] max-w-[95vw] flex flex-col overflow-hidden">
+             <div className="relative bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl w-[400px] max-w-[95vw] flex flex-col">
                {isTargetDateLoading && (
-                 <div className="absolute inset-0 bg-[#232b3e]/85 backdrop-blur-[1px] z-[60] flex flex-col items-center justify-center">
+                 <div className="absolute inset-0 bg-[#232b3e]/85 backdrop-blur-[1px] z-[60] flex flex-col items-center justify-center rounded-xl">
                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                    <span className="text-xs font-bold text-white mt-3">Fetching Target Date...</span>
                  </div>
                )}
-               <div className="px-5 py-4 border-b border-gray-700 bg-[#293653]">
+               <div className="px-5 py-4 border-b border-gray-700 bg-[#293653] rounded-t-xl">
                  <h3 className="text-[15px] text-white font-bold tracking-wide">
                    Schedule Demand
                  </h3>
@@ -799,7 +799,7 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                    />
                  </div>
                </div>
-                <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3">
+                <div className="px-6 py-4 bg-[#293653] border-t border-gray-700 flex items-center justify-end gap-3 rounded-b-xl">
                   <button
                     onClick={() => {
                       setIsScheduleModalOpen(false);

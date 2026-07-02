@@ -400,6 +400,7 @@ export default function PaymentsPage() {
                  const statusText = (row.payment_status || '').toUpperCase();
                  const isPaid = statusText === 'PAID';
                  const isUnpaid = statusText === 'UNPAID' || statusText === 'UN PAID';
+                 const isApproved = row.is_approved === 'Yes' || row.is_approved === '1' || row.is_approved === 1;
                  
                  return (
                   <tr key={row.payment_id || row.id} className="hover:bg-white/5 transition-colors">
@@ -408,8 +409,22 @@ export default function PaymentsPage() {
                     <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
                     <td className="px-4 py-3 text-white">{row.payment_mode_txt || '-'}</td>
                     <td className="px-4 py-3 text-white font-semibold">₹{row.amount || '-'}</td>
-                    <td className={`px-4 py-3 font-semibold ${isPaid ? 'text-green-400' : isUnpaid ? 'text-red-400' : 'text-white'}`}>
-                      {row.payment_status || '-'}
+                    <td className="px-4 py-3 font-semibold">
+                      <div className="flex items-center gap-1.5">
+                        <span className={isPaid ? 'text-green-400' : isUnpaid ? 'text-red-400' : 'text-white'}>
+                          {row.payment_status || '-'}
+                        </span>
+                        {isApproved ? (
+                          <span className="px-1 py-0.5 border border-emerald-500/35 text-[9px] font-bold text-emerald-400 rounded bg-emerald-500/5 select-none shrink-0" title="Approved">A</span>
+                        ) : (
+                          <span className="px-1 py-0.5 border border-amber-500/35 text-[9px] font-bold text-amber-500 rounded bg-amber-500/5 select-none shrink-0" title="Un-Approved">UA</span>
+                        )}
+                        {isPaid ? (
+                          <span className="px-1 py-0.5 border border-emerald-500/35 text-[9px] font-bold text-emerald-400 rounded bg-emerald-500/5 select-none shrink-0" title="Paid">P</span>
+                        ) : (
+                          <span className="px-1 py-0.5 border border-red-500/35 text-[9px] font-bold text-red-400 rounded bg-red-500/5 select-none shrink-0" title="Unpaid">UP</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-center">
                       <button
