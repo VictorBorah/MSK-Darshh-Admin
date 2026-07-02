@@ -16,6 +16,22 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
    const isConnected = itemRow.demand_id && String(itemRow.demand_id) !== '0' && itemRow.demand_id !== '';
    const canConnect = String(itemRow.demands_available) === '1';
 
+   const isApprovedVal = itemRow.is_approved === 'Yes' || itemRow.is_approved === '1' || itemRow.is_approved === 1;
+   const isFulfilledVal = itemRow.is_fulfilled === 'Yes' || itemRow.is_fulfilled === '1' || itemRow.is_fulfilled === 1;
+
+   let statusText = 'UN-PAID';
+   let statusColorClass = 'text-red-400';
+
+   if (isApprovedVal) {
+      if (isFulfilledVal) {
+         statusText = 'PAID';
+         statusColorClass = 'text-green-400';
+      } else {
+         statusText = 'APPROVED';
+         statusColorClass = 'text-green-400';
+      }
+   }
+
    return (
       <div className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
          <div className="bg-[#1f2536] border border-gray-700 shadow-2xl flex flex-col w-[600px] max-w-[95vw] rounded-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -70,8 +86,16 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
                         <span className="text-[13px] text-white font-medium flex items-center"><IndianRupee className="w-3.5 h-3.5 text-gray-400 mr-0.5" /> {parseFloat(itemRow.amount || 0).toFixed(2)}</span>
                      </div>
                      <div className="flex flex-col gap-1">
-                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">TDS Amount ({itemRow.tds_option === '-1' ? 'N/A' : `${itemRow.tds_rate}%`})</span>
+                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">TDS Amount ({(!itemRow.tds_rate || String(itemRow.tds_rate).trim() === '' || String(itemRow.tds_rate).trim() === '0' || parseFloat(itemRow.tds_rate) === 0) ? '-' : (itemRow.tds_option === '-1' ? 'N/A' : `${itemRow.tds_rate}%`)})</span>
                         <span className="text-[13px] text-white font-medium flex items-center"><IndianRupee className="w-3.5 h-3.5 text-gray-400 mr-0.5" /> {parseFloat(itemRow.tds_amount || 0).toFixed(2)}</span>
+                     </div>
+                     <div className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Voucher No</span>
+                        <span className="text-[13px] text-white font-medium break-words">{itemRow.voucher_number || 'N/A'}</span>
+                     </div>
+                     <div className="flex flex-col gap-1">
+                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Status</span>
+                        <span className={`text-[13px] font-bold uppercase tracking-wider ${statusColorClass}`}>{statusText}</span>
                      </div>
                      {itemRow.worker_name && (
                         <div className="flex flex-col gap-1 col-span-2 border-t border-gray-700/50 pt-3 mt-1">
@@ -86,6 +110,31 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
                         <a href={itemRow.presigned_transaction_file_url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors uppercase tracking-wide bg-blue-500/10 px-4 py-2 rounded border border-blue-500/20">
                            <Download className="w-3.5 h-3.5" /> Download Invoice
                         </a>
+                     </div>
+                  )}
+               </div>
+
+               <div className="h-px w-full bg-gray-700"></div>
+
+               {/* Approval Details Section */}
+               <div className="flex flex-col gap-3">
+                  <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                     Approval Information
+                  </h4>
+                  {isApprovedVal ? (
+                     <div className="grid grid-cols-2 gap-4 bg-emerald-950/20 border border-emerald-500/20 p-4 rounded-lg">
+                        <div className="flex flex-col gap-1">
+                           <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Approved By</span>
+                           <span className="text-[13px] text-emerald-100 font-semibold">{itemRow.approved_by_name || 'N/A'}</span>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                           <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">User Group</span>
+                           <span className="text-[13px] text-emerald-100 font-semibold">{itemRow.approved_by_usergroup_name || 'N/A'}</span>
+                        </div>
+                     </div>
+                  ) : (
+                     <div className="bg-red-950/20 border border-red-500/20 p-4 rounded-lg flex items-center justify-center text-center">
+                        <span className="text-[12px] text-red-400 font-bold uppercase tracking-wider">Pending Approval / Not Approved</span>
                      </div>
                   )}
                </div>

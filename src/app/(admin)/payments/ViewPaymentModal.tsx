@@ -156,11 +156,30 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-right">TDS RATE</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-right">TDS AMOUNT</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-right">GROSS AMOUNT</th>
+                      <th className="px-3 py-2 border-r border-[#bac4cf] text-center w-24">STATUS</th>
                       <th className="px-3 py-2 text-center w-20">ACTION</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-700/50">
                     {itemData.map((row, idx) => {
+                      const isApprovedVal = row.is_approved === 'Yes' || row.is_approved === '1' || row.is_approved === 1;
+                      const isFulfilledVal = row.is_fulfilled === 'Yes' || row.is_fulfilled === '1' || row.is_fulfilled === 1;
+
+                      let statusText = 'UN-PAID';
+                      let statusColorClass = 'text-red-400';
+
+                      if (isApprovedVal) {
+                        if (isFulfilledVal) {
+                          statusText = 'PAID';
+                          statusColorClass = 'text-green-400';
+                        } else {
+                          statusText = 'APPROVED';
+                          statusColorClass = 'text-green-400';
+                        }
+                      }
+
+                      const isTdsRateEmpty = !row.tds_rate || String(row.tds_rate).trim() === '' || String(row.tds_rate).trim() === '0' || parseFloat(row.tds_rate) === 0;
+
                       return (
                         <tr key={row.item_id || idx} className="hover:bg-white/5 transition-colors text-[12px]">
                           <td className="px-3 py-3 text-center text-gray-400 font-medium border-r border-gray-700/30 align-top mt-0.5">{idx + 1}</td>
@@ -181,14 +200,19 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
                           <td className="px-3 py-3 text-right text-gray-300 font-medium border-r border-gray-700/30 align-top whitespace-nowrap">
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.amount || 0).toFixed(2)}</div>
                           </td>
-                          <td className="px-3 py-3 text-right text-orange-400/90 font-medium border-r border-gray-700/30 align-top whitespace-nowrap">
-                            {row.tds_option === '-1' ? 'N/A' : `${row.tds_rate}%`}
+                          <td className={`px-3 py-3 text-orange-400/90 font-medium border-r border-gray-700/30 align-top whitespace-nowrap ${isTdsRateEmpty ? 'text-center' : 'text-right'}`}>
+                            {isTdsRateEmpty ? '-' : (row.tds_option === '-1' ? 'N/A' : `${row.tds_rate}%`)}
                           </td>
-                          <td className="px-3 py-3 text-right text-orange-400 font-medium border-r border-gray-700/30 align-top whitespace-nowrap">
-                            <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-orange-500/70 mr-0.5" />{parseFloat(row.tds_amount || 0).toFixed(2)}</div>
+                          <td className={`px-3 py-3 text-orange-400 font-medium border-r border-gray-700/30 align-top whitespace-nowrap ${isTdsRateEmpty ? 'text-center' : 'text-right'}`}>
+                            {isTdsRateEmpty ? '-' : (
+                              <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-orange-500/70 mr-0.5" />{parseFloat(row.tds_amount || 0).toFixed(2)}</div>
+                            )}
                           </td>
                           <td className="px-3 py-3 text-right text-emerald-400 font-bold border-r border-gray-700/30 align-top whitespace-nowrap">
                             <div className="flex items-center justify-end"><IndianRupee className="w-[14px] h-[14px] mr-px" />{parseFloat(row.gross_amount || 0).toFixed(2)}</div>
+                          </td>
+                          <td className={`px-3 py-3 text-center font-bold border-r border-gray-700/30 align-top whitespace-nowrap ${statusColorClass}`}>
+                            {statusText}
                           </td>
                           <td className="px-3 py-3 text-center align-top">
                             <a
@@ -205,7 +229,7 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
 
                     {itemData.length === 0 && !isLoading && (
                       <tr>
-                        <td colSpan={10} className="px-4 py-12 text-center text-gray-500 text-[13px]">
+                        <td colSpan={11} className="px-4 py-12 text-center text-gray-500 text-[13px]">
                           No items found for this payment record.
                         </td>
                       </tr>
