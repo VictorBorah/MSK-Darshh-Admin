@@ -37,7 +37,7 @@ export default function ApprovePayment({ isOpen, onClose, itemRow, onApproveSucc
    useEffect(() => {
       if (isOpen && itemRow) {
          isSyncingRef.current = true;
-         setAmount(String(itemRow.amount || ''));
+         setAmount(String(itemRow.unit_price || ''));
          setQnty(String(itemRow.qnty || ''));
          setPaymentModeId(String(itemRow.payment_mode_id || ''));
          setComment(String(itemRow.comment || ''));
@@ -249,7 +249,8 @@ export default function ApprovePayment({ isOpen, onClose, itemRow, onApproveSucc
          }
          formData.append('tds_rate', effectiveRate);
 
-         formData.append('base_amount', amount);
+         formData.append('unit_price', amount);
+         formData.append('base_amount', tdsData?.base_amount || String(Number(amount) * Number(qnty)));
          formData.append('tds_amount', tdsData?.tds_amount || '0.00');
          formData.append('gross_amount', tdsData?.gross_amount || '0.00');
          
@@ -313,7 +314,7 @@ export default function ApprovePayment({ isOpen, onClose, itemRow, onApproveSucc
                      {/* Amount */}
                      <div className="flex flex-col">
                         <label className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">
-                           Amount (Base Amount) <span className="text-red-500">*</span>
+                           Unit Cost <span className="text-red-500">*</span>
                         </label>
                         <input
                            type="number"
