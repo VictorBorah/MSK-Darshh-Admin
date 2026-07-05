@@ -4,8 +4,10 @@
         "Status": "1",
         "payments_data": [
             {
-                "payment_id": "1",
-                "amount": "600.00",
+                "payment_id": "2",
+                "item_title": "Labour Payment + 2 more",
+                "first_item": "246",
+                "amount": "1835.00",
                 "voucher_number": "",
                 "payment_mode": "4",
                 "payment_mode_txt": "HDFC Account",
@@ -15,11 +17,28 @@
                 "is_approved": "0",
                 "is_fulfilled": "0",
                 "txn_by": "Victor Borah",
-                "payment_date": "02-07-2026",
+                "payment_date": "05-07-2026",
                 "payment_status": "UNPAID"
+            },
+            {
+                "payment_id": "1",
+                "item_title": "Labour Payment",
+                "first_item": "246",
+                "amount": "600.00",
+                "voucher_number": "",
+                "payment_mode": "4",
+                "payment_mode_txt": "HDFC Account",
+                "project_id": "5",
+                "project_name": "SAIKIA HUT",
+                "staff_id": "1",
+                "is_approved": "1",
+                "is_fulfilled": "1",
+                "txn_by": "Victor Borah",
+                "payment_date": "02-07-2026",
+                "payment_status": "PAID"
             }
         ],
-        "total_rows": "1",
+        "total_rows": "2",
         "pagination_size": "10",
         "Message": "Payments fetched"
     }
