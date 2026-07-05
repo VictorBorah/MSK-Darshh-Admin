@@ -130,6 +130,13 @@ export default function PaymentsPage() {
   const [demProject, setDemProject] = useState('');
   const [demItem, setDemItem] = useState('');
 
+  const getPaymentsTotal = () => {
+    return paymentsList.reduce((sum, item) => {
+      const val = parseFloat(item.amount || 0);
+      return sum + (isNaN(val) ? 0 : val);
+    }, 0).toFixed(2);
+  };
+
   const fetchSystemConfig = async (token: string) => {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
       method: 'GET',
@@ -319,9 +326,6 @@ export default function PaymentsPage() {
               <CreditCard className="w-5 h-5 text-blue-400" />
               Payments
             </h2>
-            <button onClick={() => setShowPaymentModal(true)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
-              <Plus className="w-3.5 h-3.5" /> New
-            </button>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -348,6 +352,15 @@ export default function PaymentsPage() {
               {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
             </button>
           </div>
+        </div>
+
+        <div className="bg-[#1e2638] px-4 py-2 border-b border-gray-800 flex items-center justify-between">
+          <div className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-[11px] font-bold flex items-center gap-1.5 shadow-sm">
+            Payments Total: <IndianRupee className="w-3 h-3 text-emerald-400" /> {getPaymentsTotal()}
+          </div>
+          <button onClick={() => setShowPaymentModal(true)} className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white rounded font-medium px-3 py-1.5 text-[12px] transition-colors gap-1.5 shadow-sm">
+            <Plus className="w-3.5 h-3.5" /> New
+          </button>
         </div>
 
         <div className="p-4 bg-[#1b202c]">
@@ -659,6 +672,10 @@ export default function PaymentsPage() {
         paymentId={viewPaymentId}
         onClose={() => setViewPaymentId(null)}
         paymentModes={paymentModesOptions}
+        onSuccess={() => {
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          if (token) fetchPaymentsData(token);
+        }}
       />
     </div>
   );
