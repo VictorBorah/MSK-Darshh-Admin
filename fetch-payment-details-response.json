@@ -26,7 +26,7 @@
                 "payment_details_id": "1",
                 "txn_id": "",
                 "qnty": "1",
-                "voucher_number": "WOR/SAIK/2026/07-02",
+                "voucher_number": "WOR\/SAIK\/2026\/07-02",
                 "payment_date": "02-07-2026",
                 "budget_head_id": "2026-07-02",
                 "budget_head_name": "Labour Payment",
@@ -42,13 +42,14 @@
                 "is_fulfilled": "No",
                 "is_approved": "No",
                 "approved_by": "0",
-                "approved_by_name": "N/A",
+                "approved_by_name": "N\/A",
                 "approved_by_usergroup": "0",
-                "approved_by_usergroup_name": "N/A",
+                "approved_by_usergroup_name": "N\/A",
+                "approval_status_txt": "Payment Unapproved",
+                "comment": "",
                 "demand_id": "",
                 "connected_to_demand": "",
-                "demands_available": "1",
-                "comment": ""
+                "demands_available": "1"
             }
         ],
         "Message": "Payment data fetched"

@@ -9,9 +9,10 @@ interface ViewPaymentModalProps {
   paymentId: string | null;
   onClose: () => void;
   paymentModes: any[];
+  onSuccess?: () => void;
 }
 
-export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentModes }: ViewPaymentModalProps) {
+export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentModes, onSuccess }: ViewPaymentModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [isMaximized, setIsMaximized] = useState(false);
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
@@ -287,6 +288,11 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
         onDemandAction={(row) => {
           setIsItemModalOpen(false);
           setIsConnectDemandOpen(true);
+        }}
+        onSuccess={() => {
+          setIsItemModalOpen(false);
+          fetchDetails();
+          onSuccess?.();
         }}
       />
 
