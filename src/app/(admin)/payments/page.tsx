@@ -402,6 +402,7 @@ export default function PaymentsPage() {
                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">PROJECT</th>
+                <th className="px-4 py-3 border-r border-[#bac4cf]">ITEM</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">MODE</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">AMOUNT</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">STATUS</th>
@@ -420,6 +421,7 @@ export default function PaymentsPage() {
                     <td className="px-4 py-3 text-white text-center font-medium">{(payPage - 1) * 10 + idx + 1}</td>
                     <td className="px-4 py-3 text-white">{row.payment_date || '-'}</td>
                     <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
+                    <td className="px-4 py-3 text-white">{row.item_title || '-'}</td>
                     <td className="px-4 py-3 text-white">{row.payment_mode_txt || '-'}</td>
                     <td className="px-4 py-3 text-white font-semibold">₹{row.amount || '-'}</td>
                     <td className="px-4 py-3 font-semibold">
@@ -452,7 +454,7 @@ export default function PaymentsPage() {
               })}
               {paymentsList.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">No payments found.</td>
+                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No payments found.</td>
                 </tr>
               )}
             </tbody>
