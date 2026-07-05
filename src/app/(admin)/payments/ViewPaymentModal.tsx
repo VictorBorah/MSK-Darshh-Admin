@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
-import { X, Maximize2, Minimize2, Loader2, IndianRupee } from 'lucide-react';
+import { X, Maximize2, Minimize2, Loader2, IndianRupee, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PaymentItemDetailsModal from './PaymentItemDetailsModal';
 import PaymentDemandConnection from './PaymentDemandConnection';
+import WarningAlertModal from '../../../components/WarningAlertModal';
 
 interface ViewPaymentModalProps {
   isOpen: boolean;
@@ -21,6 +22,11 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isConnectDemandOpen, setIsConnectDemandOpen] = useState(false);
+  const [deleteItemId, setDeleteItemId] = useState<string | null>(null);
+  const [isDeletingItem, setIsDeletingItem] = useState(false);
+
+  const totalTds = itemData.reduce((acc, row) => acc + parseFloat(row.tds_amount || 0), 0);
+  const grandTotal = itemData.reduce((acc, row) => acc + parseFloat(row.gross_amount || 0), 0);
 
   const fetchDetails = useCallback(async () => {
     if (!paymentId) return;
@@ -50,6 +56,49 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
       setIsLoading(false);
     }
   }, [paymentId, onClose]);
+
+  const handleDeleteItemConfirm = async () => {
+    if (!deleteItemId) return;
+    setIsDeletingItem(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const formData = new FormData();
+      formData.append('payment_details_id', deleteItemId);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/removePaymentItem`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server returned HTTP ${res.status}`);
+      }
+
+      const text = await res.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (e) {
+        throw new Error('Invalid JSON response from server');
+      }
+
+      const data = Array.isArray(parsed) ? parsed[0] : parsed;
+
+      if (data && String(data.Status) === '1') {
+        toast.success(data.Message || 'Payment item deleted successfully');
+        setDeleteItemId(null);
+        fetchDetails();
+        onSuccess?.();
+      } else {
+        toast.error(data?.Message || 'Failed to delete payment item');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred while deleting payment item');
+    } finally {
+      setIsDeletingItem(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen || !paymentId) {
@@ -153,11 +202,12 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
                       <th className="px-3 py-2 border-r border-[#bac4cf]">MODE</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf]">VOUCHER NO</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-center w-16">QNTY</th>
-                      <th className="px-3 py-2 border-r border-[#bac4cf] text-right">TOTAL BASE</th>
+                      <th className="px-3 py-2 border-r border-[#bac4cf] text-right">Unit Cost</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-right">TDS RATE</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-right">TDS AMOUNT</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-right">GROSS AMOUNT</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf] text-center w-24">STATUS</th>
+                      <th className="px-3 py-2 border-r border-[#bac4cf] text-center w-16">DELETE</th>
                       <th className="px-3 py-2 text-center w-20">ACTION</th>
                     </tr>
                   </thead>
@@ -199,7 +249,7 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
                           <td className="px-3 py-3 text-gray-300 font-medium border-r border-gray-700/30 align-top break-words max-w-[140px]">{row.voucher_number || '-'}</td>
                           <td className="px-3 py-3 text-center text-white font-bold border-r border-gray-700/30 align-top">{row.qnty || '0'}</td>
                           <td className="px-3 py-3 text-right text-gray-300 font-medium border-r border-gray-700/30 align-top whitespace-nowrap">
-                            <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.amount || 0).toFixed(2)}</div>
+                            <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.unit_price || 0).toFixed(2)}</div>
                           </td>
                           <td className={`px-3 py-3 text-orange-400/90 font-medium border-r border-gray-700/30 align-top whitespace-nowrap ${isTdsRateEmpty ? 'text-center' : 'text-right'}`}>
                             {isTdsRateEmpty ? '-' : (row.tds_option === '-1' ? 'N/A' : `${row.tds_rate}%`)}
@@ -214,6 +264,20 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
                           </td>
                           <td className={`px-3 py-3 text-center font-bold border-r border-gray-700/30 align-top whitespace-nowrap ${statusColorClass}`}>
                             {statusText}
+                          </td>
+                          <td className="px-3 py-3 text-center border-r border-gray-700/30 align-top">
+                            <button
+                              disabled={isApprovedVal}
+                              onClick={() => setDeleteItemId(String(row.payment_details_id))}
+                              className={`p-1 rounded transition-colors ${
+                                isApprovedVal
+                                  ? 'text-gray-600 cursor-not-allowed opacity-40'
+                                  : 'text-red-400 hover:text-red-300 hover:bg-red-500/10'
+                              }`}
+                              title={isApprovedVal ? "Cannot delete approved payment item" : "Delete"}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
                           </td>
                           <td className="px-3 py-3 text-center align-top">
                             <a
@@ -230,7 +294,7 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
 
                     {itemData.length === 0 && !isLoading && (
                       <tr>
-                        <td colSpan={11} className="px-4 py-12 text-center text-gray-500 text-[13px]">
+                        <td colSpan={12} className="px-4 py-12 text-center text-gray-500 text-[13px]">
                           No items found for this payment record.
                         </td>
                       </tr>
@@ -249,7 +313,7 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
               <span className="text-gray-400 font-bold tracking-wide uppercase text-[11px]">Total TDS:</span>
               <span className="text-orange-400 font-bold text-[14px] flex items-center">
                 <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
-                {parseFloat(paymentDetails?.total_tds || 0).toFixed(2)}
+                {totalTds.toFixed(2)}
               </span>
             </div>
             <div className="w-px h-6 bg-gray-600"></div>
@@ -257,7 +321,7 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
               <span className="text-gray-400 font-bold tracking-wide uppercase text-[12px]">Grand Total:</span>
               <span className="text-emerald-400 font-black text-xl flex items-center tracking-wide">
                 <IndianRupee className="w-5 h-5 mr-0.5 stroke-[2.5]" />
-                {parseFloat(paymentDetails?.total_gross_amount || 0).toFixed(2)}
+                {grandTotal.toFixed(2)}
               </span>
             </div>
           </div>
@@ -306,6 +370,15 @@ export default function ViewPaymentModal({ isOpen, paymentId, onClose, paymentMo
         paymentId={paymentId}
         paymentDetailId={selectedItem?.payment_details_id || null}
         oldDemandId={selectedItem?.connected_demand_info?.demand_id || selectedItem?.demand_id || null}
+      />
+
+      <WarningAlertModal
+        isOpen={deleteItemId !== null}
+        onClose={() => setDeleteItemId(null)}
+        title="Confirm Delete"
+        content="Are you sure you want to delete this payment item? This action cannot be undone."
+        onConfirm={handleDeleteItemConfirm}
+        isLoading={isDeletingItem}
       />
     </div>
   );

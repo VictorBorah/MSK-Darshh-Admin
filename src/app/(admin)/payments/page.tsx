@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, CreditCard } from 'lucide-react';
+import { Plus, Maximize2, Minimize2, Settings, Calendar, IndianRupee, RefreshCcw, Loader2, ShoppingCart, ClipboardList, CreditCard, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MakePaymentDemandModal from './MakePaymentDemandModal';
 import PaymentDemandDetailModal from './PaymentDemandDetailModal';
 import MakePaymentModal from './MakePaymentModal';
 import ViewPaymentModal from './ViewPaymentModal';
+import WarningAlertModal from '../../../components/WarningAlertModal';
 
 const SearchableSelectPlaceholder = ({
   label,
@@ -91,6 +92,8 @@ export default function PaymentsPage() {
   const [showMakeDemandModal, setShowMakeDemandModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedDemandNo, setSelectedDemandNo] = useState<string | null>(null);
+  const [deletePaymentId, setDeletePaymentId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [viewPaymentId, setViewPaymentId] = useState<string | null>(null);
   const [showDemandsTab, setShowDemandsTab] = useState(true);
 
@@ -240,6 +243,50 @@ export default function PaymentsPage() {
       return { success: true, message: dData.Message };
     } else {
       return { success: false, message: dData.Message || 'Demands fetch error' };
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deletePaymentId) return;
+    setIsDeleting(true);
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const formData = new FormData();
+      formData.append('payment_id', deletePaymentId);
+
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}payments/removePaymentSet`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server returned HTTP ${res.status}`);
+      }
+
+      const text = await res.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(text);
+      } catch (e) {
+        throw new Error('Invalid JSON response from server');
+      }
+
+      const data = Array.isArray(parsed) ? parsed[0] : parsed;
+
+      if (data && String(data.Status) === '1') {
+        toast.success(data.Message || 'Payment deleted successfully');
+        setDeletePaymentId(null);
+        if (token) {
+          fetchPaymentsData(token);
+        }
+      } else {
+        toast.error(data?.Message || 'Failed to delete payment');
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'An error occurred while deleting payment');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -406,6 +453,7 @@ export default function PaymentsPage() {
                 <th className="px-4 py-3 border-r border-[#bac4cf]">MODE</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">AMOUNT</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">STATUS</th>
+                <th className="px-4 py-3 border-r border-[#bac4cf] text-center w-16">DELETE</th>
                 <th className="px-4 py-3 text-center w-16">MORE</th>
               </tr>
             </thead>
@@ -443,6 +491,20 @@ export default function PaymentsPage() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       <button
+                        disabled={isApproved}
+                        onClick={() => setDeletePaymentId(String(row.payment_id || row.id))}
+                        className={`p-1 rounded transition-colors ${
+                          isApproved
+                            ? 'text-gray-600 cursor-not-allowed opacity-40'
+                            : 'text-red-400 hover:text-red-300 hover:bg-red-500/10'
+                        }`}
+                        title={isApproved ? "Cannot delete approved payment" : "Delete"}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button
                         onClick={() => setViewPaymentId(String(row.payment_id || row.id))}
                         className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
                       >
@@ -454,7 +516,7 @@ export default function PaymentsPage() {
               })}
               {paymentsList.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No payments found.</td>
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">No payments found.</td>
                 </tr>
               )}
             </tbody>
@@ -672,12 +734,25 @@ export default function PaymentsPage() {
       <ViewPaymentModal
         isOpen={!!viewPaymentId}
         paymentId={viewPaymentId}
-        onClose={() => setViewPaymentId(null)}
+        onClose={() => {
+          setViewPaymentId(null);
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          if (token) fetchPaymentsData(token);
+        }}
         paymentModes={paymentModesOptions}
         onSuccess={() => {
           const token = localStorage.getItem('at_ki8Xq1iV');
           if (token) fetchPaymentsData(token);
         }}
+      />
+
+      <WarningAlertModal
+        isOpen={deletePaymentId !== null}
+        onClose={() => setDeletePaymentId(null)}
+        title="Confirm Delete"
+        content="Are you sure you want to delete this payment record? This action cannot be undone."
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
       />
     </div>
   );

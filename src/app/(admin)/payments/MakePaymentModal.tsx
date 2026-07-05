@@ -424,15 +424,25 @@ export default function MakePaymentModal({ isOpen, onClose, projects, paymentMod
         tdsOptionValue = "-2";
       }
 
+      // Calculate base and gross amounts directly at submission time to scale correctly with quantity
+      const qty = Number(item.qnty || 1);
+      const unitPrice = Number(item.price || 0);
+      const baseAmount = qty * unitPrice;
+
+      const tdsRate = Number(item.tdsData?.tds_rate || "0");
+      const tdsAmount = baseAmount * (tdsRate / 100);
+      const grossAmount = baseAmount - tdsAmount;
+
       const payloadObj: any = {
         item_id: item.item_id || "",
         payment_mode: item.mode_id || "",
         demand_id: item.demand_id || "",
-        qnty: String(item.qnty || "1"),
-        tds_rate: String(item.tdsData?.tds_rate || "0"),
-        tds_amount: String(item.tdsData?.tds_amount || "0"),
-        base_amount: String(item.tdsData?.base_amount || (Number(item.qnty || 1) * Number(item.price || 0))),
-        gross_amount: String(item.tdsData?.gross_amount || item.amount || (Number(item.qnty || 1) * Number(item.price || 0))),
+        qnty: String(qty),
+        tds_rate: String(tdsRate),
+        tds_amount: String(tdsAmount),
+        unit_price: unitPrice.toFixed(2),
+        base_amount: String(baseAmount),
+        gross_amount: String(grossAmount),
         tds_option: tdsOptionValue,
         txn_file_uploaded: isTxnFileUploaded,
         txn_file_string: item.transaction_file || "",

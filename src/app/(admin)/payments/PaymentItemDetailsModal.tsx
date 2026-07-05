@@ -142,6 +142,12 @@ export default function PaymentItemDetailsModal({ isOpen, onClose, itemRow, onDe
                            <span className="text-[13px] text-white font-medium">{itemRow.qnty || '0'}</span>
                         </div>
                         <div className="flex flex-col gap-1">
+                           <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Unit Price</span>
+                           <span className="text-[13px] text-white font-medium flex items-center">
+                              <IndianRupee className="w-3.5 h-3.5 text-gray-400 mr-0.5" /> {parseFloat(itemRow.unit_price || 0).toFixed(2)}
+                           </span>
+                        </div>
+                        <div className="flex flex-col gap-1">
                            <span className="text-[10px] uppercase tracking-wider text-gray-500 font-bold">Mode</span>
                            <span className="text-[13px] text-white font-medium">{itemRow.payment_mode_txt || 'N/A'}</span>
                         </div>
