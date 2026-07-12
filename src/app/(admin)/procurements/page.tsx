@@ -115,7 +115,8 @@ export default function ProcurementsPage() {
   const getPurchaseTotal = () => {
     return procurementsList.reduce((sum, item) => {
       const val = parseFloat(item.total_purchase_value || 0);
-      return sum + (isNaN(val) ? 0 : val);
+      const add = parseFloat(item.additional_expenses || 0);
+      return sum + (isNaN(val) ? 0 : val) + (isNaN(add) ? 0 : add);
     }, 0).toFixed(2);
   };
 
@@ -525,7 +526,12 @@ export default function ProcurementsPage() {
                     </td>
                     <td className="px-4 py-3">{row.procurement_txt || '-'}</td>
                     <td className="px-4 py-3">{row.vendor_name || '-'}</td>
-                    <td className="px-4 py-3 font-semibold">₹{row.total_purchase_value || '-'}</td>
+                    <td className="px-4 py-3 font-semibold">
+                      ₹{(
+                        (parseFloat(row.total_purchase_value || '0') || 0) + 
+                        (parseFloat(row.additional_expenses || '0') || 0)
+                      ).toFixed(2)}
+                    </td>
                     <td className="px-4 py-3 text-center">
                       <button
                         disabled={String(row.invoice_ready) !== '1'}

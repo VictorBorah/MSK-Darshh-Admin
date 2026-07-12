@@ -226,6 +226,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                   <thead className="bg-[#cdd5df] text-gray-900 sticky top-0 z-10 shadow-sm border-b border-gray-600">
                     <tr className="text-[11px] font-bold uppercase tracking-wider">
                       <th className="px-2 py-2 text-center border-r border-[#bac4cf] w-10">SL</th>
+                      <th className="px-3 py-2 border-r border-[#bac4cf] w-24">PURCHASE ID</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf]">ITEM DETAILS</th>
                       <th className="px-3 py-2 border-r border-[#bac4cf]">VENDOR</th>
                       <th className="px-2 py-2 border-r border-[#bac4cf] text-center w-12">QNTY</th>
@@ -257,6 +258,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                             }`}
                         >
                           <td className="px-2 py-2 text-center text-gray-400 font-medium border-r border-gray-700/30">{idx + 1}</td>
+                          <td className="px-3 py-2 text-white font-mono border-r border-gray-700/30 whitespace-nowrap">{row.purchase_serial || '-'}</td>
                           <td className="px-3 py-2 text-white font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px]">
                             <div className="flex items-center gap-1.5">
                               <span>{row.item_name || `Item #${row.item_id}`}</span>

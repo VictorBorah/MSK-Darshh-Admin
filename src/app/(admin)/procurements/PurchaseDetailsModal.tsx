@@ -617,9 +617,11 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       const igstAmt = parseFloat(localItemData.igst_amount || 0).toFixed(2);
       const dateVal = localItemData.purchase_date || (localItemData.created_on ? localItemData.created_on.split(' ')[0] : 'N/A');
       const orderIdVal = voucherNumber || localItemData.voucher_no || localItemData.voucher_number || 'N/A';
+      const purchaseSerialVal = localItemData.purchase_serial || 'N/A';
 
       return `--- ORDERED ITEM DETAILS ---
 Order ID        : ${orderIdVal}
+Purchase ID     : ${purchaseSerialVal}
 Item Name       : ${localItemData.item_name || 'N/A'}
 Item ID         : ${localItemData.item_id || 'N/A'}
 Purchase Date   : ${dateVal}
@@ -728,8 +730,11 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                     Warehouse: {assignedWhName}
                                  </div>
                               )}
-                              <div className="mt-1">
+                              <div className="mt-1 flex flex-col gap-0.5">
                                  <span className="text-[11px] text-gray-400 font-medium tracking-wide">ID: {localItemData?.item_id || 'N/A'}</span>
+                                 {localItemData?.purchase_serial && (
+                                    <span className="text-[11px] text-gray-400 font-medium tracking-wide font-mono">Purchase ID: {localItemData.purchase_serial}</span>
+                                 )}
                               </div>
                            </div>
                            <div className="text-right">
@@ -837,6 +842,12 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Payment Mode</span>
                               <span className="text-[13px] text-emerald-400 font-bold">{localItemData?.payment_mode_txt || 'N/A'}</span>
                            </div>
+                           {localItemData?.purchase_serial && (
+                              <div className="flex flex-col gap-0.5">
+                                 <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Purchase ID</span>
+                                 <span className="text-[13px] text-white font-mono font-medium">{localItemData.purchase_serial}</span>
+                              </div>
+                           )}
 
                            {localItemData?.utility_tag_name && (
                               <div className="flex flex-col gap-0.5">
