@@ -625,6 +625,11 @@ export default function MakeDemandModal({ isOpen, onClose, projects, priorities,
                  <h3 className="text-[15px] text-white font-bold tracking-wide flex items-center gap-2">
                    <Settings className="w-4 h-4 text-blue-400" />
                    Configure Demand
+                   {configuringItem?.demand_sl && (
+                     <span className="text-[11px] font-mono font-medium text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded border border-blue-500/20">
+                       ID: {configuringItem.demand_sl}
+                     </span>
+                   )}
                  </h3>
                  <button 
                    onClick={() => setIsConfigureOpen(false)}

@@ -12,6 +12,7 @@ import VerifyDemand from './VerifyDemand';
 interface DemandRow {
   demand_id: string;
   demand_no: string;
+  demand_sl?: string;
   demand_date: string;
   project_id: string;
   project_name: string;
@@ -594,7 +595,7 @@ export default function DemandsPage() {
                           {(currentPage - 1) * 10 + idx + 1}
                         </td>
                         <td className="px-5 py-4 text-gray-300 font-mono">
-                          {row.demand_id || '-'}
+                          {row.demand_sl || '-'}
                         </td>
                         <td className="px-5 py-4 text-gray-200">
                           <div className="flex items-center gap-1.5">
