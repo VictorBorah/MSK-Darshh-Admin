@@ -482,6 +482,7 @@ export default function ProcurementsPage() {
             <thead className="text-[11px] text-gray-900 font-bold uppercase bg-[#cdd5df]">
               <tr>
                 <th className="px-4 py-3 border-r border-[#bac4cf] w-12 text-center">SL</th>
+                <th className="px-4 py-3 border-r border-[#bac4cf]">Purchase ID</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">DATE</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">PROJECT</th>
                 <th className="px-4 py-3 border-r border-[#bac4cf]">STATUS</th>
@@ -508,6 +509,7 @@ export default function ProcurementsPage() {
                     }`}
                   >
                     <td className="px-4 py-3 text-center font-medium">{(procPage - 1) * 10 + idx + 1}</td>
+                    <td className="px-4 py-3">{row.purchase_serial || '-'}</td>
                     <td className="px-4 py-3">{row.purchase_date || '-'}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
@@ -554,7 +556,7 @@ export default function ProcurementsPage() {
               })}
               {procurementsList.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-gray-500">No purchases found.</td>
+                  <td colSpan={9} className="px-4 py-8 text-center text-gray-500">No purchases found.</td>
                 </tr>
               )}
             </tbody>
