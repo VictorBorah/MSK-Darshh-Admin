@@ -44,9 +44,12 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    const [isSavingExpenses, setIsSavingExpenses] = useState<boolean>(false);
    const [expenseToDelete, setExpenseToDelete] = useState<any | null>(null);
    const [isDeletingExpense, setIsDeletingExpense] = useState<boolean>(false);
+   const [showRemoveWarning, setShowRemoveWarning] = useState(false);
+   const [isRemovingRecord, setIsRemovingRecord] = useState(false);
 
    // Local editable states and calculated data
    const [localItemData, setLocalItemData] = useState<any>(itemRow);
+   const isRemoved = localItemData?.is_removed === 'Yes' || localItemData?.is_removed === '1';
    const [isEditingQty, setIsEditingQty] = useState(false);
    const [isEditingPrice, setIsEditingPrice] = useState(false);
    const [editQty, setEditQty] = useState(String(itemRow?.qnty || ''));
@@ -379,6 +382,50 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       }
    };
 
+   const handleRemovePurchaseRecord = async () => {
+      setIsRemovingRecord(true);
+      const toastId = toast.loading('Removing purchase record...');
+
+      try {
+         const token = localStorage.getItem('at_ki8Xq1iV');
+         const purchaseId = String(localItemData?.purchase_id || '');
+
+         const formData = new FormData();
+         formData.append('purchase_id', purchaseId);
+
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/removePurchaseRecord`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+         });
+
+         if (!res.ok) {
+            throw new Error('Network response was not ok');
+         }
+
+         const text = await res.text();
+         let arr;
+         try { arr = JSON.parse(text); } catch (e) {}
+         const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+         if (data && (String(data.Status) === '1' || data.Status === 1)) {
+            toast.success(data.Message || 'Purchase Removed', { id: toastId });
+            setShowRemoveWarning(false);
+            onClose();
+            if (onSuccess) {
+               onSuccess();
+            }
+         } else {
+            toast.error(data?.Message || 'Failed to remove purchase record', { id: toastId });
+         }
+      } catch (err: any) {
+         console.error('Failed to remove purchase record:', err);
+         toast.error(err.message || 'An error occurred while removing purchase record', { id: toastId });
+      } finally {
+         setIsRemovingRecord(false);
+      }
+   };
+
    const handleStartEditExpense = (expense: any) => {
       setSelectedEditExpense(expense);
       setIsEditExpenseOpen(true);
@@ -511,92 +558,92 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
       lastSearchedQuery.current = '';
    };
 
-    const handleAddNewExpenses = async () => {
-       const newExpenses = (localItemData?.additional_expenses || []).filter((exp: any) => exp.isNew);
-       if (newExpenses.length === 0) return;
+   const handleAddNewExpenses = async () => {
+      const newExpenses = (localItemData?.additional_expenses || []).filter((exp: any) => exp.isNew);
+      if (newExpenses.length === 0) return;
 
-       // Validation: qnty !== 0, unit_price !== 0 or empty, and payment_mode is not null or empty
-       for (const expense of newExpenses) {
-          const up = parseFloat(expense.unit_price);
-          const q = parseFloat(expense.qnty);
+      // Validation: qnty !== 0, unit_price !== 0 or empty, and payment_mode is not null or empty
+      for (const expense of newExpenses) {
+         const up = parseFloat(expense.unit_price);
+         const q = parseFloat(expense.qnty);
 
-          if (isNaN(up) || up <= 0 || expense.unit_price === '') {
-             toast.error(`Please enter a valid non-zero rate for "${expense.item_name}"`);
-             return;
-          }
-          if (isNaN(q) || q <= 0) {
-             toast.error(`Please enter a valid non-zero quantity for "${expense.item_name}"`);
-             return;
-          }
-          if (!expense.payment_mode) {
-             toast.error(`Please select a payment mode for "${expense.item_name}"`);
-             return;
-          }
-       }
+         if (isNaN(up) || up <= 0 || expense.unit_price === '') {
+            toast.error(`Please enter a valid non-zero rate for "${expense.item_name}"`);
+            return;
+         }
+         if (isNaN(q) || q <= 0) {
+            toast.error(`Please enter a valid non-zero quantity for "${expense.item_name}"`);
+            return;
+         }
+         if (!expense.payment_mode) {
+            toast.error(`Please select a payment mode for "${expense.item_name}"`);
+            return;
+         }
+      }
 
-       setIsSavingExpenses(true);
-       const toastId = toast.loading('Saving additional expenses...');
+      setIsSavingExpenses(true);
+      const toastId = toast.loading('Saving additional expenses...');
 
-       try {
-          const token = localStorage.getItem('at_ki8Xq1iV');
-          const purchaseId = String(localItemData?.purchase_id || '');
+      try {
+         const token = localStorage.getItem('at_ki8Xq1iV');
+         const purchaseId = String(localItemData?.purchase_id || '');
 
-          const payload = {
-             expenses_data: newExpenses.map((exp: any) => ({
-                item_id: String(exp.item_id),
-                qnty: String(exp.qnty),
-                unit_price: parseFloat(exp.unit_price).toFixed(2),
-                total_price: (parseFloat(exp.unit_price) * parseFloat(exp.qnty)).toFixed(2),
-                payment_mode: String(exp.payment_mode)
-             }))
-          };
+         const payload = {
+            expenses_data: newExpenses.map((exp: any) => ({
+               item_id: String(exp.item_id),
+               qnty: String(exp.qnty),
+               unit_price: parseFloat(exp.unit_price).toFixed(2),
+               total_price: (parseFloat(exp.unit_price) * parseFloat(exp.qnty)).toFixed(2),
+               payment_mode: String(exp.payment_mode)
+            }))
+         };
 
-          const formData = new FormData();
-          formData.append('purchase_id', purchaseId);
-          formData.append('expense_json', JSON.stringify(payload));
+         const formData = new FormData();
+         formData.append('purchase_id', purchaseId);
+         formData.append('expense_json', JSON.stringify(payload));
 
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/addNewAdditionalExpenses`, {
-             method: 'POST',
-             headers: { 'Authorization': `Bearer ${token}` },
-             body: formData
-          });
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/addNewAdditionalExpenses`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+         });
 
-          const text = await res.text();
-          let arr;
-          try { arr = JSON.parse(text); } catch (e) { }
-          const data = arr && Array.isArray(arr) ? arr[0] : arr;
+         const text = await res.text();
+         let arr;
+         try { arr = JSON.parse(text); } catch (e) { }
+         const data = arr && Array.isArray(arr) ? arr[0] : arr;
 
-          if (data && String(data.Status) === '1') {
-             toast.success(data.Message || 'Additional Expense Added', { id: toastId });
+         if (data && String(data.Status) === '1') {
+            toast.success(data.Message || 'Additional Expense Added', { id: toastId });
 
-             setLocalItemData((prev: any) => {
-                if (!prev) return prev;
-                const updatedExpenses = (prev.additional_expenses || []).map((exp: any) => {
-                   if (exp.isNew) {
-                      const { isNew, ...rest } = exp;
-                      return rest;
-                   }
-                   return exp;
-                });
-                return {
-                   ...prev,
-                   additional_expenses: updatedExpenses
-                };
-             });
+            setLocalItemData((prev: any) => {
+               if (!prev) return prev;
+               const updatedExpenses = (prev.additional_expenses || []).map((exp: any) => {
+                  if (exp.isNew) {
+                     const { isNew, ...rest } = exp;
+                     return rest;
+                  }
+                  return exp;
+               });
+               return {
+                  ...prev,
+                  additional_expenses: updatedExpenses
+               };
+            });
 
-             if (onRefresh) {
-                onRefresh();
-             }
-          } else {
-             toast.error(data?.Message || 'Failed to add additional expenses', { id: toastId });
-          }
-       } catch (err: any) {
-          console.error('Failed to add additional expenses:', err);
-          toast.error(err.message || 'An error occurred while saving expenses', { id: toastId });
-       } finally {
-          setIsSavingExpenses(false);
-       }
-    };
+            if (onRefresh) {
+               onRefresh();
+            }
+         } else {
+            toast.error(data?.Message || 'Failed to add additional expenses', { id: toastId });
+         }
+      } catch (err: any) {
+         console.error('Failed to add additional expenses:', err);
+         toast.error(err.message || 'An error occurred while saving expenses', { id: toastId });
+      } finally {
+         setIsSavingExpenses(false);
+      }
+   };
 
    // Double-layered Safety: Early return immediately after hook declarations
    if (!isOpen || !itemRow) return null;
@@ -686,6 +733,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
    const privileges = procurementsMenuItem?.privileges_array?.[0] || {};
    const canApprove = privileges.approve_purchase === '1';
    const canClose = privileges.close_purchase === '1';
+   const canRemove = privileges.remove_purchase === '1';
    const isClosedPurchase = localItemData?.is_closed !== 'No';
 
    return (
@@ -700,9 +748,88 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                <div className="px-5 py-4 border-b border-gray-700 flex justify-between items-center bg-[#161a25] shrink-0">
                   <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
                      <Box className="w-5 h-5 text-emerald-400" />
-                     Item Details
+                     {isRemoved ? "Removed Purchase" : "Item Details"}
                   </h2>
                   <div className="flex items-center gap-1.5">
+                     {/* Share Popover Wrapper */}
+                     <div className="relative mr-1">
+                        <button
+                           onClick={handleShareClick}
+                           className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-2.5 py-1 rounded border border-gray-600 shadow-sm"
+                           title="Share Details"
+                        >
+                           <Share2 className="w-3.5 h-3.5" /> Share
+                        </button>
+
+                        {isShareOpen && (
+                           <>
+                              {/* Transparent Backdrop to capture close events */}
+                              <div
+                                 className="fixed inset-0 z-40 cursor-default"
+                                 onClick={() => setIsShareOpen(false)}
+                              />
+
+                              {/* Dropdown Menu popover */}
+                              <div className="absolute right-0 top-full mt-2 w-48 bg-[#1f2536] border border-gray-700 rounded-lg shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-2 duration-150 flex flex-col">
+                                 <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-700/50 pb-1.5 mb-1 select-none text-left">
+                                    Share Details Via
+                                 </div>
+
+                                 <button
+                                    onClick={shareViaWhatsApp}
+                                    className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-emerald-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                 >
+                                    <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+                                    WhatsApp
+                                 </button>
+
+                                 <button
+                                    onClick={shareViaTelegram}
+                                    className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-blue-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                 >
+                                    <Send className="w-4 h-4 text-blue-400 shrink-0" />
+                                    Telegram
+                                 </button>
+
+                                 <button
+                                    onClick={shareViaGmail}
+                                    className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-red-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                 >
+                                    <Mail className="w-4 h-4 text-red-400 shrink-0" />
+                                    Gmail
+                                 </button>
+
+                                 <button
+                                    onClick={shareViaSMS}
+                                    className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-orange-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                 >
+                                    <MessageSquare className="w-4 h-4 text-orange-400 shrink-0" />
+                                    Text Message
+                                 </button>
+
+                                 <div className="h-px bg-gray-700/50 my-1" />
+
+                                 <button
+                                    onClick={handleCopy}
+                                    className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-white hover:bg-white/5 transition-colors text-left font-medium w-full"
+                                 >
+                                    {copied ? (
+                                       <>
+                                          <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
+                                          <span className="text-emerald-500 font-bold">Copied!</span>
+                                       </>
+                                    ) : (
+                                       <>
+                                          <Copy className="w-4 h-4 text-gray-400 shrink-0" />
+                                          Copy as Text
+                                       </>
+                                    )}
+                                 </button>
+                              </div>
+                           </>
+                        )}
+                     </div>
+
                      <button
                         onClick={() => setIsMaximized(!isMaximized)}
                         className="p-1.5 text-gray-400 hover:text-white hover:bg-white/10 rounded transition-colors"
@@ -717,28 +844,34 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                </div>
 
                <div className="p-6 bg-[#161a25] overflow-y-auto flex-1">
+                  {isRemoved && (
+                     <div className="mb-4 bg-red-950/20 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg flex items-center gap-2.5 shadow-md select-none">
+                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 animate-pulse" />
+                        <span className="text-[14px] font-black uppercase tracking-wider">Removed Purchase - This record is removed and canceled</span>
+                     </div>
+                  )}
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
                      {/* Left Column: Basic Pricing & Info (Span 4) */}
-                     <div ref={itemDetailsRef} className="lg:col-span-4 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3">
+                     <div ref={itemDetailsRef} className={`lg:col-span-4 p-5 rounded-lg border flex flex-col gap-3 transition-colors ${isRemoved ? 'bg-[#272e3a] border-gray-800 text-gray-500/90' : 'bg-[#1b202c] border-gray-700 text-gray-300'}`}>
                         <div className="flex items-start justify-between">
                            <div>
-                              <h3 className="text-white font-bold text-[15px]">{localItemData?.item_name || 'N/A'}</h3>
+                              <h3 className={`font-bold text-[15px] ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>{localItemData?.item_name || 'N/A'}</h3>
                               {assignedWhName && assignedWhName !== 'Select Warehouse' && (
-                                 <div className="mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 bg-blue-500/15 border border-blue-500/20 rounded text-[11px] font-bold text-blue-400">
+                                 <div className={`mt-1.5 inline-flex items-center gap-1.5 px-2 py-0.5 border rounded text-[11px] font-bold ${isRemoved ? 'bg-gray-800 border-gray-700 text-gray-500' : 'bg-blue-500/15 border border-blue-500/20 text-blue-400'}`}>
                                     <Box className="w-3.5 h-3.5 shrink-0" />
                                     Warehouse: {assignedWhName}
                                  </div>
                               )}
                               <div className="mt-1 flex flex-col gap-0.5">
-                                 <span className="text-[11px] text-gray-400 font-medium tracking-wide">ID: {localItemData?.item_id || 'N/A'}</span>
+                                 <span className={`text-[11px] font-medium tracking-wide ${isRemoved ? 'text-gray-600' : 'text-gray-400'}`}>ID: {localItemData?.item_id || 'N/A'}</span>
                                  {localItemData?.purchase_serial && (
-                                    <span className="text-[11px] text-gray-400 font-medium tracking-wide font-mono">Purchase ID: {localItemData.purchase_serial}</span>
+                                    <span className={`text-[11px] font-medium tracking-wide font-mono ${isRemoved ? 'text-gray-600' : 'text-gray-400'}`}>Purchase ID: {localItemData.purchase_serial}</span>
                                  )}
                               </div>
                            </div>
                            <div className="text-right">
-                              <div className="text-emerald-400 font-bold text-[15px]">₹ {parseFloat(localItemData?.amount_inc_gst || 0).toFixed(2)}</div>
+                              <div className={`font-bold text-[15px] ${isRemoved ? 'text-gray-500/90' : 'text-emerald-400'}`}>₹ {parseFloat(localItemData?.amount_inc_gst || 0).toFixed(2)}</div>
                               <span className="text-[11px] text-gray-500 font-medium whitespace-nowrap">Inclusive of GST</span>
                            </div>
                         </div>
@@ -747,7 +880,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <div className="flex flex-col gap-0.5">
                               <div className="flex items-center gap-2">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Quantity</span>
-                                 {isVerified && canClose && !isEditingQty && (
+                                 {isVerified && canClose && !isEditingQty && !isRemoved && (
                                     isClosedPurchase ? (
                                        <span
                                           title="Purchase Closed"
@@ -778,13 +911,13 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                     className="bg-[#232b3e] border border-gray-600 rounded px-2 py-0.5 text-[13px] text-white font-medium focus:outline-none focus:border-blue-500 w-full"
                                  />
                               ) : (
-                                 <span className="text-[13px] text-white font-medium">{localItemData?.qnty || '0'}</span>
+                                 <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>{localItemData?.qnty || '0'}</span>
                               )}
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <div className="flex items-center gap-2">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Unit Price</span>
-                                 {isVerified && canClose && !isEditingPrice && (
+                                 {isVerified && canClose && !isEditingPrice && !isRemoved && (
                                     isClosedPurchase ? (
                                        <span
                                           title="Purchase Closed"
@@ -815,37 +948,37 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                     className="bg-[#232b3e] border border-gray-600 rounded px-2 py-0.5 text-[13px] text-white font-medium focus:outline-none focus:border-blue-500 w-full"
                                  />
                               ) : (
-                                 <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.unit_price || 0).toFixed(2)}</span>
+                                 <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>₹ {parseFloat(localItemData?.unit_price || 0).toFixed(2)}</span>
                               )}
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Total Base</span>
-                              <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.amount_exc_gst || 0).toFixed(2)}</span>
+                              <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>₹ {parseFloat(localItemData?.amount_exc_gst || 0).toFixed(2)}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Total GST ({localItemData?.gst_rate || 0}%)</span>
-                              <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.gst_amount || 0).toFixed(2)}</span>
+                              <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>₹ {parseFloat(localItemData?.gst_amount || 0).toFixed(2)}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">CGST ({localItemData?.cgst_rate || 0}%)</span>
-                              <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.cgst_amount || 0).toFixed(2)}</span>
+                              <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>₹ {parseFloat(localItemData?.cgst_amount || 0).toFixed(2)}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">SGST ({localItemData?.sgst_rate || 0}%)</span>
-                              <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.sgst_amount || 0).toFixed(2)}</span>
+                              <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>₹ {parseFloat(localItemData?.sgst_amount || 0).toFixed(2)}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">IGST ({localItemData?.gst_rate || 0}%)</span>
-                              <span className="text-[13px] text-white font-medium">₹ {parseFloat(localItemData?.igst_amount || 0).toFixed(2)}</span>
+                              <span className={`text-[13px] font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>₹ {parseFloat(localItemData?.igst_amount || 0).toFixed(2)}</span>
                            </div>
                            <div className="flex flex-col gap-0.5">
                               <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Payment Mode</span>
-                              <span className="text-[13px] text-emerald-400 font-bold">{localItemData?.payment_mode_txt || 'N/A'}</span>
+                              <span className={`text-[13px] font-bold ${isRemoved ? 'text-gray-500/90' : 'text-emerald-400'}`}>{localItemData?.payment_mode_txt || 'N/A'}</span>
                            </div>
                            {localItemData?.purchase_serial && (
                               <div className="flex flex-col gap-0.5">
                                  <span className="text-[11px] uppercase tracking-wide text-gray-500 font-semibold">Purchase ID</span>
-                                 <span className="text-[13px] text-white font-mono font-medium">{localItemData.purchase_serial}</span>
+                                 <span className={`text-[13px] font-mono font-medium ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>{localItemData.purchase_serial}</span>
                               </div>
                            )}
 
@@ -900,109 +1033,39 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               )}
                            </div>
 
-                           <div className="col-span-2 flex justify-end gap-2.5 mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
-
-                              {/* Share Popover Wrapper */}
-                              <div className="relative">
-                                 <button
-                                    onClick={handleShareClick}
-                                    className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
-                                    title="Share Details"
-                                 >
-                                    <Share2 className="w-3.5 h-3.5" /> Share
-                                 </button>
-
-                                 {isShareOpen && (
-                                    <>
-                                       {/* Transparent Backdrop to capture close events */}
-                                       <div
-                                          className="fixed inset-0 z-40 cursor-default"
-                                          onClick={() => setIsShareOpen(false)}
-                                       />
-
-                                       {/* Dropdown Menu popover */}
-                                       <div className="absolute right-0 bottom-full mb-2 w-48 bg-[#1f2536] border border-gray-700 rounded-lg shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-bottom-2 duration-150 flex flex-col">
-                                          <div className="px-3 py-1 text-[10px] font-bold text-gray-500 uppercase tracking-wider border-b border-gray-700/50 pb-1.5 mb-1 select-none">
-                                             Share Details Via
-                                          </div>
-
-                                          <button
-                                             onClick={shareViaWhatsApp}
-                                             className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-emerald-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                          >
-                                             <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
-                                             WhatsApp
-                                          </button>
-
-                                          <button
-                                             onClick={shareViaTelegram}
-                                             className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-blue-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                          >
-                                             <Send className="w-4 h-4 text-blue-400 shrink-0" />
-                                             Telegram
-                                          </button>
-
-                                          <button
-                                             onClick={shareViaGmail}
-                                             className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-red-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                          >
-                                             <Mail className="w-4 h-4 text-red-400 shrink-0" />
-                                             Gmail
-                                          </button>
-
-                                          <button
-                                             onClick={shareViaSMS}
-                                             className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-orange-400 hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                          >
-                                             <MessageSquare className="w-4 h-4 text-orange-400 shrink-0" />
-                                             Text Message
-                                          </button>
-
-                                          <div className="h-px bg-gray-700/50 my-1" />
-
-                                          <button
-                                             onClick={handleCopy}
-                                             className="flex items-center gap-2.5 px-3 py-2 text-[12px] text-gray-300 hover:text-white hover:bg-white/5 transition-colors text-left font-medium w-full"
-                                          >
-                                             {copied ? (
-                                                <>
-                                                   <Check className="w-4 h-4 text-emerald-500 shrink-0 animate-bounce" />
-                                                   <span className="text-emerald-500 font-bold">Copied!</span>
-                                                </>
-                                             ) : (
-                                                <>
-                                                   <Copy className="w-4 h-4 text-gray-400 shrink-0" />
-                                                   Copy as Text
-                                                </>
-                                             )}
-                                          </button>
-                                       </div>
-                                    </>
-                                 )}
-                              </div>
+                           <div className="col-span-2 flex items-center justify-end gap-1.5 mt-2 pt-2 border-t border-gray-700/50" data-html2canvas-ignore="true">
 
                               <button
-                                 onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${localItemData?.item_name || 'Item'}.pdf`)}
-                                 className="flex items-center gap-1.5 text-[11px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-3 py-1.5 rounded border border-gray-600 shadow-sm"
+                                 onClick={() => generatePdfFromElement(itemDetailsRef.current, `Purchase of ${localItemData?.item_name || 'Item'}.pdf`, undefined, isRemoved)}
+                                 className="flex items-center gap-1 text-[10px] font-bold text-gray-400 hover:text-white transition-colors uppercase tracking-wide bg-[#232b3e] hover:bg-[#293653] px-2.5 py-1 rounded border border-gray-600 shadow-sm whitespace-nowrap"
                                  title="Download as PDF"
                               >
-                                 <Printer className="w-3.5 h-3.5" /> Print to PDF
+                                 <Printer className="w-3 h-3" /> Print to PDF
                               </button>
 
                               {isUnverified && canApprove && (
                                  <button
                                     onClick={() => setShowApproveModal(true)}
-                                    className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200"
+                                    disabled={isRemoved}
+                                    className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed px-2.5 py-1 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200 whitespace-nowrap"
                                  >
                                     Approve
                                  </button>
                               )}
 
+                              <button
+                                 onClick={() => setShowRemoveWarning(true)}
+                                 disabled={!canRemove || isRemoved || isRemovingRecord}
+                                 className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed px-2.5 py-1 rounded border border-red-600 shadow-sm active:scale-95 transition-all duration-200 whitespace-nowrap"
+                              >
+                                 Remove
+                              </button>
+
                               {isVerified && canClose && (
                                  <button
                                     onClick={() => setShowFinalizeInvoiceModal(true)}
-                                    disabled={isFinalizing || isClosed || isClosedPurchase}
-                                    className="flex items-center gap-1.5 text-[11px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200"
+                                    disabled={isFinalizing || isClosed || isClosedPurchase || isRemoved}
+                                    className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-2.5 py-1 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200 whitespace-nowrap"
                                  >
                                     {isFinalizing ? 'Finalizing...' : 'Finalize Purchase'}
                                  </button>
@@ -1012,7 +1075,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                      </div>
 
                      {/* Middle Column: Additional Expenses (Span 4) */}
-                     <div className="lg:col-span-4 bg-[#1b202c] p-5 rounded-lg border border-gray-700 flex flex-col gap-3 self-stretch">
+                     <div className={`lg:col-span-4 p-5 rounded-lg border flex flex-col gap-3 self-stretch transition-colors ${isRemoved ? 'bg-[#272e3a] border-gray-800 text-gray-500/90' : 'bg-[#1b202c] border-gray-700 text-gray-300'}`}>
                         <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pb-1.5 border-b border-gray-700/50">
                            Additional Expenses
                         </h4>
@@ -1025,7 +1088,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                  value={itemSearch}
                                  onChange={(e) => setItemSearch(e.target.value)}
                                  placeholder="Search item to add..."
-                                 disabled={isClosedPurchase}
+                                 disabled={isClosedPurchase || isRemoved}
                                  className="w-full bg-[#232b3e] border border-gray-600 rounded pl-9 pr-8 py-1.5 text-white text-[12px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                               />
                               <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
@@ -1090,7 +1153,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                           key={row.expense_id || idx}
                                           className={`group hover:bg-white/5 transition-colors ${row.isNew ? 'bg-emerald-950/20' : ''}`}
                                        >
-                                          <td className="py-3 pl-4 pr-1 text-white font-medium break-words">
+                                          <td className={`py-3 pl-4 pr-1 font-medium break-words ${isRemoved ? 'text-gray-500/70' : 'text-white'}`}>
                                              <div className="flex items-center gap-1.5 flex-wrap">
                                                 <span>{row.item_name}</span>
                                                 {row.isNew && (
@@ -1100,21 +1163,21 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                 )}
                                              </div>
                                           </td>
-                                          <td className="py-3 px-1 text-center text-gray-300">
+                                          <td className={`py-3 px-1 text-center ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>
                                              {parseFloat(row.unit_price || 0).toFixed(2)}
                                           </td>
-                                          <td className="py-3 px-1 text-center text-gray-300">
+                                          <td className={`py-3 px-1 text-center ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>
                                              {row.qnty}
                                           </td>
-                                          <td className="py-3 px-1.5 text-right text-gray-400 font-semibold">
+                                          <td className={`py-3 px-1.5 text-right font-semibold ${isRemoved ? 'text-gray-500/70' : 'text-gray-400'}`}>
                                              {parseFloat(row.total_amount || 0).toFixed(2)}
                                           </td>
                                           <td className="py-2 text-center">
                                              <div className="flex items-center justify-center gap-1">
                                                 <button
-                                                   onClick={() => !isClosedPurchase && handleStartEditExpense(row)}
-                                                   title={isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
-                                                   className={`p-1 rounded transition-colors ${isClosedPurchase
+                                                   onClick={() => !isClosedPurchase && !isRemoved && handleStartEditExpense(row)}
+                                                   title={isRemoved ? "Purchase Removed" : isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
+                                                   className={`p-1 rounded transition-colors ${(isClosedPurchase || isRemoved)
                                                       ? 'text-gray-600 cursor-not-allowed opacity-50'
                                                       : 'text-gray-400 hover:text-white hover:bg-white/10'
                                                       }`}
@@ -1122,9 +1185,9 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                    <Pencil className="w-3.5 h-3.5" />
                                                 </button>
                                                 <button
-                                                   onClick={() => !isClosedPurchase && setExpenseToDelete(row)}
-                                                   title={isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
-                                                   className={`p-1 rounded transition-colors ${isClosedPurchase
+                                                   onClick={() => !isClosedPurchase && !isRemoved && setExpenseToDelete(row)}
+                                                   title={isRemoved ? "Purchase Removed" : isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
+                                                   className={`p-1 rounded transition-colors ${(isClosedPurchase || isRemoved)
                                                       ? 'text-gray-600 cursor-not-allowed opacity-50'
                                                       : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
                                                       }`}
@@ -1151,7 +1214,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <div className="flex justify-end select-none animate-in fade-in duration-150 pt-2 pb-1 border-t border-gray-700/50">
                               <button
                                  onClick={handleAddNewExpenses}
-                                 disabled={isSavingExpenses}
+                                 disabled={isSavingExpenses || isRemoved}
                                  className="text-[11px] font-bold text-white uppercase tracking-wider bg-[#10b981] hover:bg-[#059669] disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200 flex items-center gap-1.5"
                               >
                                  {isSavingExpenses ? (
@@ -1170,7 +1233,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <span className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider">
                               Total Additional expenses:
                            </span>
-                           <span className="text-[14px] text-emerald-400 font-bold">
+                           <span className={`text-[14px] font-bold ${isRemoved ? 'text-gray-500/70' : 'text-emerald-400'}`}>
                               ₹ {
                                  (localItemData?.additional_expenses || []).reduce(
                                     (acc: number, cur: any) => acc + (parseFloat(cur.total_amount) || 0),
@@ -1185,7 +1248,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                      <div className="lg:col-span-4 flex flex-col gap-6">
 
                         {/* Warehouse Configuration Block */}
-                        <div className="flex flex-col gap-3 relative bg-[#1b202c] p-5 rounded-lg border border-gray-700">
+                        <div className={`flex flex-col gap-3 relative p-5 rounded-lg border transition-colors ${isRemoved ? 'bg-[#272e3a] border-gray-800 text-gray-500/90' : 'bg-[#1b202c] border-gray-700 text-gray-300'}`}>
                            <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
                               <Box className="w-3.5 h-3.5 text-emerald-400" />
                               Warehouse Configuration
@@ -1200,7 +1263,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               <div className="flex flex-col gap-3.5 mt-1">
                                  {localItemData?.warehouse_name && (
                                     <div className="text-[11px] text-gray-400 font-medium">
-                                       Currently stored at: <span className="text-emerald-400 font-bold">{localItemData.warehouse_name}</span>
+                                       Currently stored at: <span className={`font-bold ${isRemoved ? 'text-gray-500/90' : 'text-emerald-400'}`}>{localItemData.warehouse_name}</span>
                                     </div>
                                  )}
                                  <div className="flex flex-col gap-3">
@@ -1223,7 +1286,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                              setSelectedWarehouse(val ? val.value : '');
                                           }}
                                           placeholder="Select Warehouse..."
-                                          isDisabled={isClosed}
+                                          isDisabled={isClosed || isRemoved}
                                           styles={{
                                              control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
                                              menuPortal: base => ({ ...base, zIndex: 99999 }),
@@ -1237,10 +1300,10 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                     </div>
                                     <button
                                        onClick={handleChangeWarehouse}
-                                       disabled={!selectedWarehouse || isSubmitting || isClosed}
-                                       className={`w-full h-[36px] flex items-center justify-center font-bold text-[12px] uppercase tracking-wider rounded border border-blue-600 transition-all duration-200 shadow-sm whitespace-nowrap ${(!selectedWarehouse || isSubmitting || isClosed)
+                                       disabled={!selectedWarehouse || isSubmitting || isClosed || isRemoved}
+                                       className={`w-full h-[36px] flex items-center justify-center font-bold text-[12px] uppercase tracking-wider rounded border transition-all duration-200 shadow-sm whitespace-nowrap ${(!selectedWarehouse || isSubmitting || isClosed || isRemoved)
                                           ? 'bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed opacity-50'
-                                          : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95'
+                                          : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95 border-blue-600'
                                           }`}
                                     >
                                        {isSubmitting ? (
@@ -1258,7 +1321,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                         </div>
 
                         {/* Connected Demand Info */}
-                        <div className="flex flex-col gap-3 bg-[#1b202c] p-5 rounded-lg border border-gray-700">
+                        <div className={`flex flex-col gap-3 p-5 rounded-lg border transition-colors ${isRemoved ? 'bg-[#272e3a] border-gray-800 text-gray-500/90' : 'bg-[#1b202c] border-gray-700 text-gray-300'}`}>
                            <h4 className="text-[12px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5 pb-1.5 border-b border-gray-700/50">
                               <Anchor className="w-3.5 h-3.5 text-blue-400" /> Demand Connection {isConnected ? `: Connected to: #D-${demandInfo?.demand_id}` : ''}
                            </h4>
@@ -1273,8 +1336,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                        e.preventDefault();
                                        onDemandAction(localItemData);
                                     }}
-                                    disabled={isClosed}
-                                    className={`text-[12px] font-bold uppercase tracking-wide mt-1 transition-colors ${isClosed ? 'text-gray-500 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 underline decoration-blue-500/30 underline-offset-4'}`}
+                                    disabled={isClosed || isRemoved}
+                                    className={`text-[12px] font-bold uppercase tracking-wide mt-1 transition-colors ${(isClosed || isRemoved) ? 'text-gray-500 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 underline decoration-blue-500/30 underline-offset-4'}`}
                                  >
                                     Link to a Demand
                                  </button>
@@ -1284,33 +1347,33 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                  <div className="grid grid-cols-2 gap-y-3 gap-x-4">
                                     <div className="col-span-2 flex flex-col gap-0.5 pb-1">
                                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Demand Title</span>
-                                       <span className="text-[13px] text-white font-medium italic line-clamp-2">{demandInfo?.auto_title || 'N/A'}</span>
+                                       <span className={`text-[13px] font-medium italic line-clamp-2 ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>{demandInfo?.auto_title || 'N/A'}</span>
                                     </div>
 
                                     <div className="flex flex-col gap-0.5">
                                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Demand No</span>
-                                       <span className="text-[13px] text-white font-bold">{demandInfo?.demand_no || 'N/A'}</span>
+                                       <span className={`text-[13px] font-bold ${isRemoved ? 'text-gray-500/90' : 'text-white'}`}>{demandInfo?.demand_no || 'N/A'}</span>
                                     </div>
                                     <div className="flex flex-col gap-0.5">
                                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Priority</span>
-                                       <span className="text-[13px] text-blue-400 font-bold">{demandInfo?.priority_txt || 'Normal'}</span>
+                                       <span className={`text-[13px] font-bold ${isRemoved ? 'text-gray-500/90' : 'text-blue-400'}`}>{demandInfo?.priority_txt || 'Normal'}</span>
                                     </div>
                                     <div className="flex flex-col gap-0.5">
                                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Delivery Confirmed</span>
-                                       <span className={`text-[13px] font-bold ${demandInfo?.delivery_confirmed === 'Yes' ? 'text-emerald-400' : 'text-gray-300'}`}>
+                                       <span className={`text-[13px] font-bold ${isRemoved ? 'text-gray-500/90' : (demandInfo?.delivery_confirmed === 'Yes' ? 'text-emerald-400' : 'text-gray-300')}`}>
                                           {demandInfo?.delivery_confirmed || 'No'}
                                        </span>
                                     </div>
                                     <div className="flex flex-col gap-0.5">
                                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Fulfillment</span>
-                                       <span className={`text-[13px] font-bold ${demandInfo?.is_fulfilled === 'Yes' ? 'text-emerald-400' : 'text-gray-300'}`}>
+                                       <span className={`text-[13px] font-bold ${isRemoved ? 'text-gray-500/90' : (demandInfo?.is_fulfilled === 'Yes' ? 'text-emerald-400' : 'text-gray-300')}`}>
                                           {demandInfo?.is_fulfilled || 'No'}
                                        </span>
                                     </div>
 
                                     <div className="col-span-2 flex flex-col gap-0.5 mt-1 border-t border-gray-700/50 pt-2">
                                        <span className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Status</span>
-                                       <span className="text-[12px] text-gray-300">{demandInfo?.procurement_txt || 'N/A'}</span>
+                                       <span className={`text-[12px] ${isRemoved ? 'text-gray-500/90' : 'text-gray-300'}`}>{demandInfo?.procurement_txt || 'N/A'}</span>
                                     </div>
                                  </div>
 
@@ -1320,8 +1383,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                           e.preventDefault();
                                           onDemandAction(localItemData);
                                        }}
-                                       disabled={isClosed}
-                                       className={`text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded transition-colors ${isClosed ? 'text-gray-500 bg-gray-800 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20'}`}
+                                       disabled={isClosed || isRemoved}
+                                       className={`text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded transition-colors ${(isClosed || isRemoved) ? 'text-gray-500 bg-gray-800 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20'}`}
                                     >
                                        Update Demand Connection
                                     </button>
@@ -1375,6 +1438,15 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
             content="Remove this expense? This action is not reversible!"
             onConfirm={handleConfirmRemoveExpense}
             isLoading={isDeletingExpense}
+         />
+
+         <WarningAlertModal
+            isOpen={showRemoveWarning}
+            onClose={() => !isRemovingRecord && setShowRemoveWarning(false)}
+            title="Warning"
+            content="Do you want to remove this purchase?"
+            onConfirm={handleRemovePurchaseRecord}
+            isLoading={isRemovingRecord}
          />
       </>
    );

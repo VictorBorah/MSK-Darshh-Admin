@@ -143,6 +143,7 @@ export default function ProcurementsPage() {
   const [procStatus, setProcStatus] = useState('');
   const [procProject, setProcProject] = useState('');
   const [procVendor, setProcVendor] = useState('');
+  const [hideRemoved, setHideRemoved] = useState<boolean>(true);
 
   // Demands Form & Data state
   const [demandsList, setDemandsList] = useState<any[]>([]);
@@ -184,9 +185,10 @@ export default function ProcurementsPage() {
     }
   };
 
-  const fetchProcurementsData = useCallback(async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo, passedAdminDisplay = adminDisplay, passedDisplayOption = displayOption) => {
+  const fetchProcurementsData = useCallback(async (token: string, passedPage = procPage, passedProj = procProject, passedStatus = procStatus, passedVendor = procVendor, passedDateFrom = procDateFrom, passedDateTo = procDateTo, passedAdminDisplay = adminDisplay, passedDisplayOption = displayOption, passedHideRemoved = hideRemoved) => {
     const params = new URLSearchParams();
     params.set('pagenum', String(passedPage));
+    params.set('hide_removed', passedHideRemoved ? '1' : '0');
     if (passedProj) params.set('project_id', passedProj);
     if (passedStatus) params.set('status', passedStatus);
     if (passedDateFrom) {
@@ -230,7 +232,7 @@ export default function ProcurementsPage() {
     } else {
       return { success: false, message: pData.Message || 'Procurements fetch error' };
     }
-  }, [procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, myProjects, adminDisplay, displayOption, showFilter1, showFilter2]);
+  }, [procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, myProjects, adminDisplay, displayOption, showFilter1, showFilter2, hideRemoved]);
 
   const fetchDemandsData = useCallback(async (token: string, passedPage = demPage, passedProj = demProject, passedStatus = demStatus, passedItem = demItem, passedDateFrom = demDateFrom, passedDateTo = demDateTo) => {
     const params = new URLSearchParams();
@@ -327,9 +329,9 @@ export default function ProcurementsPage() {
   useEffect(() => {
     if (isInitialLoading) return;
     const token = localStorage.getItem('at_ki8Xq1iV');
-    if (token) fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, adminDisplay, displayOption);
+    if (token) fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, adminDisplay, displayOption, hideRemoved);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, fetchProcurementsData, adminDisplay, displayOption]);
+  }, [procPage, procProject, procStatus, procDateFrom, procDateTo, procVendor, fetchProcurementsData, adminDisplay, displayOption, hideRemoved]);
 
   // Sync Independent Demands Table
   useEffect(() => {
@@ -345,7 +347,7 @@ export default function ProcurementsPage() {
       if (document.visibilityState === 'visible') {
         const token = localStorage.getItem('at_ki8Xq1iV');
         if (token) {
-          fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, adminDisplay, displayOption);
+          fetchProcurementsData(token, procPage, procProject, procStatus, procVendor, procDateFrom, procDateTo, adminDisplay, displayOption, hideRemoved);
           fetchDemandsData(token, demPage, demProject, demStatus, demItem, demDateFrom, demDateTo);
         }
       }
@@ -363,6 +365,7 @@ export default function ProcurementsPage() {
     procDateTo,
     adminDisplay,
     displayOption,
+    hideRemoved,
     demPage,
     demProject,
     demStatus,
@@ -474,6 +477,20 @@ export default function ProcurementsPage() {
             <SearchableSelectPlaceholder label="Select Status" options={procStatusOptions} value={procStatus} onChange={setProcStatus} />
             <SearchableSelectPlaceholder label="Select Project" options={projectsOptions} value={procProject} onChange={setProcProject} />
             <SearchableSelectPlaceholder label="Select Vendor" options={vendorsOptions} value={procVendor} onChange={setProcVendor} />
+            <div className="flex items-center justify-between gap-3 relative">
+              <span className="text-[13px] font-medium text-white whitespace-nowrap">Preferences</span>
+              <div className="w-40 flex items-center justify-start">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={hideRemoved}
+                    onChange={(e) => setHideRemoved(e.target.checked)}
+                    className="w-4 h-4 rounded border-gray-600 bg-transparent text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900 focus:ring-1 cursor-pointer transition-all"
+                  />
+                  <span className="text-[13px] text-gray-300 font-medium group-hover:text-white transition-colors">Hide Removed</span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -496,16 +513,19 @@ export default function ProcurementsPage() {
               {procurementsList.map((row, idx) => {
                 const isVerified = row.is_verified === 'Yes';
                 const isUnverified = row.is_verified === 'No';
+                const isRemoved = row.is_removed === 'Yes' || row.is_removed === '1';
                 return (
                   <tr 
                     key={row.id} 
-                    title={isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
+                    title={isRemoved ? "Removed Purchase" : isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
                     className={`transition-colors ${
-                      isVerified 
-                        ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20' 
-                        : isUnverified 
-                          ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
-                          : 'hover:bg-white/5'
+                      isRemoved
+                        ? 'bg-[#374151]/50 text-gray-500/70 line-through'
+                        : isVerified 
+                          ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20' 
+                          : isUnverified 
+                            ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
+                            : 'hover:bg-white/5'
                     }`}
                   >
                     <td className="px-4 py-3 text-center font-medium">{(procPage - 1) * 10 + idx + 1}</td>

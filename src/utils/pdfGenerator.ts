@@ -12,7 +12,8 @@ import toast from 'react-hot-toast';
 export const generatePdfFromElement = async (
   element: HTMLElement | null,
   filename: string = 'document.pdf',
-  footerText: string = 'Zyn Construction Netwok version 1.0.0'
+  footerText: string = 'Zyn Construction Netwok version 1.0.0',
+  isRemoved: boolean = false
 ) => {
   if (!element) {
     toast.error('Could not find content to generate PDF');
@@ -68,6 +69,18 @@ export const generatePdfFromElement = async (
         }
       }
     });
+
+    if (isRemoved) {
+      const removedBanner = document.createElement('div');
+      removedBanner.style.setProperty('color', '#dc2626', 'important'); // red-600
+      removedBanner.style.setProperty('font-weight', 'bold', 'important');
+      removedBanner.style.setProperty('text-align', 'center', 'important');
+      removedBanner.style.setProperty('margin-bottom', '15px', 'important');
+      removedBanner.style.setProperty('font-size', '16px', 'important');
+      removedBanner.style.setProperty('text-transform', 'uppercase', 'important');
+      removedBanner.textContent = 'Purchase Removed';
+      clone.insertBefore(removedBanner, clone.firstChild);
+    }
 
     document.body.appendChild(clone);
 

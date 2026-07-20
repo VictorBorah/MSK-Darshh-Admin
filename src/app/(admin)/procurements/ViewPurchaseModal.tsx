@@ -245,48 +245,55 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
                       const vendorName = vendorObj?.vendor_name || vendorObj?.name || `Vendor #${row.vendor_id}`;
                       const isVerified = row.is_verified === 'Yes' || row.is_verified === '1';
                       const isUnverified = row.is_verified === 'No' || row.is_verified === '0';
+                      const isRemoved = row.is_removed === 'Yes' || row.is_removed === '1';
 
                       return (
                         <tr
                           key={row.purchase_id || idx}
-                          title={isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
-                          className={`transition-colors text-[12px] ${isVerified
-                            ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20'
-                            : isUnverified
-                              ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
-                              : 'hover:bg-white/5'
+                          title={isRemoved ? "Removed Purchase" : isVerified ? "Approved Purchase" : isUnverified ? "Unapproved Purchase" : ""}
+                          className={`transition-colors text-[12px] ${isRemoved
+                            ? 'bg-[#374151]/50 text-gray-500/70 line-through'
+                            : isVerified
+                              ? 'bg-green-950/40 hover:bg-green-950/50 text-emerald-100 border-y border-emerald-500/20'
+                              : isUnverified
+                                ? 'bg-yellow-950/30 hover:bg-yellow-950/40 text-amber-100 border-y border-yellow-500/10'
+                                : 'hover:bg-white/5'
                             }`}
                         >
-                          <td className="px-2 py-2 text-center text-gray-400 font-medium border-r border-gray-700/30">{idx + 1}</td>
-                          <td className="px-3 py-2 text-white font-mono border-r border-gray-700/30 whitespace-nowrap">{row.purchase_serial || '-'}</td>
-                          <td className="px-3 py-2 text-white font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px]">
+                          <td className={`px-2 py-2 text-center font-medium border-r border-gray-700/30 ${isRemoved ? 'text-gray-500/70' : 'text-gray-400'}`}>{idx + 1}</td>
+                          <td className={`px-3 py-2 font-mono border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-white'}`}>{row.purchase_serial || '-'}</td>
+                          <td className={`px-3 py-2 font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px] ${isRemoved ? 'text-gray-500/70' : 'text-white'}`}>
                             <div className="flex items-center gap-1.5">
                               <span>{row.item_name || `Item #${row.item_id}`}</span>
-                              {isVerified ? (
-                                <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
-                              ) : isUnverified ? (
-                                <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-                              ) : null}
+                              {!isRemoved && (
+                                <>
+                                  {isVerified ? (
+                                    <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
+                                  ) : isUnverified ? (
+                                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                                  ) : null}
+                                </>
+                              )}
                             </div>
                           </td>
-                          <td className="px-3 py-2 text-gray-300 font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px]">{vendorName}</td>
-                          <td className="px-2 py-2 text-center text-gray-300 font-medium border-r border-gray-700/30">{row.qnty || '0'}</td>
-                          <td className="px-2 py-2 text-right text-white font-medium border-r border-gray-700/30 whitespace-nowrap">
+                          <td className={`px-3 py-2 font-medium border-r border-gray-700/30 break-words whitespace-normal max-w-[150px] ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>{vendorName}</td>
+                          <td className={`px-2 py-2 text-center font-medium border-r border-gray-700/30 ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>{row.qnty || '0'}</td>
+                          <td className={`px-2 py-2 text-right font-medium border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-white'}`}>
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.unit_price || 0).toFixed(2)}</div>
                           </td>
-                          <td className="px-2 py-2 text-right text-emerald-400 font-bold border-r border-gray-700/30 whitespace-nowrap">
+                          <td className={`px-2 py-2 text-right font-bold border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-emerald-400'}`}>
                             <div className="flex items-center justify-end"><IndianRupee className="w-[14px] h-[14px] mr-px" />{parseFloat(row.amount_inc_gst || 0).toFixed(2)}</div>
                           </td>
-                          <td className="px-2 py-2 text-right text-orange-400 font-medium border-r border-gray-700/30 whitespace-nowrap">
+                          <td className={`px-2 py-2 text-right font-medium border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-orange-400'}`}>
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-orange-500/70 mr-0.5" />{parseFloat(row.gst_amount || 0).toFixed(2)}</div>
                           </td>
-                          <td className="px-2 py-2 text-right text-gray-300 font-medium border-r border-gray-700/30 whitespace-nowrap">
+                          <td className={`px-2 py-2 text-right font-medium border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.sgst_amount || 0).toFixed(2)}</div>
                           </td>
-                          <td className="px-2 py-2 text-right text-gray-300 font-medium border-r border-gray-700/30 whitespace-nowrap">
+                          <td className={`px-2 py-2 text-right font-medium border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.cgst_amount || 0).toFixed(2)}</div>
                           </td>
-                          <td className="px-2 py-2 text-right text-gray-300 font-medium border-r border-gray-700/30 whitespace-nowrap">
+                          <td className={`px-2 py-2 text-right font-medium border-r border-gray-700/30 whitespace-nowrap ${isRemoved ? 'text-gray-500/70' : 'text-gray-300'}`}>
                             <div className="flex items-center justify-end"><IndianRupee className="w-3 h-3 text-gray-500 mr-0.5" />{parseFloat(row.igst_amount || 0).toFixed(2)}</div>
                           </td>
                           <td className="px-2 py-2 text-center">
