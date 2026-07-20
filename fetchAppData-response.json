@@ -1,7 +1,33 @@
 [
     {
+        "menu_Arr": [
+            "1",
+            "2",
+            "4",
+            "5",
+            "15",
+            "3",
+            "22",
+            "7",
+            "6",
+            "23",
+            "24",
+            "8",
+            "10",
+            "14",
+            "11",
+            "16",
+            "26",
+            "25",
+            "12",
+            "13",
+            "18",
+            "0",
+            "21"
+        ],
         "Error": false,
         "Status": "1",
+        "uid": "1",
         "usrGRP_ID": 1,
         "my_groups_csv": null,
         "projects_csv": "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17",
@@ -349,7 +375,7 @@
             {
                 "project_id": "5",
                 "project_name": "SAIKIA HUT",
-                "project_code": "BRAH-007",
+                "project_code": "SAIKIAS-0x7",
                 "geofence_json": "",
                 "site_coordinates": null,
                 "site_address": null,
@@ -799,7 +825,7 @@
             {
                 "project_id": "13",
                 "project_name": "DIKRONG TOWER",
-                "project_code": "HTX-H",
+                "project_code": "DIKRNG-TWR",
                 "geofence_json": {
                     "type": "FeatureCollection",
                     "features": [
@@ -1134,7 +1160,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1172,7 +1199,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1211,7 +1239,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1249,7 +1278,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1287,7 +1317,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1321,7 +1352,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1355,7 +1387,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1392,7 +1425,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1426,7 +1460,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1460,7 +1495,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1494,7 +1530,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1528,7 +1565,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1562,7 +1600,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1596,7 +1635,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1630,7 +1670,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1664,7 +1705,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1698,7 +1740,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1732,7 +1775,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1766,7 +1810,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1800,7 +1845,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1839,7 +1885,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1873,7 +1920,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             },
@@ -1913,7 +1961,8 @@
                         "project_quick_actions": "1",
                         "project_extended_view": "1",
                         "approve_purchase": "1",
-                        "close_purchase": "0"
+                        "close_purchase": "0",
+                        "remove_purchase": "1"
                     }
                 ]
             }
@@ -1977,8 +2026,8 @@
             "default_sgst_rate": "9",
             "default_cgst_rate": "9",
             "gst_inclusive": "1",
-            "s3BucketBasePath": "https://zyn-app.sgp1.digitaloceanspaces.com",
-            "s3CdnBasePath": "https://sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
+            "s3BucketBasePath": "https:\/\/zyn-app.sgp1.digitaloceanspaces.com",
+            "s3CdnBasePath": "https:\/\/sirish-core-2024.blr1.cdn.digitaloceanspaces.com",
             "s3BucketName": "zyn-app",
             "s3BucketKey": "DO00VYV63W4VR6MFXWAT",
             "s3Region": "sgp1",
@@ -1986,7 +2035,7 @@
             "webAppLogo": "Logo.png",
             "smsPEId": "1205165992846067265",
             "hostName": "api.zlabz.space",
-            "appBaseUrl": "api.zlabz.space/webservices/v1",
+            "appBaseUrl": "api.zlabz.space\/webservices\/v1",
             "frontEndBaseUrl": "zlabz.space",
             "fileMaxSize": "2",
             "maxStorage": "524300000",
@@ -2000,8 +2049,8 @@
             "sendEmail": "1",
             "purchase_budget_head": "2",
             "payment_budget_head": "1",
-            "auto_create_demands_from_diff": "1",
-            "showDemandsInAdmin": "1",
+            "auto_create_demands_from_diff": "0",
+            "showDemandsInAdmin": "0",
             "enableBackDates": "1",
             "default_project": "9"
         },
@@ -2013,138 +2062,6 @@
             {
                 "id": "2",
                 "district": "BARPETA"
-            },
-            {
-                "id": "3",
-                "district": "BISWANATH"
-            },
-            {
-                "id": "4",
-                "district": "BONGAIGAON"
-            },
-            {
-                "id": "5",
-                "district": "CACHAR"
-            },
-            {
-                "id": "6",
-                "district": "CHARAIDEO"
-            },
-            {
-                "id": "7",
-                "district": "DARRANG"
-            },
-            {
-                "id": "8",
-                "district": "DHEMAJI"
-            },
-            {
-                "id": "9",
-                "district": "DHUBRI"
-            },
-            {
-                "id": "10",
-                "district": "DIBRUGARH"
-            },
-            {
-                "id": "11",
-                "district": "DIMA HASAO"
-            },
-            {
-                "id": "12",
-                "district": "GOALPARA"
-            },
-            {
-                "id": "13",
-                "district": "GOLAGHAT"
-            },
-            {
-                "id": "14",
-                "district": "HAILAKANDI"
-            },
-            {
-                "id": "15",
-                "district": "HOJAI"
-            },
-            {
-                "id": "16",
-                "district": "JORHAT"
-            },
-            {
-                "id": "17",
-                "district": "KAMRUP METRO"
-            },
-            {
-                "id": "18",
-                "district": "KAMRUP RURAL"
-            },
-            {
-                "id": "19",
-                "district": "KARBI ANGLONG"
-            },
-            {
-                "id": "20",
-                "district": "SRIBHUMI"
-            },
-            {
-                "id": "21",
-                "district": "KOKRAJHAR"
-            },
-            {
-                "id": "22",
-                "district": "LAKHIMPUR"
-            },
-            {
-                "id": "23",
-                "district": "MAJULI"
-            },
-            {
-                "id": "24",
-                "district": "MORIGAON"
-            },
-            {
-                "id": "25",
-                "district": "NAGAON"
-            },
-            {
-                "id": "26",
-                "district": "NALBARI"
-            },
-            {
-                "id": "28",
-                "district": "SIVASAGAR"
-            },
-            {
-                "id": "29",
-                "district": "SONITPUR"
-            },
-            {
-                "id": "30",
-                "district": "SOUTH SALMARA"
-            },
-            {
-                "id": "31",
-                "district": "TINSUKIA"
-            },
-            {
-                "id": "32",
-                "district": "UDALGURI"
-            },
-            {
-                "id": "33",
-                "district": "W/KARBI ANGLONG"
-            },
-            {
-                "id": "34",
-                "district": "CHIRANG"
-            },
-            {
-                "id": "35",
-                "district": "TAMULPUR"
-            },
-            {
-                "id": "36",
-                "district": "BAJALI"
             }
         ],
         "tasks_data": [],
@@ -2159,31 +2076,6 @@
                 "id": "2",
                 "mode": "UPI",
                 "txn_reference": "Transaction ID"
-            },
-            {
-                "id": "3",
-                "mode": "IMPS",
-                "txn_reference": "Transaction ID"
-            },
-            {
-                "id": "4",
-                "mode": "NEFT",
-                "txn_reference": "Transaction ID"
-            },
-            {
-                "id": "5",
-                "mode": "RTGS",
-                "txn_reference": "Transaction ID"
-            },
-            {
-                "id": "6",
-                "mode": "Demand Draft",
-                "txn_reference": "Draft Number"
-            },
-            {
-                "id": "7",
-                "mode": "Cheque",
-                "txn_reference": "Cheque Number"
             }
         ],
         "item_categories_data": [
@@ -2195,111 +2087,6 @@
             {
                 "master_category_id": "3",
                 "master_category_name": "Bricks & Blocks",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "1",
-                "master_category_name": "Cement & Concrete",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "8",
-                "master_category_name": "Chemicals",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "22",
-                "master_category_name": "Consultant Payment",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "12",
-                "master_category_name": "Electrical",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "21",
-                "master_category_name": "Electricity Payments",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "7",
-                "master_category_name": "Fasteners",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "9",
-                "master_category_name": "Formwork",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "14",
-                "master_category_name": "Instruments",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "18",
-                "master_category_name": "Labour Payment(CIVIL-L)",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "17",
-                "master_category_name": "Material Payments (CIVIL-M)",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "16",
-                "master_category_name": "Misc",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "6",
-                "master_category_name": "Pipes",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "11",
-                "master_category_name": "Plumbing",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "10",
-                "master_category_name": "Rigging",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "15",
-                "master_category_name": "Safety Equipment",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "19",
-                "master_category_name": "Salary Payments",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "4",
-                "master_category_name": "Steel",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "20",
-                "master_category_name": "Tax Payments",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "13",
-                "master_category_name": "Tools",
-                "is_material": "1"
-            },
-            {
-                "master_category_id": "23",
-                "master_category_name": "Transportation Charges",
-                "is_material": "0"
-            },
-            {
-                "master_category_id": "5",
-                "master_category_name": "Wood",
                 "is_material": "1"
             }
         ],
