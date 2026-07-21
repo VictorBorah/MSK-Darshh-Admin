@@ -78,10 +78,12 @@ export default function FinalizeInvoiceModal({
       setIsDeletingInvoice(false);
       setSelectedPaymentMode(null);
 
-      const fetchConfig = async () => {
+      const fetchConfigAndDetails = async () => {
         setIsLoadingConfig(true);
         try {
           const token = localStorage.getItem('at_ki8Xq1iV');
+          
+          // 1. Fetch system config to get payment modes list
           const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
@@ -92,21 +94,45 @@ export default function FinalizeInvoiceModal({
             if (ch === '\t') return '\\t';
             return '';
           });
-          let arr;
-          try { arr = JSON.parse(cleanedText); } catch (e) { }
-          const data = arr && Array.isArray(arr) ? arr[0] : arr;
-          if (data && String(data.Status) === '1' && Array.isArray(data.payment_modes)) {
-            setPaymentModes(data.payment_modes);
+          let arr; try { arr = JSON.parse(cleanedText); } catch (e) { }
+          const configData = arr && Array.isArray(arr) ? arr[0] : arr;
+          
+          let loadedModes: any[] = [];
+          if (configData && String(configData.Status) === '1' && Array.isArray(configData.payment_modes)) {
+            setPaymentModes(configData.payment_modes);
+            loadedModes = configData.payment_modes;
+          }
+
+          // 2. Fetch purchase details to get exact payment mode for this item
+          const procurementId = itemRow?.purchase_id;
+          if (procurementId) {
+            const detailsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchPurchaseDetails?procurement_id=${procurementId}`, {
+              headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const detailsText = await detailsRes.text();
+            let detailsArr; try { detailsArr = JSON.parse(detailsText); } catch (e) { }
+            const detailsData = detailsArr && Array.isArray(detailsArr) ? detailsArr[0] : detailsArr;
+
+            if (detailsData && String(detailsData.Status) === '1' && detailsData.item_data) {
+              const matchItem = detailsData.item_data.find((i: any) => String(i.item_id) === String(itemRow.item_id));
+              const exactPaymentMode = matchItem ? matchItem.payment_mode : (detailsData.item_data[0]?.payment_mode || '');
+              if (exactPaymentMode) {
+                const foundMode = loadedModes.find((m: any) => String(m.id) === String(exactPaymentMode));
+                if (foundMode) {
+                  setSelectedPaymentMode({ value: foundMode.id, label: foundMode.mode });
+                }
+              }
+            }
           }
         } catch (err) {
-          console.error('Failed to fetch system config in FinalizeInvoiceModal:', err);
+          console.error('Failed to fetch config and details in FinalizeInvoiceModal:', err);
         } finally {
           setIsLoadingConfig(false);
         }
       };
-      fetchConfig();
+      fetchConfigAndDetails();
     }
-  }, [isOpen]);
+  }, [isOpen, itemRow]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -260,9 +286,9 @@ export default function FinalizeInvoiceModal({
               </div>
             </div>
 
-            {/* Choose Payment Method Card */}
+            {/* Payment Method Card */}
             <div className="border border-gray-700/80 rounded-lg p-4 bg-[#1b202c] flex flex-col gap-2">
-              <label className="text-[12px] text-gray-400 font-medium">Choose Payment Method <span className="text-red-400">*</span></label>
+              <label className="text-[12px] text-gray-400 font-medium">Payment Method <span className="text-red-400">*</span></label>
               <Select
                 options={paymentModes.map(m => ({ value: m.id, label: m.mode }))}
                 value={selectedPaymentMode}
@@ -270,8 +296,8 @@ export default function FinalizeInvoiceModal({
                 placeholder="Select payment method..."
                 styles={selectStyles}
                 menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                isClearable
-                isDisabled={isFormDisabled}
+                isClearable={false}
+                isDisabled={true}
                 isLoading={isLoadingConfig}
               />
             </div>

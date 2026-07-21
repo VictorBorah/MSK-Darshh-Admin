@@ -15,6 +15,7 @@
       "total_price_exc_gst": "69.49",
       "tax_inc": "0",
       "invoice_uploaded": "1",
+      "payment_mode": "1",
       "invoice_file_string": "66934734438734-kqzhxgfh46677.pdf",
       "tax_inv_no": "AS/12-09345",
       "additional_expenses": [
@@ -49,6 +50,7 @@
       "total_price_exc_gst": "69.49",
       "tax_inc": "0",
       "invoice_uploaded": "1",
+      "payment_mode": "1",
       "invoice_file_string": "66934734438734-kqzhxgfh46677.pdf",
       "tax_inv_no": "AS/12-09345",
       "additional_expenses": [

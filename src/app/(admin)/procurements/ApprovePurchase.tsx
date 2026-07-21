@@ -1,7 +1,8 @@
 import { X, Box, FileText, AlertTriangle, ShieldCheck, Loader2 } from 'lucide-react';
 import { useModalEscape } from '@/hooks/useModalEscape';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import Select from 'react-select';
 
 interface ApprovePurchaseProps {
    isOpen: boolean;
@@ -15,6 +16,56 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
    const [comment, setComment] = useState('');
    const [isSubmitting, setIsSubmitting] = useState(false);
    const [showTaxDetails, setShowTaxDetails] = useState(false);
+   const [paymentModes, setPaymentModes] = useState<any[]>([]);
+   const [selectedPaymentMode, setSelectedPaymentMode] = useState<string>('');
+   const [isLoadingModes, setIsLoadingModes] = useState(false);
+
+   useEffect(() => {
+      if (isOpen && itemRow) {
+         const fetchConfigAndDetails = async () => {
+            setIsLoadingModes(true);
+            try {
+               const token = localStorage.getItem('at_ki8Xq1iV');
+               
+               // Fetch app config to get payment modes list
+               const appRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+               });
+               const appText = await appRes.text();
+               const appArr = JSON.parse(appText);
+               const appDataRaw = Array.isArray(appArr) ? appArr[0] : appArr;
+               const modes = appDataRaw?.paymentmodes_Arr || [];
+               setPaymentModes(modes);
+
+               // Fetch details to get exact payment mode for this item
+               const procurementId = itemRow.purchase_id;
+               if (procurementId) {
+                  const detailsRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/fetchPurchaseDetails?procurement_id=${procurementId}`, {
+                     headers: { 'Authorization': `Bearer ${token}` }
+                  });
+                  const detailsText = await detailsRes.text();
+                  const detailsArr = JSON.parse(detailsText);
+                  const detailsData = Array.isArray(detailsArr) ? detailsArr[0] : detailsArr;
+
+                  if (detailsData && String(detailsData.Status) === '1' && detailsData.item_data) {
+                     // Match row by item_id
+                     const matchItem = detailsData.item_data.find((i: any) => String(i.item_id) === String(itemRow.item_id));
+                     const exactPaymentMode = matchItem ? matchItem.payment_mode : (detailsData.item_data[0]?.payment_mode || '');
+                     setSelectedPaymentMode(String(exactPaymentMode || ''));
+                  }
+               }
+            } catch (e) {
+               console.error("Failed to load configs", e);
+            } finally {
+               setIsLoadingModes(false);
+            }
+         };
+         fetchConfigAndDetails();
+      } else {
+         setComment('');
+         setSelectedPaymentMode('');
+      }
+   }, [isOpen, itemRow]);
 
    if (!isOpen || !itemRow) return null;
 
@@ -28,6 +79,7 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
          const formData = new FormData();
          formData.append('purchase_id', String(itemRow.purchase_id || ''));
          formData.append('comment', comment);
+         formData.append('payment_mode', selectedPaymentMode);
 
          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/approvePurchase`, {
             method: 'POST',
@@ -112,6 +164,29 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                   </div>
                </div>
 
+               {/* Payment Mode Selector */}
+               <div className="flex flex-col gap-1.5 w-full">
+                  <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Select Payment Mode <span className="text-red-400">*</span></label>
+                  <Select
+                     options={paymentModes?.map((pm: any) => ({ value: String(pm.id), label: pm.mode || '' })) || []}
+                     value={paymentModes?.find(pm => String(pm.id) === selectedPaymentMode) ? { value: selectedPaymentMode, label: paymentModes.find((pm: any) => String(pm.id) === selectedPaymentMode)?.mode || '' } : null}
+                     onChange={(val: any) => {
+                        setSelectedPaymentMode(val ? val.value : '');
+                      }}
+                     placeholder="Select Payment Mode..."
+                     isLoading={isLoadingModes}
+                     styles={{
+                        control: (base, state) => ({ ...base, backgroundColor: '#232b3e', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
+                        menuPortal: base => ({ ...base, zIndex: 99999 }),
+                        menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
+                        option: (base, state) => ({ ...base, backgroundColor: state.isSelected ? '#374151' : state.isFocused ? '#1f2937' : 'transparent', color: '#fff', cursor: 'pointer', fontSize: '13px' }),
+                        singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                        input: base => ({ ...base, color: '#fff' })
+                     }}
+                     menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                  />
+               </div>
+
                {/* Comment Textarea */}
                <div className="flex flex-col gap-1.5 w-full">
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Add a comment</label>
@@ -138,7 +213,7 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                </button>
                <button
                   onClick={handleApprove}
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !selectedPaymentMode}
                   className="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white rounded font-bold text-[12px] uppercase tracking-wider transition-all duration-200 shadow-sm flex items-center gap-1.5 active:scale-95"
                >
                   {isSubmitting ? (

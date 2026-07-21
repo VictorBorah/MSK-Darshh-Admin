@@ -59,6 +59,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
   const [additionalExpenses, setAdditionalExpenses] = useState<any[]>([]);
   const [paymentModes, setPaymentModes] = useState<any[]>([]);
   const [showAdditionalExpensesModal, setShowAdditionalExpensesModal] = useState(false);
+  const [selectedPaymentMode, setSelectedPaymentMode] = useState<string>('');
 
   // Track if manually edited
   const [isManuallyEdited, setIsManuallyEdited] = useState(false);
@@ -90,6 +91,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setSelectedTag(item.utility_tag || '');
       setSelectedWarehouse(item.warehouse_id || '');
       setAdditionalExpenses(item.additional_expenses || []);
+      setSelectedPaymentMode(item.payment_mode || '');
       fetchInitialData();
     }
   }, [isOpen, item]);
@@ -137,8 +139,9 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
         }
       }
 
-      if (configData && String(configData.Status) === '1' && Array.isArray(configData.payment_modes)) {
-        setPaymentModes(configData.payment_modes);
+      const modes = appDataRaw?.paymentmodes_Arr || (configData && String(configData.Status) === '1' && Array.isArray(configData.payment_modes) ? configData.payment_modes : []);
+      if (modes && Array.isArray(modes) && modes.length > 0) {
+        setPaymentModes(modes);
       }
 
       const defaultGst = appDataRaw?.System_Data?.default_gst || '';
@@ -424,26 +427,51 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                 {/* Top Setup */}
                 <div className="bg-[#1b202c] p-5 border border-gray-700 rounded-lg shadow-inner">
                   <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Buying From Vendor</label>
-                      <Select
-                        options={vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name || v.name })) || []}
-                        value={vendors?.find(v => String(v.id) === buyingVendor) ? { value: buyingVendor, label: vendors.find((v: any) => String(v.id) === buyingVendor)?.vendor_name || vendors.find((v: any) => String(v.id) === buyingVendor)?.name } : null}
-                        onChange={(val: any) => {
-                          setBuyingVendor(val ? val.value : '');
-                          setIsManuallyEdited(true);
-                        }}
-                        placeholder="Select Vendor..."
-                        styles={{
-                          control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
-                          menuPortal: base => ({ ...base, zIndex: 99999 }),
-                          menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
-                          option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
-                          singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
-                          input: base => ({ ...base, color: '#fff' })
-                        }}
-                        menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
-                      />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Buying From Vendor */}
+                      <div className="flex flex-col gap-2 bg-[#11141e] p-3 border border-gray-700/50 rounded-md">
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Buying From Vendor</label>
+                        <Select
+                          options={vendors?.map((v: any) => ({ value: String(v.id), label: v.vendor_name || v.name })) || []}
+                          value={vendors?.find(v => String(v.id) === buyingVendor) ? { value: buyingVendor, label: vendors.find((v: any) => String(v.id) === buyingVendor)?.vendor_name || vendors.find((v: any) => String(v.id) === buyingVendor)?.name } : null}
+                          onChange={(val: any) => {
+                            setBuyingVendor(val ? val.value : '');
+                            setIsManuallyEdited(true);
+                          }}
+                          placeholder="Select Vendor..."
+                          styles={{
+                            control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
+                            menuPortal: base => ({ ...base, zIndex: 99999 }),
+                            menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
+                            option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
+                            singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                            input: base => ({ ...base, color: '#fff' })
+                          }}
+                          menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                        />
+                      </div>
+
+                      {/* Payment Mode */}
+                      <div className="flex flex-col gap-2 bg-[#11141e] p-3 border border-gray-700/50 rounded-md">
+                        <label className="text-[12px] font-semibold text-gray-400 uppercase tracking-wide">Payment Mode</label>
+                        <Select
+                          options={paymentModes?.map((pm: any) => ({ value: String(pm.id), label: pm.mode || '' })) || []}
+                          value={paymentModes?.find(pm => String(pm.id) === selectedPaymentMode) ? { value: selectedPaymentMode, label: paymentModes.find((pm: any) => String(pm.id) === selectedPaymentMode)?.mode || '' } : null}
+                          onChange={(val: any) => {
+                            setSelectedPaymentMode(val ? val.value : '');
+                          }}
+                          placeholder="Select Payment Mode..."
+                          styles={{
+                            control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
+                            menuPortal: base => ({ ...base, zIndex: 99999 }),
+                            menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
+                            option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
+                            singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                            input: base => ({ ...base, color: '#fff' })
+                          }}
+                          menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                        />
+                      </div>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -887,6 +915,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                   taxData: taxData,
                   utility_tag: selectedTag,
                   warehouse_id: selectedWarehouse,
+                  payment_mode: selectedPaymentMode,
                   additional_expenses: additionalExpenses
                 });
                 onClose();
