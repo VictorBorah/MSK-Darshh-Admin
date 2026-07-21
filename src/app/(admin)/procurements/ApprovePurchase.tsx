@@ -20,10 +20,21 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
    const [selectedPaymentMode, setSelectedPaymentMode] = useState<string>('');
    const [isLoadingModes, setIsLoadingModes] = useState(false);
 
+   // Warehouse states copied from PurchaseDetailsModal
+   const [warehouses, setWarehouses] = useState<any[]>([]);
+   const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
+   const [isConfigLoading, setIsConfigLoading] = useState(false);
+   const [isChangingWh, setIsChangingWh] = useState(false);
+   const [localWarehouseName, setLocalWarehouseName] = useState(itemRow?.warehouse_name || 'N/A');
+
    useEffect(() => {
       if (isOpen && itemRow) {
+         setLocalWarehouseName(itemRow.warehouse_name || 'N/A');
+         setSelectedWarehouse(String(itemRow.warehouse_id || ''));
+
          const fetchConfigAndDetails = async () => {
             setIsLoadingModes(true);
+            setIsConfigLoading(true);
             try {
                const token = localStorage.getItem('at_ki8Xq1iV');
                
@@ -36,6 +47,30 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                const appDataRaw = Array.isArray(appArr) ? appArr[0] : appArr;
                const modes = appDataRaw?.paymentmodes_Arr || [];
                setPaymentModes(modes);
+
+               // Fetch system config to get warehouses list
+               const sysRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
+                  headers: { 'Authorization': `Bearer ${token}` }
+               });
+               const sysText = await sysRes.text();
+               const sysArr = JSON.parse(sysText);
+               const sysDataRaw = Array.isArray(sysArr) ? sysArr[0] : sysArr;
+               if (sysDataRaw && Array.isArray(sysDataRaw.warehouse_data)) {
+                  setWarehouses(sysDataRaw.warehouse_data);
+
+                  const histId = itemRow.warehouse_id;
+                  const isHistValid = histId && String(histId) !== '0' && String(histId).trim() !== '';
+                  if (isHistValid) {
+                     setSelectedWarehouse(String(histId));
+                  } else {
+                     const defaultWh = sysDataRaw.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
+                     if (defaultWh) {
+                        setSelectedWarehouse(String(defaultWh.id));
+                     } else {
+                        setSelectedWarehouse('');
+                     }
+                  }
+               }
 
                // Fetch details to get exact payment mode for this item
                const procurementId = itemRow.purchase_id;
@@ -58,14 +93,58 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                console.error("Failed to load configs", e);
             } finally {
                setIsLoadingModes(false);
+               setIsConfigLoading(false);
             }
          };
          fetchConfigAndDetails();
       } else {
          setComment('');
          setSelectedPaymentMode('');
+         setSelectedWarehouse('');
+         setLocalWarehouseName('N/A');
+         setWarehouses([]);
       }
    }, [isOpen, itemRow]);
+
+   const handleChangeWarehouse = async () => {
+      if (!selectedWarehouse) return;
+      setIsChangingWh(true);
+      try {
+         const token = localStorage.getItem('at_ki8Xq1iV');
+         const formData = new FormData();
+         formData.append('purchase_id', String(itemRow?.purchase_id || ''));
+         formData.append('warehouse_id', selectedWarehouse);
+
+         const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/changeWarehouse`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+         });
+
+         const text = await res.text();
+         let arr;
+         try { arr = JSON.parse(text); } catch (e) { }
+         const data = arr && Array.isArray(arr) ? arr[0] : arr;
+
+         if (data && String(data.Status) === '1') {
+            toast.success(data.Message || 'Warehouse updated successfully');
+            const newWhName = warehouses?.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || '';
+            if (newWhName) {
+               setLocalWarehouseName(newWhName);
+            }
+            if (onSuccess) {
+               onSuccess();
+            }
+         } else {
+            toast.error(data?.Message || 'Failed to update warehouse');
+         }
+      } catch (err) {
+         console.error('Failed to update warehouse:', err);
+         toast.error('An error occurred while changing warehouse');
+      } finally {
+         setIsChangingWh(false);
+      }
+   };
 
    if (!isOpen || !itemRow) return null;
 
@@ -140,11 +219,75 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                         </div>
                      </div>
 
-                     {/* Warehouse Container */}
+                     {/* Warehouse Configuration Block */}
                      <div className="border border-gray-700/80 rounded-lg p-4 bg-[#1b202c] flex flex-col gap-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Warehouse</span>
-                        <div className="text-[13px] text-white font-semibold mt-1">{itemRow.warehouse_name || 'N/A'}</div>
-                     </div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
+                           <Box className="w-3.5 h-3.5 text-emerald-400" />
+                           Warehouse Configuration
+                        </span>
+                        {isConfigLoading ? (
+                           <div className="flex items-center justify-center py-2 text-gray-400 text-[12px] gap-2">
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
+                              <span>Loading config...</span>
+                           </div>
+                        ) : (
+                           <div className="flex flex-col gap-2 mt-1">
+                              {localWarehouseName && (
+                                 <div className="text-[11px] text-gray-400 font-medium">
+                                    Currently stored at: <span className="font-bold text-emerald-400">{localWarehouseName}</span>
+                                 </div>
+                              )}
+                              <div className="flex flex-col gap-1.5 w-full">
+                                 <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">Select Warehouse</label>
+                                 <Select
+                                    options={[
+                                       { value: '', label: 'Select Warehouse' },
+                                       ...(warehouses?.map((w: any) => ({
+                                          value: String(w.id),
+                                          label: w.warehouse_name || ''
+                                       })) || [])
+                                    ]}
+                                    value={
+                                       selectedWarehouse
+                                          ? { value: selectedWarehouse, label: warehouses?.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || 'Selected Warehouse' }
+                                          : { value: '', label: 'Select Warehouse' }
+                                    }
+                                    onChange={(val: any) => {
+                                       setSelectedWarehouse(val ? val.value : '');
+                                    }}
+                                    placeholder="Select Warehouse..."
+                                    styles={{
+                                       control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '32px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
+                                       menuPortal: base => ({ ...base, zIndex: 99999 }),
+                                       menu: base => ({ ...base, backgroundColor: '#232b3e', border: '1px solid #4b5563', borderRadius: '4px' }),
+                                       option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px', cursor: 'pointer' }),
+                                       singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                                       input: base => ({ ...base, color: '#fff' })
+                                    }}
+                                    menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                                 />
+                               </div>
+                               <button
+                                  type="button"
+                                  onClick={handleChangeWarehouse}
+                                  disabled={!selectedWarehouse || isChangingWh || isSubmitting}
+                                  className={`w-full h-[32px] mt-1 flex items-center justify-center font-bold text-[11px] uppercase tracking-wider rounded border transition-all duration-200 shadow-sm whitespace-nowrap ${(!selectedWarehouse || isChangingWh || isSubmitting)
+                                     ? 'bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed opacity-50'
+                                     : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95 border-blue-600'
+                                     }`}
+                               >
+                                  {isChangingWh ? (
+                                     <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                                        Updating...
+                                     </>
+                                  ) : (
+                                     'Change Warehouse'
+                                  )}
+                               </button>
+                            </div>
+                         )}
+                      </div>
                   </div>
 
                   <div>

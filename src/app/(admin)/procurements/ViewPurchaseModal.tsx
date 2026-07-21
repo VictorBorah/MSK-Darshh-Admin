@@ -125,7 +125,7 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-      <div className={`bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1000px] max-w-[95vw] h-[80vh] max-h-[90vh] rounded-xl'
+      <div className={`bg-[#232b3e] border border-gray-700 shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1250px] max-w-[95vw] h-[80vh] max-h-[90vh] rounded-xl'
         }`}>
 
         {/* Loading Overlay */}
