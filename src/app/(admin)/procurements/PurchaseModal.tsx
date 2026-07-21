@@ -48,6 +48,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
   const [enableBackDates, setEnableBackDates] = useState('0');
   const [purchaseDate, setPurchaseDate] = useState(() => new Date().toISOString().split('T')[0]);
   const [isMarkComplete, setIsMarkComplete] = useState(false);
+  const [paymentModes, setPaymentModes] = useState<any[]>([]);
 
   useModalEscape(isOpen, () => setShowEscapeWarning(true), 200);
 
@@ -80,6 +81,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
           setDefaultGstInclusive(String(gstInc));
           const enableBackDatesVal = appDataRaw?.System_Data?.enableBackDates || '0';
           setEnableBackDates(String(enableBackDatesVal));
+          const modes = appDataRaw?.paymentmodes_Arr || [];
+          setPaymentModes(modes);
         } catch (e) {
           console.error("Failed to fetch app config", e);
         }
@@ -307,7 +310,8 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       qnty: 1,
       price: item.default_price || 0,
       amount: item.default_price || 0,
-      isFetchingTax: true
+      isFetchingTax: true,
+      payment_mode: ''
     };
 
     setTableItems(prev => [...prev, newItem]);
@@ -418,7 +422,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
       />
 
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 md:p-8">
-        <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[900px] max-w-[95vw] max-h-[90vh]'
+        <div className={`bg-[#232b3e] border border-gray-700 rounded-xl shadow-2xl flex flex-col overflow-hidden relative transition-all duration-300 ${isMaximized ? 'w-full h-full fixed inset-0 m-0 rounded-none' : 'w-[1100px] max-w-[95vw] max-h-[90vh]'
           }`}>
 
           {/* Header */}
@@ -560,6 +564,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                       <th className="px-4 py-3 font-semibold uppercase tracking-wider min-w-[200px]">Vendor</th>
                       <th className="px-4 py-3 font-semibold uppercase tracking-wider w-32 border-l border-gray-700/50">Qnty</th>
                       <th className="px-4 py-3 font-semibold uppercase tracking-wider w-32 border-l border-gray-700/50">Unit Price</th>
+                      <th className="px-4 py-3 font-semibold uppercase tracking-wider w-[180px] border-l border-gray-700/50">Payment Mode</th>
                       <th className="px-4 py-3 font-semibold uppercase tracking-wider w-32 border-l border-gray-700/50">Amount</th>
                       <th className="px-4 py-3 font-semibold w-16 text-center uppercase tracking-wider">Rem.</th>
                     </tr>
@@ -626,6 +631,38 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                             />
                           </div>
                         </td>
+                        <td className="px-4 py-2 border-l border-gray-700/50">
+                          <Select
+                            options={paymentModes?.map((pm: any) => ({ value: String(pm.id), label: pm.mode || '' })) || []}
+                            value={row.payment_mode ? (paymentModes?.find(pm => String(pm.id) === String(row.payment_mode)) ? { value: String(row.payment_mode), label: paymentModes.find((pm: any) => String(pm.id) === String(row.payment_mode))?.mode || '' } : null) : null}
+                            onChange={(val: any) => handleFieldChange(row.id, 'payment_mode', val ? val.value : '')}
+                            placeholder="Select..."
+                            styles={{
+                              control: (base, state) => {
+                                const isPaymentModePresent = !!row.payment_mode;
+                                return {
+                                  ...base,
+                                  backgroundColor: '#191e2b',
+                                  borderColor: !isPaymentModePresent ? '#ef4444' : state.isFocused ? '#3b82f6' : '#374151',
+                                  '&:hover': {
+                                    borderColor: !isPaymentModePresent ? '#ef4444' : state.isFocused ? '#3b82f6' : '#374151'
+                                  },
+                                  minHeight: '32px',
+                                  borderRadius: '4px',
+                                  color: '#fff',
+                                  fontSize: '13px',
+                                  boxShadow: !isPaymentModePresent ? '0 0 0 1px #ef4444' : 'none'
+                                };
+                              },
+                              menuPortal: base => ({ ...base, zIndex: 99999 }),
+                              menu: base => ({ ...base, backgroundColor: '#191e2b', border: '1px solid #4b5563', borderRadius: '4px' }),
+                              option: (base, state) => ({ ...base, backgroundColor: state.isFocused ? '#1f2937' : 'transparent', color: '#fff', fontSize: '13px' }),
+                              singleValue: base => ({ ...base, color: '#fff', fontSize: '13px' }),
+                              input: base => ({ ...base, color: '#fff' })
+                            }}
+                            menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                          />
+                        </td>
                         <td className="px-4 py-3 border-l border-gray-700/50 font-medium text-emerald-400 relative">
                           {row.isFetchingTax && (
                             <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#161a25]/60 backdrop-blur-[1px]">
@@ -664,7 +701,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                     ))}
                     {tableItems.length === 0 && (
                       <tr>
-                        <td colSpan={7} className="px-4 py-16 text-center">
+                        <td colSpan={8} className="px-4 py-16 text-center">
                           <div className="flex flex-col items-center justify-center gap-2 text-gray-500">
                             <Search className="w-8 h-8 opacity-20" />
                             <p>Search and select items to add to the Purchase order.</p>
@@ -714,9 +751,18 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                     toast.error('Please add at least one item before saving.');
                     return;
                   }
+                  if (tableItems.some(row => !row.payment_mode)) {
+                    toast.error('Please select a payment mode for all items.');
+                    return;
+                  }
                   setShowSaveModal(true);
                 }}
-                className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2"
+                disabled={tableItems.length === 0 || tableItems.some(row => !row.payment_mode)}
+                className={`px-6 py-2 rounded font-medium text-[13px] transition-colors shadow-sm flex items-center gap-2 ${
+                  (tableItems.length === 0 || tableItems.some(row => !row.payment_mode))
+                    ? 'bg-blue-600/50 text-white/50 cursor-not-allowed'
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}
               >
                 Initiate Purchase
               </button>
@@ -773,6 +819,7 @@ export default function PurchaseModal({ isOpen, onClose, projects, vendors, dema
                 tax_inv_no: row.invoice_number || "",
                 utility_tag: String(row.utility_tag || ""),
                 warehouse_id: String(row.warehouse_id || ""),
+                payment_mode: String(row.payment_mode || ""),
                 additional_expenses: row.additional_expenses || []
               };
             });
