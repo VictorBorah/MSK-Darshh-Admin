@@ -217,8 +217,9 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
             </div>
           )}
 
-          <div className="flex-1 p-6 flex flex-col gap-4 overflow-hidden">
-            <h3 className="text-[14px] font-bold text-gray-300 tracking-wide uppercase shrink-0">Purchased Items</h3>
+          {/* Purchased Items Section */}
+          <div className="flex-1 px-6 py-3 flex flex-col gap-2.5 overflow-hidden">
+            <h3 className="text-[13px] font-bold text-gray-300 tracking-wide uppercase shrink-0">Purchased Items</h3>
 
             <div className="flex-1 bg-[#1b202c] border border-gray-700 rounded-lg overflow-hidden flex flex-col max-h-[100%]">
               <div className="overflow-x-auto overflow-y-auto flex-1">
@@ -323,54 +324,69 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
           </div>
         </div>
 
-        {/* Grand Total Value */}
-        <div className="px-6 pb-4 pt-2 shrink-0 flex justify-end bg-[#161a25]">
-          <div className="flex flex-col gap-2 bg-[#232b3e] border border-gray-700 rounded px-6 py-4 shadow-sm w-[320px]">
-            {/* Main Items Grand Total */}
-            <div className="flex justify-between items-center text-[12px]">
-              <span className="text-gray-400 font-bold tracking-wide uppercase">Items Total:</span>
-              <span className="text-emerald-400 font-bold flex items-center">
-                <IndianRupee className="w-3.5 h-3.5 mr-0.5 stroke-[2]" />
-                {itemData.reduce((sum, item) => sum + parseFloat(item.amount_inc_gst || 0), 0).toFixed(2)}
-              </span>
-            </div>
+        {/* Grand Total Value & Removed Summation */}
+        {(() => {
+          const activeItems = itemData.filter(item => item.is_removed !== 'Yes' && item.is_removed !== '1');
+          const removedItems = itemData.filter(item => item.is_removed === 'Yes' || item.is_removed === '1');
 
-            {/* Additional Expenses Grand Total */}
-            <div className="flex justify-between items-center text-[12px]">
-              <span className="text-gray-400 font-bold tracking-wide uppercase">Additional Expenses:</span>
-              <span className="text-amber-400 font-bold flex items-center">
-                <IndianRupee className="w-3.5 h-3.5 mr-0.5 stroke-[2]" />
-                {itemData.reduce((sum, item) => {
-                  const expenses = item.additional_expenses || [];
-                  const itemExpensesSum = expenses.reduce((s: number, exp: any) => s + (parseFloat(exp.total_amount) || 0), 0);
-                  return sum + itemExpensesSum;
-                }, 0).toFixed(2)}
-              </span>
-            </div>
+          const itemsTotal = activeItems.reduce((sum, item) => sum + parseFloat(item.amount_inc_gst || 0), 0);
+          const additionalExpensesTotal = activeItems.reduce((sum, item) => {
+            const expenses = item.additional_expenses || [];
+            return sum + expenses.reduce((s: number, exp: any) => s + (parseFloat(exp.total_amount) || 0), 0);
+          }, 0);
+          const netPayable = itemsTotal + additionalExpensesTotal;
 
-            {/* Separator line */}
-            <div className="border-t border-gray-700 my-1.5" />
+          const removedItemsTotal = removedItems.reduce((sum, item) => sum + parseFloat(item.amount_inc_gst || 0), 0);
 
-            {/* Final Combined Total */}
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300 font-black tracking-wide uppercase text-[12px]">Net Payable:</span>
-              <span className="text-emerald-400 font-black text-lg flex items-center tracking-wide">
-                <IndianRupee className="w-[18px] h-[18px] mr-0.5 stroke-[2.5]" />
-                {(
-                  itemData.reduce((sum, item) => sum + parseFloat(item.amount_inc_gst || 0), 0) +
-                  itemData.reduce((sum, item) => {
-                    const expenses = item.additional_expenses || [];
-                    const itemExpensesSum = expenses.reduce((s: number, exp: any) => s + (parseFloat(exp.total_amount) || 0), 0);
-                    return sum + itemExpensesSum;
-                  }, 0)
-                ).toFixed(2)}
-              </span>
+          return (
+            <div className="px-6 py-2 shrink-0 flex justify-between items-end bg-[#161a25]">
+              {/* Removed Items Total beneath table */}
+              <div className="text-[11px] font-medium text-gray-400 pb-1 flex items-center gap-1.5">
+                <span>Total in removed purchases =</span>
+                <span className={`font-bold flex items-center ${removedItems.length > 0 ? 'text-red-400' : 'text-gray-400'}`}>
+                  <IndianRupee className="w-3 h-3 mr-0.5" />
+                  {removedItemsTotal.toFixed(2)}
+                </span>
+              </div>
+
+              {/* Totals Summary Box */}
+              <div className="flex flex-col gap-1 bg-[#232b3e] border border-gray-700 rounded px-4 py-2 shadow-sm w-[280px]">
+                {/* Main Items Grand Total */}
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-gray-400 font-semibold tracking-wide uppercase">Items Total:</span>
+                  <span className="text-emerald-400 font-bold flex items-center">
+                    <IndianRupee className="w-3 h-3 mr-0.5 stroke-[2]" />
+                    {itemsTotal.toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Additional Expenses Grand Total */}
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-gray-400 font-semibold tracking-wide uppercase">Additional Expenses:</span>
+                  <span className="text-amber-400 font-bold flex items-center">
+                    <IndianRupee className="w-3 h-3 mr-0.5 stroke-[2]" />
+                    {additionalExpensesTotal.toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Separator line */}
+                <div className="border-t border-gray-700/80 my-1" />
+
+                {/* Final Combined Total */}
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300 font-bold tracking-wide uppercase text-[11px]">Net Payable:</span>
+                  <span className="text-emerald-400 font-bold text-[14px] flex items-center tracking-wide">
+                    <IndianRupee className="w-4 h-4 mr-0.5 stroke-[2.5]" />
+                    {netPayable.toFixed(2)}
+                  </span>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })()}
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-end items-center gap-3">
+        <div className="px-6 py-2.5 border-t border-gray-700 bg-[#1b202c] shrink-0 flex justify-end items-center gap-3">
           <button
             onClick={onClose}
             className="px-6 py-2 bg-red-700 hover:bg-red-600 border border-red-600 text-white rounded font-medium text-[13px] transition-colors shadow-sm"
