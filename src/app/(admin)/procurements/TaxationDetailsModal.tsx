@@ -812,11 +812,11 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                 </div>
 
                 {demandDetails.length > 0 ? (
-                  <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300 h-full">
+                  <div className="flex flex-col gap-2.5 animate-in fade-in slide-in-from-bottom-2 duration-300">
                     <h3 className="text-[13px] font-semibold text-white border-b border-gray-700/50 pb-2 flex items-center gap-2 shrink-0">
                       <LinkIcon className="w-4 h-4 text-blue-400" /> Select an item
                     </h3>
-                    <div className="bg-[#1b202c] border border-gray-700 rounded-lg overflow-hidden flex flex-col flex-1 max-h-[100%] min-h-[300px]">
+                    <div className="bg-[#1b202c] border border-gray-700 rounded-lg overflow-hidden flex flex-col max-h-[180px] min-h-[130px]">
                       <div className="overflow-y-auto flex-1">
                         <table className="w-full text-[13px] text-left">
                           <thead className="bg-[#232b3e] text-gray-400 border-b border-gray-700 sticky top-0 z-10 shadow-[0_1px_2px_rgba(0,0,0,0.1)]">
@@ -876,11 +876,86 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full min-h-[300px] bg-[#1b202c] border border-gray-700/50 border-dashed rounded-lg text-gray-500">
-                    <LinkIcon className="w-8 h-8 mb-3 opacity-30" />
-                    <p className="text-[13px]">Select a demand to view details</p>
+                  <div className="flex flex-col items-center justify-center py-4 min-h-[90px] bg-[#1b202c] border border-gray-700/50 border-dashed rounded-lg text-gray-500">
+                    <LinkIcon className="w-6 h-6 mb-1.5 opacity-30" />
+                    <p className="text-[12px]">Select a demand to view details</p>
                   </div>
                 )}
+
+                {/* Additional Expenses Section */}
+                {(() => {
+                  const totalAdditionalExpenses = (additionalExpenses || []).reduce((acc: number, exp: any) => {
+                    const amt = parseFloat(exp.total_price || exp.total_amount || exp.amount || (parseFloat(exp.unit_price || 0) * parseFloat(exp.qnty || 1))) || 0;
+                    return acc + amt;
+                  }, 0);
+
+                  return (
+                    <div className="bg-[#1b202c] p-4 border border-gray-700 rounded-lg flex flex-col gap-3 shadow-inner">
+                      <div className="flex items-center justify-between border-b border-gray-700/60 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <IndianRupee className="w-4 h-4 text-amber-400" />
+                          <h4 className="text-[12px] font-bold text-white uppercase tracking-wider">
+                            Additional Expenses
+                          </h4>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] text-gray-400 font-semibold uppercase">Total:</span>
+                          <span className="text-[13px] font-bold text-amber-400 flex items-center">
+                            <IndianRupee className="w-3.5 h-3.5 mr-0.5" />
+                            {totalAdditionalExpenses.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {additionalExpenses && additionalExpenses.length > 0 ? (
+                        <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto pr-0.5">
+                          <div className="divide-y divide-gray-700/50 bg-[#11141e] border border-gray-700/60 rounded-md overflow-hidden">
+                            {additionalExpenses.map((exp: any, idx: number) => {
+                              const modeObj = paymentModes?.find((pm: any) => String(pm.id) === String(exp.payment_mode));
+                              const modeName = modeObj?.mode || modeObj?.payment_mode || '';
+                              const amt = parseFloat(exp.total_price || exp.total_amount || exp.amount || (parseFloat(exp.unit_price || 0) * parseFloat(exp.qnty || 1))) || 0;
+
+                              return (
+                                <div key={exp.id || idx} className="p-2.5 flex items-center justify-between text-[12px] hover:bg-white/5 transition-colors">
+                                  <div className="flex flex-col gap-0.5">
+                                    <span className="font-medium text-white">{exp.item_name || exp.name || 'Expense Item'}</span>
+                                    <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                                      <span>Qty: {exp.qnty || exp.quantity || 1}</span>
+                                      <span>&bull;</span>
+                                      <span>Rate: ₹{parseFloat(exp.unit_price || exp.price || 0).toFixed(2)}</span>
+                                      {modeName && (
+                                        <>
+                                          <span>&bull;</span>
+                                          <span className="text-blue-400">{modeName}</span>
+                                        </>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <span className="font-bold text-amber-400 flex items-center">
+                                    <IndianRupee className="w-3 h-3 mr-0.5" />
+                                    {amt.toFixed(2)}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-[#11141e] border border-gray-700/50 border-dashed rounded-md p-3 text-center text-gray-500 text-[12px]">
+                          No additional expenses added for this item.
+                        </div>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setShowAdditionalExpensesModal(true)}
+                        className="w-full py-1.5 bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 rounded text-[11px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        {additionalExpenses && additionalExpenses.length > 0 ? 'Edit Additional Expenses' : '+ Add Additional Expenses'}
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
             </div>
