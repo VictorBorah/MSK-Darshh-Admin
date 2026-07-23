@@ -816,7 +816,14 @@ export default function ProcurementsPage() {
       <ViewPurchaseModal
         isOpen={!!viewProcurementId}
         procurementId={viewProcurementId}
-        onClose={() => setViewProcurementId(null)}
+        onClose={() => {
+          setViewProcurementId(null);
+          const token = localStorage.getItem('at_ki8Xq1iV');
+          if (token) {
+            fetchProcurementsData(token);
+            fetchDemandsData(token);
+          }
+        }}
         vendors={vendorsOptions}
         onSuccess={() => {
           const token = localStorage.getItem('at_ki8Xq1iV');
