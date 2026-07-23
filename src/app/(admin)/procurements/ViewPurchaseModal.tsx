@@ -412,7 +412,11 @@ export default function ViewPurchaseModal({ isOpen, procurementId, onClose, vend
 
       <PurchaseDetailsModal
         isOpen={isItemModalOpen}
-        onClose={() => setIsItemModalOpen(false)}
+        onClose={() => {
+          setIsItemModalOpen(false);
+          fetchDetails();
+          onSuccess?.();
+        }}
         itemRow={selectedItem}
         voucherNumber={purchaseDetails?.voucher_number}
         projectId={purchaseDetails?.project_id}
