@@ -31,6 +31,11 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
       if (isOpen && itemRow) {
          setLocalWarehouseName(itemRow.warehouse_name || 'N/A');
          setSelectedWarehouse(String(itemRow.warehouse_id || ''));
+         if (itemRow.payment_mode !== undefined && itemRow.payment_mode !== null && String(itemRow.payment_mode).trim() !== '') {
+            setSelectedPaymentMode(String(itemRow.payment_mode));
+         } else {
+            setSelectedPaymentMode('');
+         }
 
          const fetchConfigAndDetails = async () => {
             setIsLoadingModes(true);
@@ -83,10 +88,15 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                   const detailsData = Array.isArray(detailsArr) ? detailsArr[0] : detailsArr;
 
                   if (detailsData && String(detailsData.Status) === '1' && detailsData.item_data) {
-                     // Match row by item_id
-                     const matchItem = detailsData.item_data.find((i: any) => String(i.item_id) === String(itemRow.item_id));
-                     const exactPaymentMode = matchItem ? matchItem.payment_mode : (detailsData.item_data[0]?.payment_mode || '');
-                     setSelectedPaymentMode(String(exactPaymentMode || ''));
+                     // Match row by purchase_id / id & item_id, or fallback to item_id
+                     const matchItem = detailsData.item_data.find((i: any) =>
+                        (String(i.purchase_id || i.id) === String(itemRow.purchase_id || itemRow.id) && String(i.item_id) === String(itemRow.item_id)) ||
+                        String(i.item_id) === String(itemRow.item_id)
+                     );
+                     const rawMode = matchItem?.payment_mode ?? itemRow?.payment_mode ?? detailsData.item_data[0]?.payment_mode ?? '';
+                     if (rawMode !== undefined && rawMode !== null && String(rawMode).trim() !== '') {
+                        setSelectedPaymentMode(String(rawMode));
+                     }
                   }
                }
             } catch (e) {
@@ -131,9 +141,6 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
             const newWhName = warehouses?.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || '';
             if (newWhName) {
                setLocalWarehouseName(newWhName);
-            }
-            if (onSuccess) {
-               onSuccess();
             }
          } else {
             toast.error(data?.Message || 'Failed to update warehouse');
@@ -248,8 +255,11 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                                        })) || [])
                                     ]}
                                     value={
-                                       selectedWarehouse
-                                          ? { value: selectedWarehouse, label: warehouses?.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || 'Selected Warehouse' }
+                                       selectedWarehouse && selectedWarehouse !== '0'
+                                          ? {
+                                               value: String(selectedWarehouse),
+                                               label: warehouses?.find((w: any) => String(w.id) === String(selectedWarehouse))?.warehouse_name || (localWarehouseName && localWarehouseName !== 'N/A' ? localWarehouseName : (itemRow?.warehouse_name && itemRow.warehouse_name !== 'N/A' ? itemRow.warehouse_name : 'Select Warehouse'))
+                                            }
                                           : { value: '', label: 'Select Warehouse' }
                                     }
                                     onChange={(val: any) => {
@@ -312,9 +322,16 @@ export default function ApprovePurchase({ isOpen, onClose, itemRow, onSuccess }:
                   <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Select Payment Mode <span className="text-red-400">*</span></label>
                   <Select
                      options={paymentModes?.map((pm: any) => ({ value: String(pm.id), label: pm.mode || '' })) || []}
-                     value={paymentModes?.find(pm => String(pm.id) === selectedPaymentMode) ? { value: selectedPaymentMode, label: paymentModes.find((pm: any) => String(pm.id) === selectedPaymentMode)?.mode || '' } : null}
+                     value={
+                        paymentModes?.find((pm: any) => String(pm.id) === String(selectedPaymentMode))
+                           ? {
+                                value: String(selectedPaymentMode),
+                                label: paymentModes.find((pm: any) => String(pm.id) === String(selectedPaymentMode))?.mode || ''
+                             }
+                           : null
+                     }
                      onChange={(val: any) => {
-                        setSelectedPaymentMode(val ? val.value : '');
+                        setSelectedPaymentMode(val ? String(val.value) : '');
                       }}
                      placeholder="Select Payment Mode..."
                      isLoading={isLoadingModes}

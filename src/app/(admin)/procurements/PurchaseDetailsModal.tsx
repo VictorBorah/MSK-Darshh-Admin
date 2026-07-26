@@ -1278,12 +1278,15 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                              })) || [])
                                           ]}
                                           value={
-                                             selectedWarehouse
-                                                ? { value: selectedWarehouse, label: warehouses?.find((w: any) => String(w.id) === selectedWarehouse)?.warehouse_name || 'Selected Warehouse' }
+                                             selectedWarehouse && selectedWarehouse !== '0'
+                                                ? {
+                                                     value: String(selectedWarehouse),
+                                                     label: warehouses?.find((w: any) => String(w.id) === String(selectedWarehouse))?.warehouse_name || localItemData?.warehouse_name || itemRow?.warehouse_name || 'Select Warehouse'
+                                                  }
                                                 : { value: '', label: 'Select Warehouse' }
                                           }
                                           onChange={(val: any) => {
-                                             setSelectedWarehouse(val ? val.value : '');
+                                             setSelectedWarehouse(val ? String(val.value) : '');
                                           }}
                                           placeholder="Select Warehouse..."
                                           isDisabled={isClosed || isRemoved}

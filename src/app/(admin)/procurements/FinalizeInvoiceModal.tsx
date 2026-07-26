@@ -83,24 +83,26 @@ export default function FinalizeInvoiceModal({
         try {
           const token = localStorage.getItem('at_ki8Xq1iV');
           
-          // 1. Fetch system config to get payment modes list
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}sys/fetch_system_config`, {
+          // 1. Fetch app config to get payment modes list
+          const appRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`, {
             headers: { 'Authorization': `Bearer ${token}` }
           });
-          const text = await res.text();
-          const cleanedText = text.replace(/[\u0000-\u001f]/g, (ch) => {
-            if (ch === '\n') return '\\n';
-            if (ch === '\r') return '\\r';
-            if (ch === '\t') return '\\t';
-            return '';
-          });
-          let arr; try { arr = JSON.parse(cleanedText); } catch (e) { }
-          const configData = arr && Array.isArray(arr) ? arr[0] : arr;
+          const appText = await appRes.text();
+          let appArr; try { appArr = JSON.parse(appText); } catch (e) { }
+          const appDataRaw = appArr && Array.isArray(appArr) ? appArr[0] : appArr;
           
-          let loadedModes: any[] = [];
-          if (configData && String(configData.Status) === '1' && Array.isArray(configData.payment_modes)) {
-            setPaymentModes(configData.payment_modes);
-            loadedModes = configData.payment_modes;
+          let loadedModes: any[] = appDataRaw?.paymentmodes_Arr || appDataRaw?.payment_modes || [];
+          setPaymentModes(loadedModes);
+
+          // Initial pre-selection from itemRow if available
+          const initialMode = itemRow?.payment_mode;
+          if (initialMode !== undefined && initialMode !== null && String(initialMode).trim() !== '') {
+            const foundInitial = loadedModes.find((m: any) => String(m.id) === String(initialMode));
+            if (foundInitial) {
+              setSelectedPaymentMode({ value: String(foundInitial.id), label: foundInitial.mode });
+            } else if (itemRow?.payment_mode_txt) {
+              setSelectedPaymentMode({ value: String(initialMode), label: itemRow.payment_mode_txt });
+            }
           }
 
           // 2. Fetch purchase details to get exact payment mode for this item
@@ -114,12 +116,18 @@ export default function FinalizeInvoiceModal({
             const detailsData = detailsArr && Array.isArray(detailsArr) ? detailsArr[0] : detailsArr;
 
             if (detailsData && String(detailsData.Status) === '1' && detailsData.item_data) {
-              const matchItem = detailsData.item_data.find((i: any) => String(i.item_id) === String(itemRow.item_id));
-              const exactPaymentMode = matchItem ? matchItem.payment_mode : (detailsData.item_data[0]?.payment_mode || '');
-              if (exactPaymentMode) {
+              const matchItem = detailsData.item_data.find((i: any) =>
+                (String(i.purchase_id || i.id) === String(itemRow.purchase_id || itemRow.id) && String(i.item_id) === String(itemRow.item_id)) ||
+                String(i.item_id) === String(itemRow.item_id)
+              );
+              const exactPaymentMode = matchItem?.payment_mode ?? itemRow?.payment_mode ?? detailsData.item_data[0]?.payment_mode ?? '';
+              if (exactPaymentMode !== undefined && exactPaymentMode !== null && String(exactPaymentMode).trim() !== '') {
                 const foundMode = loadedModes.find((m: any) => String(m.id) === String(exactPaymentMode));
                 if (foundMode) {
-                  setSelectedPaymentMode({ value: foundMode.id, label: foundMode.mode });
+                  setSelectedPaymentMode({ value: String(foundMode.id), label: foundMode.mode });
+                } else {
+                  const modeTxt = matchItem?.payment_mode_txt || itemRow?.payment_mode_txt || `Mode #${exactPaymentMode}`;
+                  setSelectedPaymentMode({ value: String(exactPaymentMode), label: modeTxt });
                 }
               }
             }
@@ -290,7 +298,7 @@ export default function FinalizeInvoiceModal({
             <div className="border border-gray-700/80 rounded-lg p-4 bg-[#1b202c] flex flex-col gap-2">
               <label className="text-[12px] text-gray-400 font-medium">Payment Method <span className="text-red-400">*</span></label>
               <Select
-                options={paymentModes.map(m => ({ value: m.id, label: m.mode }))}
+                options={paymentModes.map(m => ({ value: String(m.id), label: m.mode }))}
                 value={selectedPaymentMode}
                 onChange={setSelectedPaymentMode}
                 placeholder="Select payment method..."
