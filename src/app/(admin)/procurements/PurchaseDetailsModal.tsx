@@ -50,6 +50,7 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
    // Local editable states and calculated data
    const [localItemData, setLocalItemData] = useState<any>(itemRow);
    const isRemoved = localItemData?.is_removed === 'Yes' || localItemData?.is_removed === '1';
+   const isLocked = localItemData?.is_locked === 'Yes' || localItemData?.is_locked === '1' || localItemData?.is_locked === 1;
    const [isEditingQty, setIsEditingQty] = useState(false);
    const [isEditingPrice, setIsEditingPrice] = useState(false);
    const [editQty, setEditQty] = useState(String(itemRow?.qnty || ''));
@@ -309,8 +310,14 @@ export default function PurchaseDetailsModal({ isOpen, onClose, itemRow, onDeman
 
          if (data && String(data.Status) === '1') {
             toast.success(data.Message || 'Warehouse updated successfully');
-            if (onSuccess) {
-               onSuccess();
+            const updatedWhName = warehouses?.find((w: any) => String(w.id) === String(selectedWarehouse))?.warehouse_name || '';
+            setLocalItemData((prev: any) => ({
+               ...prev,
+               warehouse_id: selectedWarehouse,
+               warehouse_name: updatedWhName || prev?.warehouse_name
+            }));
+            if (onRefresh) {
+               onRefresh();
             }
          } else {
             toast.error(data?.Message || 'Failed to update warehouse');
@@ -749,6 +756,11 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                   <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
                      <Box className="w-5 h-5 text-emerald-400" />
                      {isRemoved ? "Removed Purchase" : "Item Details"}
+                     {isLocked && (
+                        <span className="text-[11px] font-semibold text-blue-300 bg-[#173899]/35 border border-[#173899]/60 px-2 py-0.5 rounded ml-1.5">
+                           Closed and Locked
+                        </span>
+                     )}
                   </h2>
                   <div className="flex items-center gap-1.5">
                      {/* Share Popover Wrapper */}
@@ -1055,7 +1067,8 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
 
                               <button
                                  onClick={() => setShowRemoveWarning(true)}
-                                 disabled={!canRemove || isRemoved || isRemovingRecord}
+                                 disabled={!canRemove || isRemoved || isRemovingRecord || isLocked}
+                                 title={isLocked ? "Purchase Closed and Locked" : ""}
                                  className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed px-2.5 py-1 rounded border border-red-600 shadow-sm active:scale-95 transition-all duration-200 whitespace-nowrap"
                               >
                                  Remove
@@ -1064,7 +1077,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                               {isVerified && canClose && (
                                  <button
                                     onClick={() => setShowFinalizeInvoiceModal(true)}
-                                    disabled={isFinalizing || isClosed || isClosedPurchase || isRemoved}
+                                    disabled={isFinalizing || isClosed || isClosedPurchase || isRemoved || isLocked}
                                     className="flex items-center gap-1 text-[10px] font-bold text-white hover:text-white transition-colors uppercase tracking-wide bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed px-2.5 py-1 rounded border border-blue-600 shadow-sm active:scale-95 transition-all duration-200 whitespace-nowrap"
                                  >
                                     {isFinalizing ? 'Finalizing...' : 'Finalize Purchase'}
@@ -1088,7 +1101,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                  value={itemSearch}
                                  onChange={(e) => setItemSearch(e.target.value)}
                                  placeholder="Search item to add..."
-                                 disabled={isClosedPurchase || isRemoved}
+                                 disabled={isClosedPurchase || isRemoved || isLocked}
                                  className="w-full bg-[#232b3e] border border-gray-600 rounded pl-9 pr-8 py-1.5 text-white text-[12px] focus:outline-none focus:border-blue-500 transition-colors placeholder:text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed"
                               />
                               <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
@@ -1175,9 +1188,9 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                           <td className="py-2 text-center">
                                              <div className="flex items-center justify-center gap-1">
                                                 <button
-                                                   onClick={() => !isClosedPurchase && !isRemoved && handleStartEditExpense(row)}
-                                                   title={isRemoved ? "Purchase Removed" : isClosedPurchase ? "Purchase Closed" : "Edit Expense"}
-                                                   className={`p-1 rounded transition-colors ${(isClosedPurchase || isRemoved)
+                                                   onClick={() => !isClosedPurchase && !isRemoved && !isLocked && handleStartEditExpense(row)}
+                                                   title={isRemoved ? "Purchase Removed" : isLocked ? "Purchase Closed and Locked" : (isClosedPurchase ? "Purchase Closed" : "Edit Expense")}
+                                                   className={`p-1 rounded transition-colors ${(isClosedPurchase || isRemoved || isLocked)
                                                       ? 'text-gray-600 cursor-not-allowed opacity-50'
                                                       : 'text-gray-400 hover:text-white hover:bg-white/10'
                                                       }`}
@@ -1185,9 +1198,9 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                                    <Pencil className="w-3.5 h-3.5" />
                                                 </button>
                                                 <button
-                                                   onClick={() => !isClosedPurchase && !isRemoved && setExpenseToDelete(row)}
-                                                   title={isRemoved ? "Purchase Removed" : isClosedPurchase ? "Purchase Closed" : "Remove Expense"}
-                                                   className={`p-1 rounded transition-colors ${(isClosedPurchase || isRemoved)
+                                                   onClick={() => !isClosedPurchase && !isRemoved && !isLocked && setExpenseToDelete(row)}
+                                                   title={isRemoved ? "Purchase Removed" : isLocked ? "Purchase Closed and Locked" : (isClosedPurchase ? "Purchase Closed" : "Remove Expense")}
+                                                   className={`p-1 rounded transition-colors ${(isClosedPurchase || isRemoved || isLocked)
                                                       ? 'text-gray-600 cursor-not-allowed opacity-50'
                                                       : 'text-gray-500 hover:text-red-400 hover:bg-red-500/10'
                                                       }`}
@@ -1214,7 +1227,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                            <div className="flex justify-end select-none animate-in fade-in duration-150 pt-2 pb-1 border-t border-gray-700/50">
                               <button
                                  onClick={handleAddNewExpenses}
-                                 disabled={isSavingExpenses || isRemoved}
+                                 disabled={isSavingExpenses || isRemoved || isLocked}
                                  className="text-[11px] font-bold text-white uppercase tracking-wider bg-[#10b981] hover:bg-[#059669] disabled:opacity-50 disabled:cursor-not-allowed px-3.5 py-1.5 rounded border border-emerald-600 shadow-sm active:scale-95 transition-all duration-200 flex items-center gap-1.5"
                               >
                                  {isSavingExpenses ? (
@@ -1289,7 +1302,7 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                              setSelectedWarehouse(val ? String(val.value) : '');
                                           }}
                                           placeholder="Select Warehouse..."
-                                          isDisabled={isClosed || isRemoved}
+                                          isDisabled={isClosed || isRemoved || isLocked}
                                           styles={{
                                              control: (base) => ({ ...base, backgroundColor: '#232b3e', borderColor: '#374151', minHeight: '36px', borderRadius: '4px', color: '#fff', fontSize: '13px' }),
                                              menuPortal: base => ({ ...base, zIndex: 99999 }),
@@ -1303,8 +1316,9 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                     </div>
                                     <button
                                        onClick={handleChangeWarehouse}
-                                       disabled={!selectedWarehouse || isSubmitting || isClosed || isRemoved}
-                                       className={`w-full h-[36px] flex items-center justify-center font-bold text-[12px] uppercase tracking-wider rounded border transition-all duration-200 shadow-sm whitespace-nowrap ${(!selectedWarehouse || isSubmitting || isClosed || isRemoved)
+                                       disabled={!selectedWarehouse || isSubmitting || isClosed || isRemoved || isLocked}
+                                       title={isLocked ? "Purchase Closed and Locked" : (isClosed ? "Purchase Closed" : "")}
+                                       className={`w-full h-[36px] flex items-center justify-center font-bold text-[12px] uppercase tracking-wider rounded border transition-all duration-200 shadow-sm whitespace-nowrap ${(!selectedWarehouse || isSubmitting || isClosed || isRemoved || isLocked)
                                           ? 'bg-gray-800 text-gray-500 border-gray-700 cursor-not-allowed opacity-50'
                                           : 'bg-blue-600 hover:bg-blue-500 text-white active:scale-95 border-blue-600'
                                           }`}
@@ -1339,8 +1353,9 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                        e.preventDefault();
                                        onDemandAction(localItemData);
                                     }}
-                                    disabled={isClosed || isRemoved}
-                                    className={`text-[12px] font-bold uppercase tracking-wide mt-1 transition-colors ${(isClosed || isRemoved) ? 'text-gray-500 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 underline decoration-blue-500/30 underline-offset-4'}`}
+                                    disabled={isClosed || isRemoved || isLocked}
+                                    title={isLocked ? "Purchase Closed and Locked" : (isClosed ? "Purchase Closed" : "")}
+                                    className={`text-[12px] font-bold uppercase tracking-wide mt-1 transition-colors ${(isClosed || isRemoved || isLocked) ? 'text-gray-500 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 underline decoration-blue-500/30 underline-offset-4'}`}
                                  >
                                     Link to a Demand
                                  </button>
@@ -1386,8 +1401,9 @@ Total Amount    : ₹ ${amountInc} (Inclusive of GST)
                                           e.preventDefault();
                                           onDemandAction(localItemData);
                                        }}
-                                       disabled={isClosed || isRemoved}
-                                       className={`text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded transition-colors ${(isClosed || isRemoved) ? 'text-gray-500 bg-gray-800 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20'}`}
+                                       disabled={isClosed || isRemoved || isLocked}
+                                       title={isLocked ? "Purchase Closed and Locked" : (isClosed ? "Purchase Closed" : "")}
+                                       className={`text-[11px] font-bold uppercase tracking-wide px-3 py-1.5 rounded transition-colors ${(isClosed || isRemoved || isLocked) ? 'text-gray-500 bg-gray-800 cursor-not-allowed opacity-50' : 'text-blue-400 hover:text-blue-300 bg-blue-500/10 hover:bg-blue-500/20'}`}
                                     >
                                        Update Demand Connection
                                     </button>
