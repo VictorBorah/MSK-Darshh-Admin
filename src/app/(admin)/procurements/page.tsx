@@ -533,7 +533,7 @@ export default function ProcurementsPage() {
                     <td className="px-4 py-3">{row.purchase_date || '-'}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
-                        <span>{row.project_name || '-'}</span>
+                        <span title={row.project_name || ''}>{row.project_code || row.project_name || '-'}</span>
                         {isVerified ? (
                           <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0 font-bold" />
                         ) : isUnverified ? (
