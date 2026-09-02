@@ -33,7 +33,7 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-const API_ENDPOINT = `${process.env.NEXT_PUBLIC_API_BASE_URL}access/getAdminAccessToken`;
+const API_ENDPOINT = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/'}access/getAdminAccessToken`;
 
 export default function Login() {
   const router = useRouter();
@@ -107,7 +107,7 @@ export default function Login() {
         // 2. Validate session by fetching app data via Bearer token immediately
         try {
            showModal(`Securing session...`, 'loading');
-           const validationEndpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`;
+           const validationEndpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/'}app/admin/fetchAppData`;
            const validationResponse = await fetch(validationEndpoint, {
              method: 'GET',
              headers: {
