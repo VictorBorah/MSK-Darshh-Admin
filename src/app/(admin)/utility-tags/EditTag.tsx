@@ -37,7 +37,7 @@ export default function EditTag({ isOpen, onClose, tagId, fallbackData, onSucces
           setIsFetching(true);
           try {
             const token = localStorage.getItem('at_ki8Xq1iV');
-            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
             const endpoint = `${baseUrl}admin/fetchUtilityTag?tag_id=${tagId}`;
             
             const res = await fetch(endpoint, {
@@ -92,7 +92,7 @@ export default function EditTag({ isOpen, onClose, tagId, fallbackData, onSucces
     setIsSaving(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       
       let endpoint = '';
       const formData = new FormData();

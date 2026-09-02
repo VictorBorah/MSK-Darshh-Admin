@@ -160,7 +160,7 @@ export default function Dashboard() {
 
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       const url = `${baseUrl}reports/fetchDashboardData?project_id=${projId}&from_date=${fromDate}&to_date=${toDate}`;
 
       const res = await fetch(url, {
@@ -250,7 +250,7 @@ export default function Dashboard() {
         // Force refresh directly if already active to bypass React state dependency check latency
         if (activeProject && String(activeProject.project_id) === String(matched.project_id)) {
           setIsReportsLoading(true);
-          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
           const token = localStorage.getItem('at_ki8Xq1iV');
           fetch(`${baseUrl}reports/fetchDashboardData?project_id=${matched.project_id}&from_date=&to_date=`, {
             method: 'GET',

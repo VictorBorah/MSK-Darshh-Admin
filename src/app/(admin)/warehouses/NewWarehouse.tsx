@@ -49,7 +49,7 @@ export default function NewWarehouse({ isOpen, onClose, onSuccess }: NewWarehous
     setIsSubmittingStep1(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       const endpoint = `${baseUrl}admin/addWarehouse`;
 
       const formData = new FormData();
@@ -112,7 +112,7 @@ export default function NewWarehouse({ isOpen, onClose, onSuccess }: NewWarehous
     setIsSubmittingStep2(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       const endpoint = `${baseUrl}admin/patchWarehouse`;
 
       const formData = new FormData();
