@@ -1,7 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckSquare, Square, CheckCircle, AlertTriangle, Rocket, ChevronDown, ChevronRight } from 'lucide-react';
+import {
+  CheckSquare,
+  Square,
+  CheckCircle,
+  AlertTriangle,
+  Rocket,
+  ChevronDown,
+  ChevronRight,
+  Globe,
+  Monitor,
+  Smartphone,
+  Server,
+  Database,
+  ExternalLink,
+  FlaskConical,
+} from 'lucide-react';
 
 export default function Home() {
   const [showCompleted, setShowCompleted] = useState(false);
@@ -17,22 +32,119 @@ export default function Home() {
         <p className="text-[#ccd6f6] text-[15px] leading-relaxed max-w-4xl">
           An enterprise-grade, centralized cloud infrastructure explicitly engineered to orchestrate scaling site operations, real-time financial allocations, and comprehensive workforce logistics across distributed projects.
         </p>
-        <div className="mt-5 bg-red-950/30 border border-red-500/30 rounded-md p-4 flex items-center gap-4 w-fit">
-          <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-          <div className="flex flex-col">
-            <span className="text-white font-bold text-[14px]">
-              Current Status: <span className="font-medium text-red-400">Project progress is late by 5 Days</span>
-            </span>
-            <span className="text-white font-medium text-[13px] mt-1">
-              Currently Working on: <span className="text-red-400 font-semibold">Deploying to Production Cloud</span>
-            </span>
-            <p className="text-gray-400 text-[11px] font-medium mt-2.5 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-              Status Updated on: 31/07/2026 02:01 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
-            </p>
+
+        {/* Two-column layout on wide screens: Current Status (Left) & Staging Information (Right) */}
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+          {/* Left Column: Current Status Box */}
+          <div className="bg-red-950/30 border border-red-500/30 rounded-md p-5 flex items-start gap-4 h-full">
+            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+            <div className="flex flex-col flex-1 justify-between h-full">
+              <div>
+                <span className="text-white font-bold text-[14px] block">
+                  Current Status: <span className="font-medium text-red-400">Bug Fixes & Optimizations in Stock Inventory Module</span>
+                </span>
+                <span className="text-white font-medium text-[13px] mt-1.5 block">
+                  Currently Working on: <span className="text-red-400 font-semibold">Bug Fixes & Optimizations in Stock Inventory Module</span>
+                </span>
+              </div>
+              <p className="text-gray-400 text-[11px] font-medium mt-4 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
+                Status Updated on: 08/10/2026 08:12 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Staging Environment Information Box */}
+          <div className="bg-amber-950/20 border border-amber-500/30 rounded-md p-5 flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center gap-2 mb-2 text-amber-400 font-bold text-[14px]">
+                <FlaskConical className="w-4 h-4 text-amber-400 shrink-0" />
+                <span>Staging Environment Information</span>
+              </div>
+              <h3 className="text-white font-semibold text-[13px] leading-snug mb-3.5">
+                Zyn Construction Management system has a staging environment for Development &amp; Testing.
+              </h3>
+
+              <div className="space-y-2.5 border-t border-amber-500/20 pt-3 text-[13px]">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Globe className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Zyn Staging Domain:</span>
+                  </span>
+                  <span className="text-amber-300 font-mono text-[12px] bg-amber-950/50 px-2 py-0.5 rounded border border-amber-500/20">
+                    xlabz.space <span className="text-gray-400 text-[11px]">[Shared with other clients]</span>
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Monitor className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Zyn Staging Admin App URL:</span>
+                  </span>
+                  <a
+                    href="https://zynadmin.xlabz.space/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan-400 hover:text-cyan-300 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    https://zynadmin.xlabz.space/
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Smartphone className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Zyn Staging Staff App URL:</span>
+                  </span>
+                  <a
+                    href="https://zynapp.xlabz.space/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:text-emerald-300 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    https://zynapp.xlabz.space/
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Server className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="font-medium text-gray-200">ZYn Staging API Base URL:</span>
+                  </span>
+                  <a
+                    href="https://zynapi.xlabz.space/webservices/v1/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    https://zynapi.xlabz.space/webservices/v1/
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Database className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Zyn MySQL Staging Database:</span>
+                  </span>
+                  <a
+                    href="https://kaiser.int3rnet.net:2083/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-purple-300 hover:text-purple-200 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    https://kaiser.int3rnet.net:2083/
+                    <span className="text-gray-400 text-[11px] no-underline ml-1">[cPanel/Requires Creds]</span>
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-5 bg-blue-950/20 border border-blue-500/30 rounded-md p-5 max-w-4xl">
+        <div className="mt-5 bg-blue-950/20 border border-blue-500/30 rounded-md p-5">
           <div className="flex items-center gap-3 mb-4 border-b border-blue-500/20 pb-3">
             <Rocket className="w-5 h-5 text-blue-400" />
             <h3 className="text-blue-400 font-bold text-[15px]">Production Cloud Deployment Checklist</h3>
