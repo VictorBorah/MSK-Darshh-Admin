@@ -26,7 +26,8 @@ import {
   Camera,
   Tag,
   Warehouse,
-  ChevronDown
+  ChevronDown,
+  FileText
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -336,9 +337,21 @@ export default function Sidebar() {
         {/* Gradient Separator */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-teal-500/30 to-transparent mt-auto shrink-0" />
         
-        {/* Footer Version */}
-        <div className={`p-4 text-xs text-teal-400/80 flex items-center bg-transparent overflow-hidden ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
-          <span className={`shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>Version {frontendVersion || '1.0.1'}</span>
+        {/* Footer Version & Changelog Link */}
+        <div className={`p-3.5 text-xs text-teal-400/80 flex items-center bg-transparent overflow-hidden ${sidebarOpen ? 'justify-between' : 'justify-center'}`}>
+          <span className={`shrink-0 ${sidebarOpen ? '' : 'md:hidden'}`}>
+            Version {frontendVersion || '1.0.1'}
+          </span>
+          <Link
+            href="/changelog"
+            className={`flex items-center gap-1.5 px-2 py-1 rounded bg-teal-500/10 hover:bg-teal-500/20 text-teal-300 hover:text-teal-200 transition-colors border border-teal-500/30 font-medium ${
+              pathname?.startsWith('/changelog') ? 'bg-teal-500/25 border-teal-400 text-teal-200 shadow-sm' : ''
+            }`}
+            title="View Changelog"
+          >
+            <FileText className="w-3.5 h-3.5 shrink-0" />
+            <span className={`${sidebarOpen ? '' : 'md:hidden'}`}>Changelog</span>
+          </Link>
         </div>
       </aside>
     </>

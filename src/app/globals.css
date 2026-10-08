@@ -44,3 +44,150 @@ a[disabled],
   cursor: pointer;
 }
 
+/* Changelog Markdown Rendering Styles */
+.changelog-prose {
+  color: #ccd6f6;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.changelog-prose h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  letter-spacing: -0.02em;
+}
+
+.changelog-prose h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #5eead4; /* teal-300 */
+  margin-top: 2.25rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(45, 212, 191, 0.08);
+  border-left: 4px solid #14b8a6;
+  border-radius: 0 0.5rem 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.changelog-prose h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-top: 1.25rem;
+  margin-bottom: 0.75rem;
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  background: rgba(30, 41, 59, 0.9);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.changelog-prose p {
+  color: #94a3b8;
+  margin-bottom: 0.85rem;
+  line-height: 1.65;
+}
+
+.changelog-prose ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1.25rem;
+}
+
+.changelog-prose li {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-bottom: 0.6rem;
+  color: #cbd5e1;
+  line-height: 1.6;
+}
+
+.changelog-prose li::before {
+  content: "•";
+  position: absolute;
+  left: 0.45rem;
+  color: #2dd4bf;
+  font-size: 1.25rem;
+  line-height: 1;
+  top: -0.05rem;
+}
+
+.changelog-prose li > ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding-left: 1rem;
+}
+
+.changelog-prose li > ul > li::before {
+  content: "◦";
+  color: #94a3b8;
+}
+
+.changelog-prose strong {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.changelog-prose code {
+  background: rgba(15, 23, 42, 0.85);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.3rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.875em;
+}
+
+.changelog-prose pre {
+  background: #0d111a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+}
+
+.changelog-prose pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #e2e8f0;
+}
+
+.changelog-prose hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.3), transparent);
+  margin: 2.25rem 0;
+}
+
+.changelog-prose a {
+  color: #38bdf8;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease-in-out;
+}
+
+.changelog-prose a:hover {
+  color: #7dd3fc;
+}
+
+.changelog-prose blockquote {
+  border-left: 3px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+  padding: 0.75rem 1rem;
+  border-radius: 0 0.375rem 0.375rem 0;
+  color: #94a3b8;
+  margin: 1rem 0;
+}
+
