@@ -92,7 +92,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
     // 2. Refresh Remote Session
     try {
-      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}app/admin/fetchAppData`;
+      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/'}app/admin/fetchAppData`;
       const response = await fetch(endpoint, {
         method: 'GET',
         headers: {

@@ -250,7 +250,7 @@ export default function ClientPaymentModal({ isOpen, onClose, client }: ClientPa
     setIsLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
 
       let url = `${baseUrl}admin/fetchClientPayments?client_id=${client.client_id}&pagenum=${page}`;
 

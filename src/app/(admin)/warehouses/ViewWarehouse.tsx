@@ -29,7 +29,7 @@ export default function ViewWarehouse({ isOpen, onClose, warehouseId, fallbackDa
           setWarehouseData(null);
           try {
             const token = localStorage.getItem('at_ki8Xq1iV');
-            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
             const endpoint = `${baseUrl}admin/fetchWarehouseDetails?warehouse_id=${warehouseId}`;
 
             const res = await fetch(endpoint, {
@@ -85,7 +85,7 @@ export default function ViewWarehouse({ isOpen, onClose, warehouseId, fallbackDa
     setIsSettingDefault(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       const endpoint = `${baseUrl}admin/setDefaultWarehouse`;
 
       const formData = new FormData();

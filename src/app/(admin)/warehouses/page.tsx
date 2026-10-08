@@ -46,7 +46,7 @@ export default function WarehousesPage() {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       let endpoint = `${baseUrl}admin/fetchWarehouses?pagenum=${page}`;
 
       if (filterStatus !== '') {
@@ -169,7 +169,7 @@ export default function WarehousesPage() {
        
        try {
          const token = localStorage.getItem('at_ki8Xq1iV');
-         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+         const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
          const endpoint = `${baseUrl}admin/searchWarehouse?query_str=${encodeURIComponent(searchQuery)}`;
          
          const res = await fetch(endpoint, {
@@ -280,7 +280,7 @@ export default function WarehousesPage() {
     setIsPatching(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       const endpoint = `${baseUrl}admin/patchWarehouse`;
 
       const formData = new FormData();

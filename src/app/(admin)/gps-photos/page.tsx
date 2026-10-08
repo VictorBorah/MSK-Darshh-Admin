@@ -117,7 +117,7 @@ export default function GpsPhotos() {
     const fetchConfig = async () => {
       try {
         const token = localStorage.getItem('at_ki8Xq1iV');
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
         const res = await fetch(`${baseUrl}sys/fetch_system_config`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -278,7 +278,7 @@ export default function GpsPhotos() {
 
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.zlabz.space/webservices/v1/';
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
       
       // Construct API endpoint URL with query parameters
       let url = `${baseUrl}app/fetchGpsPhotos?project_id=${projectId}&pagenum=${page}`;
