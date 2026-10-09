@@ -14,6 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Bundled changelog markdown dataset into static application assets (`src/data/changelogData.ts` and `public/changelog.md`) ensuring offline and remote static export visibility.
 
 ### Changed
+- **Warehouses Module UI (`admin/src/app/(admin)/warehouses/page.tsx`)**:
+  - Integrated 'MAKE DEFAULT' column with row-level checkboxes preceding the 'DEFAULT' column.
+  - Implemented on-check handler with validation toast ("Please select a default warehouse" on uncheck) and automated remote patch via `admin/patchWarehouse` with `is_default=1`, followed by table reload.
+- **Warehouse Module & Stock Operations (`zyn-api/src/Application/Actions/AdminController.php`, `AppController.php`)**:
+  - Integrated default warehouse setting handler in `AdminController.php` supporting `is_default` parameter with validation and single-default reset logic.
+  - Connected automated warehouse stock intake during procurement update in `AppController.php` via `handleWarehouseStock` ('in' transaction).
+  - Pushed commit `02141142` to branch `staging` on `VictorBorah/ZYN-MSK-WEBSERVICE`.
 - **Admin Home Dashboard (`admin/src/app/(admin)/home/page.tsx`)**:
   - Added dedicated Staging Environment Information panel positioned in a responsive 2-column layout beside the Current Status widget.
   - Displayed environment header: "Zyn Construction Management system has a staging environment for Development & Testing."
