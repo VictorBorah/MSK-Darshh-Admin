@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [2026-10-09] - Warehouse Stock Telemetry & Core Syntax Hardening
 
+### Added
+- **Warehouse Stock Append-Only Transaction Ledger (`zyn-api/src/Application/Actions/CommonController.php`)**:
+  - Re-engineered `handleWarehouseStock()` from an in-place single-row update model into an immutable chronological transaction ledger.
+  - For Stock IN: fetches latest closing stock for `(warehouse_id, project_id, item_id)` ordered chronologically by `id DESC LIMIT 1`, calculates `new_closing = old_closing + quantity`, and appends a new row with `qnty_in = quantity`, `qnty_out = 0`, `current_stock = new_closing`, and detailed audit remarks.
+  - For Stock OUT: verifies stock availability from latest chronological record, prevents overdraw/negative balance, calculates `new_closing = old_closing - quantity`, and appends a new transaction row with `qnty_in = 0`, `qnty_out = quantity`, `current_stock = new_closing`, and detailed audit remarks.
+  - Added descriptive context-aware `sys_remark` logs capturing units received or dispatched with previous and closing balances.
+
 ### Fixed
 - **Warehouse Stock Management (`zyn-api/src/Application/Actions/CommonController.php`)**:
   - Resolved fatal parse syntax error on line 3638 in `handleWarehouseStock` method (missing array separator comma).
