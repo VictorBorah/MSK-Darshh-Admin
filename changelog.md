@@ -20,7 +20,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Committed and pushed to `staging` (`d333f1a3`) and merged into `master` (`ee8358b7`) on `VictorBorah/ZYN-MSK-WEBSERVICE`.
 
 ### Changed
-- **Procurement Stock Automation (`zyn-api/src/Application/Actions/AppController.php`)**:
+- **Procurement Stock Automation & Warehouse Stock Query (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Updated `fetch_WarehouseStock()` to query only the latest chronological record from `tbl_warehouse_stock` for every `(warehouse_id, project_id, item_id)` combination via `MAX(id)` subquery.
+  - Added multi-mode `item` filter supporting numeric item ID and item name/code search strings.
   - Added safety guard to prevent invalid stock movements when items have empty or unset `warehouse_id`.
   - Added audit telemetry fields (`record_date`, `record_time`, `sys_remark`) to track automated inventory intake and user-controlled stock transfers.
 - **Admin App Warehouses Module (`admin/src/app/(admin)/warehouses/page.tsx`)**:
