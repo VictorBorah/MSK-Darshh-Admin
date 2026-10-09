@@ -24,6 +24,7 @@ export default function WarehousesPage() {
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isPatching, setIsPatching] = useState(false);
+  const [settingDefaultId, setSettingDefaultId] = useState<string | null>(null);
 
   // Confirmation Dialogue Overlay state
   const [confirmDialog, setConfirmDialog] = useState<{isOpen: boolean, title: string, payload: any} | null>(null);
@@ -323,6 +324,59 @@ export default function WarehousesPage() {
     }
   };
 
+  // Handle Make Default Warehouse checkbox toggle
+  const handleMakeDefaultToggle = async (warehouse: any, willBeChecked: boolean) => {
+    // If user tries to uncheck an existing default warehouse
+    if (!willBeChecked) {
+      toast.error('Please select a default warehouse', { id: 'default-wh-toast' });
+      return;
+    }
+
+    // If user checks an unchecked warehouse, patch as default
+    setSettingDefaultId(String(warehouse.id));
+    try {
+      const token = localStorage.getItem('at_ki8Xq1iV');
+      const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://zynapi.xlabz.space/webservices/v1/';
+      const endpoint = `${baseUrl}admin/patchWarehouse`;
+
+      const formData = new FormData();
+      formData.append('ids_csv', String(warehouse.id));
+      formData.append('is_default', '1');
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) {
+        throw new Error(`Server connection error (HTTP ${res.status})`);
+      }
+
+      const rawText = await res.text();
+      let arr;
+      try {
+        arr = JSON.parse(rawText);
+      } catch (err) {
+        throw new Error('Invalid JSON received from server');
+      }
+
+      const data = Array.isArray(arr) ? arr[0] : arr;
+
+      if (data && (String(data.Status) === '1' || data.Status === 1)) {
+        toast.success(data.Message || `${warehouse.warehouse_name} set as default warehouse`, { id: 'default-wh-toast' });
+        fetchWarehouses(currentPage);
+      } else {
+        toast.error(data?.Message || 'Failed to update default warehouse', { id: 'default-wh-toast' });
+      }
+    } catch (e: any) {
+      console.error('Make default warehouse error:', e);
+      toast.error(e.message || 'Error updating default warehouse', { id: 'default-wh-toast' });
+    } finally {
+      setSettingDefaultId(null);
+    }
+  };
+
   // Switch Row level Toggle
   const handleStatusToggleRequest = (warehouse: any) => {
     const isStatusActive = String(warehouse.active) === '1' || String(warehouse.active).toLowerCase() === 'yes';
@@ -496,6 +550,7 @@ export default function WarehousesPage() {
                  </th>
                  <th className="px-4 py-3.5">Warehouse</th>
                  <th className="px-4 py-3.5">Address</th>
+                 <th className="px-4 py-3.5 w-32 text-center">MAKE DEFAULT</th>
                  <th className="px-4 py-3.5 w-32 text-center">Default</th>
                  <th className="px-4 py-3.5 w-24 text-center">Status</th>
                  <th className="px-4 py-3.5 w-20 text-center">View</th>
@@ -505,14 +560,14 @@ export default function WarehousesPage() {
              <tbody className="divide-y divide-gray-800 bg-[#161a25]">
                {isLoading ? (
                   <tr>
-                     <td colSpan={7} className="py-12 text-center text-gray-500">
+                     <td colSpan={8} className="py-12 text-center text-gray-500">
                        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-3" />
                        Loading Warehouses Database...
                      </td>
                   </tr>
                ) : warehouses.length === 0 ? (
                   <tr>
-                     <td colSpan={7} className="py-12 text-center text-gray-500 italic">
+                     <td colSpan={8} className="py-12 text-center text-gray-500 italic">
                        No warehouses located matching parameters.
                      </td>
                   </tr>
@@ -536,8 +591,21 @@ export default function WarehousesPage() {
                          <td className="px-4 py-3.5 font-medium text-[#cbd5e1] max-w-[300px] truncate" title={wh.warehouse_address}>
                            {wh.warehouse_address || '-'}
                          </td>
-                         <td className="px-4 py-3.5 text-center text-xs font-bold text-gray-400">
-                           {isDefault ? (
+                         <td className="px-4 py-3.5 text-center">
+                            {settingDefaultId === String(wh.id) ? (
+                              <Loader2 className="w-4 h-4 animate-spin text-blue-400 mx-auto" />
+                            ) : (
+                              <input 
+                                type="checkbox" 
+                                checked={isDefault}
+                                onChange={(e) => handleMakeDefaultToggle(wh, e.target.checked)}
+                                className="bg-transparent border-gray-600 rounded cursor-pointer h-4 w-4 accent-blue-600 opacity-80 hover:opacity-100 transition-opacity" 
+                                title={isDefault ? 'Default warehouse' : 'Make this the default warehouse'}
+                              />
+                            )}
+                          </td>
+                          <td className="px-4 py-3.5 text-center text-xs font-bold text-gray-400">
+                            {isDefault ? (
                              <span className="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">Yes</span>
                            ) : 'No'}
                          </td>
