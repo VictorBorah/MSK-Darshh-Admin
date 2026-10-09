@@ -4,6 +4,23 @@ All notable changes to the **ZYN Construction Management System** (Backend API, 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-10-09] - Warehouse Stock Telemetry & Core Syntax Hardening
+
+### Fixed
+- **Warehouse Stock Management (`zyn-api/src/Application/Actions/CommonController.php`)**:
+  - Resolved fatal parse syntax error on line 3638 in `handleWarehouseStock` method (missing array separator comma).
+  - Validated syntax integrity across all PHP files in `zyn-api` with zero errors.
+  - Committed and pushed to `staging` (`d333f1a3`) and merged into `master` (`ee8358b7`) on `VictorBorah/ZYN-MSK-WEBSERVICE`.
+
+### Changed
+- **Procurement Stock Automation (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Added safety guard to prevent invalid stock movements when items have empty or unset `warehouse_id`.
+  - Added audit telemetry fields (`record_date`, `record_time`, `sys_remark`) to track automated inventory intake and user-controlled stock transfers.
+- **Admin App Warehouses Module (`admin/src/app/(admin)/warehouses/page.tsx`)**:
+  - Deployed "MAKE DEFAULT" column and row-level patch interaction to both `staging` (`fde19fd`) and `master` (`148d0c5`) on `VictorBorah/MSK-Darshh-Admin`.
+
+---
+
 ## [2026-10-08] - Admin Changelog Viewer & PWA Staging Host Realignment
 
 ### Added
