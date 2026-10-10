@@ -1,0 +1,39 @@
+[
+    {
+        "Error": false,
+        "Status": "1",
+        "inventory_data": [
+            {
+                "project_id": "5",
+                "warehouse_id": "2",
+                "low_level": "0",
+                "stock_id": "7",
+                "item_id": "4",
+                "unit_id": "5",
+                "unit_name": "Bag",
+                "item_name": "CEMENT OPC",
+                "current_stock": "15",
+                "record_date": "2026-10-09",
+                "record_time": "12:31 PM",
+                "sys_remark": "Stock IN: 10 unit(s) received into Warehouse 2. Previous Stock: 5, Closing Stock: 15"
+            },
+            {
+                "project_id": "5",
+                "warehouse_id": "1",
+                "low_level": "0",
+                "stock_id": "5",
+                "item_id": "1",
+                "unit_id": "5",
+                "unit_name": "Bag",
+                "item_name": "Cement PPC",
+                "current_stock": "10",
+                "record_date": "2026-10-09",
+                "record_time": "12:27 PM",
+                "sys_remark": "Stock IN: 10 unit(s) received into Warehouse 1. Previous Stock: 0, Closing Stock: 10"
+            }
+        ],
+        "total_rows": 2,
+        "pagination_size": 10,
+        "Message": "Obtained Stock Levels"
+    }
+]
