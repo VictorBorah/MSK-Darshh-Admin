@@ -333,7 +333,7 @@ export default function SupplyLedger({
                 <tr>
                   <td colSpan={8} className="py-20 text-center text-gray-500 italic">
                     <BookOpen className="w-8 h-8 mx-auto mb-2 text-gray-600 opacity-60" />
-                    No chronological ledger entries found for this item and warehouse combination.
+                    No entries found.
                   </td>
                 </tr>
               ) : (
