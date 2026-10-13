@@ -4,7 +4,44 @@ All notable changes to the **ZYN Construction Management System** (Backend API, 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-10-13] - Warehouse Stock Ledger Migration & Supply Ledger Integration
+
+### Added
+- **Stock Transfer Engine & Modal (`admin/src/app/(admin)/supply-ledger/TransferStockModal.tsx`, `SupplyLedger.tsx`)**:
+  - Developed full-featured `TransferStockModal` on the Admin Supply Ledger.
+  - Implemented auto-populated and disabled Source Box (`warehouse_id`, `project_id`) from selected row.
+  - Implemented dynamic searchable Destination Box for selecting target warehouse and target project.
+  - Added quantity validation capped at source current stock, preventing overdraw and negative transfers.
+  - Added zero-stock guard disabling the Transfer action button for items with 0 stock.
+  - Integrated `POST /v1/app/transferWarehouseStock` endpoint for atomic dual-ledger stock movement.
+- **GPS Photo Automatic Ingestion (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Connected automatic `tbl_gps_photos` record creation in `recieve_Items()` whenever a `gps_photo_file` is supplied in the receipt payload.
+  - Resolved dynamic stage ID from purchase order and attached staff ID (`$uid`) with deduplication check.
+
+### Changed
+- **Stock Inventory Deprecation & Migration to `tbl_warehouse_stock` (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Fully migrated and deprecated `tbl_stock_inventory` and `tbl_stock_history` across all core inventory endpoints in favor of the chronological `tbl_warehouse_stock` ledger:
+    - **`dispense_Stock()`**: Refactored stock verification and deduction to fetch latest chronological stock from `tbl_warehouse_stock` for `(warehouse_id, project_id, item_id)`. Resolved project warehouse with default fallback. Dispatched via `handleWarehouseStock(..., 'out')` and returned updated `current_stock`.
+    - **`fetch_StockList()`**: Replaced `tbl_stock_inventory` with `tbl_warehouse_stock`. Aggregated stock across warehouses using latest chronological entries (`MAX(id)`) per item. Added optional warehouse and project filters.
+    - **`fetch_StockSummary()`**: Replaced `tbl_stock_history` and `tbl_stock_inventory` with `tbl_warehouse_stock`. Calculated `in_today` (`qnty_in > 0`), `out_today` (`qnty_out > 0`), and `zero_stocks` (`current_stock <= 0`) scoped to project and warehouse. Joined with `tbl_items` for top 5 reorder-level alerts.
+    - **`fetch_ItemizedDemands()`**: Replaced `tbl_stock_inventory` with chronological lookup in `tbl_warehouse_stock` for `(warehouse_id, project_id, item_id)` with in-memory project warehouse caching. Guarded pagination and deduplicated purchase connection checks.
+    - **`recieve_Items()`**: Validated purchase closure (`is_closed = 1`) before intake and routed stock IN movements through `handleWarehouseStock(..., 'in')`.
+
+### Fixed
+- **GPS Photos Endpoint (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Resolved `Undefined variable $to_date on line 10720` in `fetch_GpsPhotos()`.
+  - Fixed hardcoded stage filter `stage_id = 2` to dynamically filter by provided `stage_id`.
+
+---
+
 ## [2026-10-09] - Warehouse Stock Telemetry & Core Syntax Hardening
+
+### Added
+- **Warehouse Stock Append-Only Transaction Ledger (`zyn-api/src/Application/Actions/CommonController.php`)**:
+  - Re-engineered `handleWarehouseStock()` from an in-place single-row update model into an immutable chronological transaction ledger.
+  - For Stock IN: fetches latest closing stock for `(warehouse_id, project_id, item_id)` ordered chronologically by `id DESC LIMIT 1`, calculates `new_closing = old_closing + quantity`, and appends a new row with `qnty_in = quantity`, `qnty_out = 0`, `current_stock = new_closing`, and detailed audit remarks.
+  - For Stock OUT: verifies stock availability from latest chronological record, prevents overdraw/negative balance, calculates `new_closing = old_closing - quantity`, and appends a new transaction row with `qnty_in = 0`, `qnty_out = quantity`, `current_stock = new_closing`, and detailed audit remarks.
+  - Added descriptive context-aware `sys_remark` logs capturing units received or dispatched with previous and closing balances.
 
 ### Fixed
 - **Warehouse Stock Management (`zyn-api/src/Application/Actions/CommonController.php`)**:
@@ -13,7 +50,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Committed and pushed to `staging` (`d333f1a3`) and merged into `master` (`ee8358b7`) on `VictorBorah/ZYN-MSK-WEBSERVICE`.
 
 ### Changed
-- **Procurement Stock Automation (`zyn-api/src/Application/Actions/AppController.php`)**:
+- **Procurement Stock Automation & Warehouse Stock Query (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Updated `fetch_WarehouseStock()` to query only the latest chronological record from `tbl_warehouse_stock` for every `(warehouse_id, project_id, item_id)` combination via `MAX(id)` subquery.
+  - Added multi-mode `item` filter supporting numeric item ID and item name/code search strings.
   - Added safety guard to prevent invalid stock movements when items have empty or unset `warehouse_id`.
   - Added audit telemetry fields (`record_date`, `record_time`, `sys_remark`) to track automated inventory intake and user-controlled stock transfers.
 - **Admin App Warehouses Module (`admin/src/app/(admin)/warehouses/page.tsx`)**:

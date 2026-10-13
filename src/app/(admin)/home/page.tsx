@@ -36,19 +36,19 @@ export default function Home() {
         {/* Two-column layout on wide screens: Current Status (Left) & Staging Information (Right) */}
         <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
           {/* Left Column: Current Status Box */}
-          <div className="bg-red-950/30 border border-red-500/30 rounded-md p-5 flex items-start gap-4 h-full">
-            <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+          <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-md p-5 flex items-start gap-4 h-full">
+            <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
             <div className="flex flex-col flex-1 justify-between h-full">
               <div>
                 <span className="text-white font-bold text-[14px] block">
-                  Current Status: <span className="font-medium text-red-400">Bug Fixes & Optimizations in Stock Inventory Module</span>
+                  Current Status: <span className="font-medium text-emerald-400">Warehouse Stock Ledger Migration & Supply Ledger Integration Completed</span>
                 </span>
                 <span className="text-white font-medium text-[13px] mt-1.5 block">
-                  Currently Working on: <span className="text-red-400 font-semibold">Bug Fixes & Optimizations in Stock Inventory Module</span>
+                  Currently Working on: <span className="text-emerald-400 font-semibold">Deploying Updates to Staging & Production</span>
                 </span>
               </div>
-              <p className="text-gray-400 text-[11px] font-medium mt-4 flex items-center gap-1 border-t border-red-500/20 pt-2.5">
-                Status Updated on: 08/10/2026 08:12 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+              <p className="text-gray-400 text-[11px] font-medium mt-4 flex items-center gap-1 border-t border-emerald-500/20 pt-2.5">
+                Status Updated on: 13/10/2026 10:25 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
               </p>
             </div>
           </div>
