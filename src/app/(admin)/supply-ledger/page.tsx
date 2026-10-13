@@ -381,7 +381,7 @@ export default function SupplyLedgerPage() {
             <h1 className="text-2xl font-bold text-white tracking-tight">Warehouse Stock</h1>
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Real-time chronological warehouse inventory levels and stock movement ledger
+            Stock Inventory and ledger
           </p>
         </div>
 
@@ -419,7 +419,7 @@ export default function SupplyLedgerPage() {
                   setSelectedProject(val && val.value !== '' ? val : null);
                   setCurrentPage(1);
                 }}
-                placeholder="All Projects"
+                placeholder="All"
                 styles={customSelectStyles}
                 menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 className="flex-1"
@@ -446,7 +446,7 @@ export default function SupplyLedgerPage() {
                   setSelectedItem(val && val.value !== '' ? val : null);
                   setCurrentPage(1);
                 }}
-                placeholder="All Items"
+                placeholder="All"
                 styles={customSelectStyles}
                 menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 className="flex-1"
@@ -473,7 +473,7 @@ export default function SupplyLedgerPage() {
                   setSelectedWarehouse(val && val.value !== '' ? val : null);
                   setCurrentPage(1);
                 }}
-                placeholder="All Warehouses"
+                placeholder="All"
                 styles={customSelectStyles}
                 menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
                 className="flex-1"
@@ -596,11 +596,10 @@ export default function SupplyLedgerPage() {
                             <button
                               onClick={() => handleTransfer(row)}
                               disabled={isZeroStock}
-                              className={`inline-flex items-center justify-center gap-1.5 font-medium text-xs px-3 py-1.5 rounded-lg shadow-sm transition-all duration-150 ${
-                                isZeroStock
-                                  ? 'bg-gray-800/80 text-gray-500 border border-gray-700/50 cursor-not-allowed opacity-50'
-                                  : 'bg-[#0070f3] hover:bg-blue-600 active:scale-95 text-white cursor-pointer'
-                              }`}
+                              className={`inline-flex items-center justify-center gap-1.5 font-medium text-xs px-3 py-1.5 rounded-lg shadow-sm transition-all duration-150 ${isZeroStock
+                                ? 'bg-gray-800/80 text-gray-500 border border-gray-700/50 cursor-not-allowed opacity-50'
+                                : 'bg-[#0070f3] hover:bg-blue-600 active:scale-95 text-white cursor-pointer'
+                                }`}
                               title={
                                 isZeroStock
                                   ? 'Zero stock available: cannot transfer'
