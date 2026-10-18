@@ -4,6 +4,34 @@ All notable changes to the **ZYN Construction Management System** (Backend API, 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-10-18] - Procurement Warehouse Resolution & Project Listing Engine Architecture
+
+### Added
+- **Server-Side Project Pagination & Live Table Filtering (`admin/src/app/(admin)/projects/page.tsx`)**:
+  - Re-architected project list loading to directly consume `GET /v1/admin/fetchAdminProjectList?pagenum=${page}` instead of static bootstrap state.
+  - Implemented interactive pagination controls (`Prev` and `Next`) calculating page boundaries from API `total_rows` and `pagination_size`.
+  - Added real-time client-side search filtering across project name, project code, client, district, and status.
+  - Reconnected modal callback triggers (`NewProjectModal`, `EditProjectModal`) to automatically re-fetch the current active page upon project mutations.
+
+### Changed
+- **Procurement Warehouse Auto-Resolution (`admin/src/app/(admin)/procurements/TaxationDetailsModal.tsx`, `zyn-api`)**:
+  - Refactored default warehouse selection in `TaxationDetailsModal.tsx` to automatically resolve from project configuration (`projects_data.warehouse_id`) before falling back to system defaults:
+    - Checks `item.warehouse_id` first to preserve explicit selections.
+    - Resolves from the project's assigned `warehouse_id` (supporting both numeric `1` and string `"1"` types) from `sys/fetch_system_config`.
+    - Implemented fallback to the warehouse marked `default_warehouse: "Yes"` if the project has no warehouse assigned, or if `warehouse_id` is null, zero, or empty.
+    - Added guard against `'0'` preventing invalid warehouse ID state initialization.
+  - Updated `zyn-api` (`AppController.php` and `SysController.php`) to return `warehouse_id` on project entities in `app/admin/fetchAppData` and `sys/fetch_system_config`.
+
+### Fixed
+- **Project List RBAC Governance & Pagination Scope (`zyn-api/src/Application/Actions/AdminController.php`)**:
+  - Refactored `fetch_AdminProjectList()` to enforce user group permissions properly:
+    - **Super Admin (`$usrGRP_ID == 1`)**: queries all active non-archived projects (`WHERE archived = 0`).
+    - **Staff User Groups**: extracts `projects_csv` from `tbl_staff_list WHERE id = ?`, parses into an integer array, and scopes queries to `WHERE archived = 0 AND id IN ($inList)` (or `WHERE 1 = 0` if unassigned).
+  - Fixed critical pagination bug where non-super-admin users experienced mismatched total rows and empty pages due to SQL pagination running before PHP filtering. Now `COUNT(id)` and `LIMIT $offset, $no_of_records_per_page` are applied directly on the filtered dataset.
+  - Resolved PHP undefined variable warnings and unclosed syntax braces.
+
+---
+
 ## [2026-10-13] - Warehouse Stock Ledger Migration & Supply Ledger Integration
 
 ### Added
