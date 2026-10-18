@@ -34,12 +34,14 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalRows, setTotalRows] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Action Modal Triggers
   const [activeModal, setActiveModal] = useState<{type: 'view'|'settings'|'edit'|'budget'|'basic_info', id: string, name: string} | null>(null);
 
-  const { menu, projects: myProjects, isLoadingAppData } = useAuth();
+  const { menu } = useAuth();
 
   // Find menu item with master_menu_id === "2" (projects) and retrieve privileges
   const projectMenuItem = (menu as any[]).find((item: any) => String(item.master_menu_id) === '2');
@@ -63,11 +65,11 @@ export default function Home() {
     (canManageSettings ? 1 : 0) + 
     (canEdit ? 1 : 0);
 
-  const fetchProjects = useCallback(async () => {
+  const fetchProjects = useCallback(async (page: number = 1) => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
-      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/fetchAdminProjectList`;
+      const endpoint = `${process.env.NEXT_PUBLIC_API_BASE_URL}admin/fetchAdminProjectList?pagenum=${page}`;
       
       const res = await fetch(endpoint, {
         method: 'GET',
@@ -88,24 +90,14 @@ export default function Home() {
 
       if (data && String(data.Status) === '1') {
         const pageSize = parseInt(data.pagination_size || "10", 10);
-        
-        let filtered = [];
-        if (data.project_data && Array.isArray(data.project_data)) {
-          const allowedIds = new Set(myProjects.map((p: any) => String(p.project_id)));
-          filtered = data.project_data.filter((p: any) => allowedIds.has(String(p.project_id)));
-          setProjects(filtered);
-        } else {
-          setProjects([]);
-        }
-        
-        // Calculate Pagination context 
-        const total = filtered.length;
-        if (total && pageSize) {
-          setTotalPages(Math.ceil(total / pageSize));
-          setItemsPerPage(pageSize);
-        } else {
-          setTotalPages(1);
-        }
+        const total = parseInt(data.total_rows || "0", 10);
+        const projectData = Array.isArray(data.project_data) ? data.project_data : [];
+
+        setProjects(projectData);
+        setTotalRows(total);
+        setItemsPerPage(pageSize);
+        setTotalPages(total > 0 && pageSize > 0 ? Math.ceil(total / pageSize) : 1);
+        setCurrentPage(page);
         
         toast.success(data.Message || 'Projects loaded successfully');
       } else {
@@ -116,16 +108,32 @@ export default function Home() {
       toast.error(e.message || 'Error fetching projects');
       setProjects([]);
       setTotalPages(1);
+      setTotalRows(0);
     } finally {
       setIsLoading(false);
     }
-  }, [myProjects]);
+  }, []);
 
   useEffect(() => {
-    if (!isLoadingAppData) {
-      fetchProjects();
-    }
-  }, [fetchProjects, isLoadingAppData]);
+    fetchProjects(1);
+  }, [fetchProjects]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages || newPage === currentPage) return;
+    fetchProjects(newPage);
+  };
+
+  const filteredProjects = projects.filter((project: any) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return (
+      (project.project_name && project.project_name.toLowerCase().includes(query)) ||
+      (project.project_code && project.project_code.toLowerCase().includes(query)) ||
+      (project.client_name && project.client_name.toLowerCase().includes(query)) ||
+      (project.district && project.district.toLowerCase().includes(query)) ||
+      (project.status && project.status.toLowerCase().includes(query))
+    );
+  });
 
   return (
     <div className="p-6 text-gray-300 bg-[#11141e] min-h-full">
@@ -134,7 +142,7 @@ export default function Home() {
       <div className="flex items-center gap-3 mb-6">
         <h1 className="text-xl font-bold text-white">Projects list</h1>
         <RefreshCcw 
-           onClick={fetchProjects} 
+           onClick={() => fetchProjects(currentPage)} 
            className={`w-4 h-4 text-gray-500 cursor-pointer hover:text-white transition-colors ${isLoading ? 'animate-spin text-white' : ''}`} 
         />
       </div>
@@ -151,6 +159,8 @@ export default function Home() {
             <input 
               type="text" 
               placeholder="Search..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="bg-[#11141e] border border-gray-700 rounded-md pl-9 pr-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 w-64"
             />
           </div>
@@ -210,14 +220,14 @@ export default function Home() {
                      Loading Projects...
                    </td>
                 </tr>
-              ) : projects.length === 0 ? (
+              ) : filteredProjects.length === 0 ? (
                  <tr>
                    <td colSpan={visibleColumnsCount} className="py-12 text-center text-gray-500">
                      No projects found matching the criteria.
                    </td>
                  </tr>
               ) : (
-                 projects.map((project: any) => (
+                 filteredProjects.map((project: any) => (
                    <TableRow 
                      key={project.project_id}
                      id={project.project_id}
@@ -244,7 +254,7 @@ export default function Home() {
         
         {/* Footer */ }
         <div className="p-4 border-t border-gray-800 text-xs text-gray-500 flex justify-between items-center bg-[#191e2b]">
-            <span>Page {currentPage} of {totalPages} ({projects.length} Total rows fetched)</span>
+            <span>Page {currentPage} of {totalPages} ({totalRows} Total rows)</span>
             <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                     <select value={itemsPerPage} disabled className="bg-[#11141e] border border-gray-700 rounded-md px-2 py-1 text-gray-300 focus:outline-none focus:border-gray-500 cursor-not-allowed hidden sm:block">
@@ -256,13 +266,15 @@ export default function Home() {
                 </div>
                 <div className="flex items-center space-x-1">
                    <button 
-                     disabled={currentPage === 1}
+                     disabled={currentPage <= 1 || isLoading}
+                     onClick={() => handlePageChange(currentPage - 1)}
                      className="px-3 py-1.5 border border-gray-700 rounded bg-[#1f2536] text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                    >
                      Prev
                    </button>
                    <button 
-                     disabled={currentPage >= totalPages}
+                     disabled={currentPage >= totalPages || isLoading}
+                     onClick={() => handlePageChange(currentPage + 1)}
                      className="px-3 py-1.5 border border-gray-700 rounded bg-[#1f2536] text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                    >
                      Next
@@ -276,7 +288,7 @@ export default function Home() {
       <NewProjectModal 
         isOpen={isNewProjectModalOpen} 
         onClose={() => setIsNewProjectModalOpen(false)} 
-        onSuccess={fetchProjects}
+        onSuccess={() => fetchProjects(currentPage)}
       />
       <ViewProjectModal 
         isOpen={activeModal?.type === 'view'} 
@@ -295,7 +307,7 @@ export default function Home() {
         onClose={() => setActiveModal(null)} 
         projectId={activeModal?.id || ''} 
         projectName={activeModal?.name || ''} 
-        onSuccess={() => fetchProjects()}
+        onSuccess={() => fetchProjects(currentPage)}
       />
       <BudgetConfigModal 
         isOpen={activeModal?.type === 'budget'} 
