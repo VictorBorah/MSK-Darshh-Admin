@@ -89,7 +89,7 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
       setShowMathModal(false);
       setIsManuallyEdited(false);
       setSelectedTag(item.utility_tag || '');
-      setSelectedWarehouse(item.warehouse_id || '');
+      setSelectedWarehouse(item.warehouse_id && String(item.warehouse_id) !== '0' ? String(item.warehouse_id) : '');
       setAdditionalExpenses(item.additional_expenses || []);
       setSelectedPaymentMode(item.payment_mode || '');
       fetchInitialData();
@@ -131,10 +131,38 @@ export default function TaxationDetailsModal({ isOpen, onClose, item, vendors, d
 
       if (configData && String(configData.Status) === '1' && Array.isArray(configData.warehouse_data)) {
         setWarehouses(configData.warehouse_data);
-        if (!item.warehouse_id) {
-          const defaultWh = configData.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
-          if (defaultWh) {
-            setSelectedWarehouse(String(defaultWh.id));
+
+        const hasValidItemWarehouse = item.warehouse_id && String(item.warehouse_id).trim() !== '' && String(item.warehouse_id) !== '0';
+
+        if (!hasValidItemWarehouse) {
+          let targetWarehouseId = '';
+
+          // 1. Try to load warehouse_id from the project inside projects_data
+          if (Array.isArray(configData.projects_data) && item.project_id) {
+            const project = configData.projects_data.find((p: any) => String(p.project_id) === String(item.project_id));
+            if (project && project.warehouse_id !== null && project.warehouse_id !== undefined) {
+              const pWh = project.warehouse_id;
+              if (typeof pWh === 'number' && pWh !== 0 && !isNaN(pWh)) {
+                targetWarehouseId = String(pWh);
+              } else if (typeof pWh === 'string') {
+                const trimmed = pWh.trim();
+                if (trimmed !== '' && trimmed !== '0') {
+                  targetWarehouseId = trimmed;
+                }
+              }
+            }
+          }
+
+          // 2. If warehouse_id is null, zero or empty, fallback to the default warehouse in warehouse_data
+          if (!targetWarehouseId) {
+            const defaultWh = configData.warehouse_data.find((w: any) => String(w.default_warehouse).toLowerCase() === 'yes');
+            if (defaultWh) {
+              targetWarehouseId = String(defaultWh.id);
+            }
+          }
+
+          if (targetWarehouseId) {
+            setSelectedWarehouse(targetWarehouseId);
           }
         }
       }
