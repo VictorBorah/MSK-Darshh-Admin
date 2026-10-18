@@ -41,14 +41,14 @@ export default function Home() {
             <div className="flex flex-col flex-1 justify-between h-full">
               <div>
                 <span className="text-white font-bold text-[14px] block">
-                  Current Status: <span className="font-medium text-emerald-400">Warehouse Stock Ledger Migration & Supply Ledger Integration Completed</span>
+                  Current Status: <span className="font-medium text-emerald-400">Procurement Warehouse Resolution &amp; Project Listing Architecture Completed</span>
                 </span>
                 <span className="text-white font-medium text-[13px] mt-1.5 block">
-                  Currently Working on: <span className="text-emerald-400 font-semibold">Deploying Updates to Staging & Production</span>
+                  Currently Working on: <span className="text-emerald-400 font-semibold">Continuous System Governance &amp; Optimization</span>
                 </span>
               </div>
               <p className="text-gray-400 text-[11px] font-medium mt-4 flex items-center gap-1 border-t border-emerald-500/20 pt-2.5">
-                Status Updated on: 13/10/2026 10:25 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+                Status Updated on: 18/10/2026 11:10 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
               </p>
             </div>
           </div>
