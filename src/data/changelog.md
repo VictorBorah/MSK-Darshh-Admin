@@ -4,9 +4,25 @@ All notable changes to the **ZYN Construction Management System** (Backend API, 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [2026-11-15] - Demand Verification Workflow & Role-Gated Governance Architecture
+## [2026-11-15] - Demand Verification Workflow, Verification Filtering & Comment Visibility
 
 ### Added
+- **Searchable Verification Filter in Demands Console (`admin/src/app/(admin)/demands/page.tsx`)**:
+  - Added new "Verification" searchable dropdown inside the "More Filters" toggle section with options:
+    - `"All"` (`value = ""`): loads all demands regardless of verification state.
+    - `"Verified"` (`value = "1"`): filters dataset to verified demands only (`is_verified = 1`).
+    - `"Unverified"` (`value = "0"`): filters dataset to unverified demands only (`is_verified = 0`).
+  - Set default filter value on page load and on reset to `"Verified"` (`value = "1"`).
+  - Automatically submits fresh queries to `/v1/app/fetchDemands?verified=<val>` on selection change.
+- **Auditor & Verifier Comment Visibility across All Demand Views (`admin`)**:
+  - Exposed and rendered `verified_comment` with a `MessageSquare` badge across all demand listings and modals:
+    - Main Demands Table (`admin/src/app/(admin)/demands/page.tsx`)
+    - Recent Demands Card Sidebar (`admin/src/app/(admin)/demands/page.tsx`)
+    - Demand Detail Modal & Configure Modal (`admin/src/app/(admin)/demands/DemandDetailModal.tsx`)
+    - Procurement Demand Details Modal (`admin/src/app/(admin)/procurements/DemandDetailModal.tsx`)
+    - Payment Demand Details Modal (`admin/src/app/(admin)/payments/PaymentDemandDetailModal.tsx`)
+    - Taxation Details Modal Demand Linker (`admin/src/app/(admin)/procurements/TaxationDetailsModal.tsx`)
+    - Payment Configuration Demand Linker (`admin/src/app/(admin)/payments/ConfigurePaymentSettings.tsx`)
 - **Dedicated Demand Verification Action (`admin/src/app/(admin)/demands/page.tsx`, `DemandDetailModal.tsx`)**:
   - Introduced dedicated "Verify" button on unverified demands visible specifically to authorized verifying user groups (Procurement Manager, Technical Manager, Site Engineer).
   - Added Green `(v)` letter box with green font (`text-green-400`) and light green border (`border-green-400/80`) to signify verified demands across the Demands Table and Demand Detail Modal.
@@ -16,6 +32,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Linked verification audit comments directly into `tbl_comments` and verification records.
 
 ### Changed
+- **Server-Side Verification Filtering & Comment Enrichment (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Refactored `fetch_Demands()` to support the optional `verified` GET parameter (`0` or `1`), injecting `AND is_verified = $v_int` into total count, pagination, and main query clauses.
+  - Enriched `fetch_Demands()` response records with latest audit `verified_comment` extracted from `tbl_comments` where `comment_type = '2' AND connecting_id = demand_id`.
 - **Dynamic Role-Gated Verification Gating (`zyn-api/src/Application/Actions/AppController.php`)**:
   - Refactored `verify_Demand()` to dynamically resolve authorized verifying groups from `tbl_app_settings.demand_verifying_groups` (defaulting to user group IDs `[4, 5, 6]`).
   - Added strict authorization check denying unauthorized user groups (including Super Admin `$usrGRP_ID = 1`) with HTTP 403 Forbidden.

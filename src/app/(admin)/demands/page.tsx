@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, RefreshCcw, Loader2, ClipboardList, Settings, X, Calendar, Search, RotateCcw, ChevronDown, ChevronUp, Lock, Check, AlertTriangle } from 'lucide-react';
+import { Plus, RefreshCcw, Loader2, ClipboardList, Settings, X, Calendar, Search, RotateCcw, ChevronDown, ChevronUp, Lock, Check, AlertTriangle, MessageSquare } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
 import { useAuth } from '@/components/providers/AuthProvider';
@@ -24,7 +24,9 @@ interface DemandRow {
   priority_txt: string;
   is_locked?: string | number;
   is_verified?: string;
+  verified?: string;
   verified_text?: string;
+  verified_comment?: string;
   raised_by_staff_name?: string;
 }
 
@@ -59,6 +61,14 @@ export default function DemandsPage() {
   const [selectedStatus, setSelectedStatus] = useState<any>(null);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [showMoreFilters, setShowMoreFilters] = useState(false);
+
+  // Verification Filter State
+  const verificationOptions = [
+    { value: '', label: 'All' },
+    { value: '1', label: 'Verified' },
+    { value: '0', label: 'Unverified' }
+  ];
+  const [selectedVerification, setSelectedVerification] = useState<{ value: string; label: string } | null>({ value: '1', label: 'Verified' });
 
   // Table Data State
   const [demandsList, setDemandsList] = useState<DemandRow[]>([]);
@@ -179,6 +189,9 @@ export default function DemandsPage() {
       if (selectedItem) {
         params.set('item_id', String(selectedItem.value));
       }
+      if (selectedVerification && selectedVerification.value !== '') {
+        params.set('verified', String(selectedVerification.value));
+      }
       if (applyDaterange) {
         if (demDateFrom) {
           const [yyyy, mm, dd] = demDateFrom.split('-');
@@ -225,7 +238,7 @@ export default function DemandsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [isMounted, currentPage, activeProject, selectedStatus, selectedItem, applyDaterange, demDateFrom, demDateTo]);
+  }, [isMounted, currentPage, activeProject, selectedStatus, selectedItem, selectedVerification, applyDaterange, demDateFrom, demDateTo]);
 
   // Trigger demands fetch when dependency states change
   useEffect(() => {
@@ -346,6 +359,7 @@ export default function DemandsPage() {
     setDemDateTo(todayStr);
     setSelectedStatus(null);
     setSelectedItem(null);
+    setSelectedVerification({ value: '1', label: 'Verified' });
     setShowMoreFilters(false);
     setCurrentPage(1);
     setRecentPage(1); // Reset recent demands page
@@ -559,6 +573,22 @@ export default function DemandsPage() {
               isClearable
             />
           </div>
+
+          {/* Verification Filter */}
+          <div className="flex items-center gap-2 border border-gray-700 rounded-md bg-[#11141e] px-1 h-10 w-full sm:w-[240px]">
+            <span className="text-[13px] font-medium text-gray-400 px-3 whitespace-nowrap">Verification</span>
+            <div className="h-5 w-[1px] bg-gray-700"></div>
+            <Select
+              options={verificationOptions}
+              value={selectedVerification}
+              onChange={(val: any) => { setSelectedVerification(val); setCurrentPage(1); }}
+              placeholder="Select Verification..."
+              styles={selectStyles}
+              menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+              className="flex-1"
+              isClearable={false}
+            />
+          </div>
         </div>
       )}
 
@@ -655,6 +685,12 @@ export default function DemandsPage() {
                               </span>
                             )}
                           </div>
+                          {row.verified_comment && (
+                            <div className="text-[11px] text-gray-400 italic flex items-center gap-1 mt-0.5 truncate max-w-xs" title={`Comment: ${row.verified_comment}`}>
+                              <MessageSquare className="w-3 h-3 text-blue-400 shrink-0" />
+                              <span className="truncate">{row.verified_comment}</span>
+                            </div>
+                          )}
                         </td>
                         <td className="px-5 py-4 text-gray-300">
                           {row.quantity_txt || row.quantity || '-'}
@@ -804,6 +840,12 @@ export default function DemandsPage() {
                         <span className="text-[9px] text-gray-400 mt-0.5">
                           {item.demand_date || '-'}
                         </span>
+                        {item.verified_comment && (
+                          <span className="text-[9px] text-gray-400 italic flex items-center gap-1 mt-0.5 truncate max-w-[120px]" title={item.verified_comment}>
+                            <MessageSquare className="w-2.5 h-2.5 text-blue-400 shrink-0" />
+                            <span className="truncate">{item.verified_comment}</span>
+                          </span>
+                        )}
                       </div>
                       <span className={`px-1 py-0.5 rounded text-[8px] font-bold shrink-0 ${tagClass}`}>
                         {tagText}

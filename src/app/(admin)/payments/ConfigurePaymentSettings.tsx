@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimize2, HelpCircle, Trash2, Search, User } from 'lucide-react';
+import { Settings, X, Loader2, IndianRupee, Link as LinkIcon, Maximize2, Minimize2, HelpCircle, Trash2, Search, User, MessageSquare } from 'lucide-react';
 import Select from 'react-select';
 import toast from 'react-hot-toast';
 import WarningAlertModal from '@/components/WarningAlertModal';
@@ -1090,6 +1090,12 @@ export default function ConfigurePaymentSettings({ isOpen, onClose, item, onAppl
                                   <td className="px-3 py-3 text-gray-300 align-top">
                                     <div className="font-medium text-blue-300 break-words max-w-[150px]">{dRow.item_name}</div>
                                     {dRow.auto_title && <div className="text-[11px] text-gray-500 italic mt-1 line-clamp-2 max-w-[150px]">{dRow.auto_title}</div>}
+                                    {dRow.verified_comment && (
+                                      <div className="text-[11px] text-gray-400 italic mt-1 line-clamp-2 max-w-[150px] flex items-center gap-1" title={dRow.verified_comment}>
+                                        <MessageSquare className="w-3 h-3 text-blue-400 shrink-0" />
+                                        <span>{dRow.verified_comment}</span>
+                                      </div>
+                                    )}
                                   </td>
                                   <td className="px-3 py-3 text-white font-medium align-top">{dRow.quantity_txt || dRow.quantity || '-'}</td>
                                   <td className="px-3 py-3 text-white font-medium align-top text-right">

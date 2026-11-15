@@ -45,6 +45,11 @@ export default function VerifyDemand({
   useEffect(() => {
     if (isOpen && demand) {
       setEditableQty(String(demand.quantity || '0'));
+      if (demand.verified_comment) {
+        setComment(demand.verified_comment);
+      } else {
+        setComment('');
+      }
     }
   }, [isOpen, demand]);
 

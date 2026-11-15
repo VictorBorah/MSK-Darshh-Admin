@@ -48,7 +48,7 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-gray-400 text-[11px] font-medium mt-4 flex items-center gap-1 border-t border-emerald-500/20 pt-2.5">
-                Status Updated on: 15/11/2026 10:45 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+                Status Updated on: 15/11/2026 11:05 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
               </p>
             </div>
           </div>
