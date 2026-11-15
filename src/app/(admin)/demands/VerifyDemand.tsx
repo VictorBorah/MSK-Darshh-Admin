@@ -13,10 +13,25 @@ interface VerifyDemandProps {
   warehouses: any[];
   onSuccess?: () => void;
   isRecentLoading?: boolean;
+  currentUserGrpId?: number;
+  isVerifyingAuthority?: boolean;
 }
 
-export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSuccess, isRecentLoading = false }: VerifyDemandProps) {
+export default function VerifyDemand({ 
+  isOpen, 
+  onClose, 
+  demand, 
+  warehouses, 
+  onSuccess, 
+  isRecentLoading = false,
+  currentUserGrpId,
+  isVerifyingAuthority
+}: VerifyDemandProps) {
   useModalEscape(isOpen, onClose, 200);
+
+  const effectiveUserGrp = currentUserGrpId || (typeof window !== 'undefined' ? parseInt(localStorage.getItem('g_3b7z1kw') || '0', 10) : 0);
+  const canVerify = isVerifyingAuthority !== undefined ? isVerifyingAuthority : [4, 5, 6].includes(effectiveUserGrp);
+  const isVerified = demand ? (demand.verified === 'verified' || String(demand.is_verified).toLowerCase() === 'verified' || String(demand.is_verified).toLowerCase() === 'yes' || String(demand.is_verified) === '1') : false;
 
   const [isMaximized, setIsMaximized] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>('');
@@ -30,6 +45,11 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
   useEffect(() => {
     if (isOpen && demand) {
       setEditableQty(String(demand.quantity || '0'));
+      if (demand.verified_comment) {
+        setComment(demand.verified_comment);
+      } else {
+        setComment('');
+      }
     }
   }, [isOpen, demand]);
 
@@ -45,8 +65,11 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
       const formData = new FormData();
-      formData.append('demand_id', String(demand.demand_id || ''));
+      formData.append('demand_id', String(demand.demand_id || demand.id || ''));
       formData.append('qnty', String(qtyNum));
+      if (comment && comment.trim() !== '') {
+        formData.append('comment', comment.trim());
+      }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/updateDemand`, {
         method: 'POST',
@@ -144,13 +167,46 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
   if (!isOpen || !demand) return null;
 
   const handleVerify = async () => {
+    if (!canVerify) {
+      toast.error('Only authorized groups (Procurement Manager, Technical Manager, Site Engineer) can verify demands.');
+      return;
+    }
+    if (isVerified) {
+      toast.error('This demand is already verified.');
+      return;
+    }
+
     setIsSubmitting(true);
     const toastId = toast.loading('Verifying demand...');
     try {
       const token = localStorage.getItem('at_ki8Xq1iV');
+      const qtyNum = parseFloat(editableQty);
+
+      // Requirement 3: update demand with new demand quantity and comment via /v1/app/updateDemand if modified
+      if (editableQty && !isNaN(qtyNum) && qtyNum > 0 && String(qtyNum) !== String(demand.quantity)) {
+        const updateFormData = new FormData();
+        updateFormData.append('demand_id', String(demand.demand_id || demand.id || ''));
+        updateFormData.append('qnty', String(qtyNum));
+        if (comment && comment.trim() !== '') {
+          updateFormData.append('comment', comment.trim());
+        }
+
+        const updateRes = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/updateDemand`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: updateFormData
+        });
+
+        if (!updateRes.ok) {
+          throw new Error('Failed to update demand quantity during verification');
+        }
+      }
+
       const formData = new FormData();
-      formData.append('demand_id', String(demand.demand_id || ''));
-      formData.append('comment', comment);
+      formData.append('demand_id', String(demand.demand_id || demand.id || ''));
+      if (comment && comment.trim() !== '') {
+        formData.append('comment', comment.trim());
+      }
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}app/verifyDemand`, {
         method: 'POST',
@@ -159,7 +215,11 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
       });
 
       if (!res.ok) {
-        throw new Error('Failed to submit verification');
+        const errText = await res.text();
+        let parsedErr;
+        try { parsedErr = JSON.parse(errText); } catch {}
+        const msg = (parsedErr && Array.isArray(parsedErr) ? parsedErr[0]?.Message : parsedErr?.Message) || 'Failed to submit verification';
+        throw new Error(msg);
       }
 
       const text = await res.text();
@@ -250,13 +310,13 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
                   step="any"
                   value={editableQty}
                   onChange={(e) => setEditableQty(e.target.value)}
-                  disabled={isSubmitting || isUpdatingQty || demand.is_verified === 'Yes'}
-                  className="w-20 bg-amber-50 text-[#6d4c1f] border border-amber-300 rounded px-2 py-0.5 text-xs font-bold focus:outline-none focus:border-amber-500"
+                  disabled={isSubmitting || isUpdatingQty || isVerified || !canVerify}
+                  className="w-20 bg-amber-50 text-[#6d4c1f] border border-amber-300 rounded px-2 py-0.5 text-xs font-bold focus:outline-none focus:border-amber-500 disabled:opacity-60"
                 />
                 <button
                   type="button"
                   onClick={handleUpdateQuantity}
-                  disabled={isSubmitting || isUpdatingQty || demand.is_verified === 'Yes'}
+                  disabled={isSubmitting || isUpdatingQty || isVerified || !canVerify}
                   className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-white bg-amber-700 hover:bg-amber-800 disabled:bg-amber-700/50 disabled:cursor-not-allowed rounded shadow transition-colors flex items-center gap-1 shrink-0"
                 >
                   {isUpdatingQty && <Loader2 className="w-2.5 h-2.5 animate-spin" />}
@@ -402,12 +462,16 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
 
         {/* Modal Footer Actions */}
         <div className="px-6 py-4 bg-[#161a25] border-t border-gray-700/60 flex items-center justify-end gap-3 shrink-0">
-          {demand.is_verified === 'Yes' && (
+          {isVerified ? (
             <div className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-lg text-[13px] font-bold mr-auto animate-in fade-in duration-300">
               <Check className="w-4 h-4 text-emerald-400 shrink-0 stroke-[2.5]" />
               <span>Already verified</span>
             </div>
-          )}
+          ) : !canVerify ? (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-lg text-[11px] font-semibold mr-auto">
+              <span>Verification restricted to authorized verifiers</span>
+            </div>
+          ) : null}
           <button
             onClick={onClose}
             className="px-5 py-2 text-[13px] font-bold text-white bg-[#a1470e] hover:bg-[#8f3e0c] active:scale-95 rounded-lg transition-all shadow"
@@ -416,8 +480,14 @@ export default function VerifyDemand({ isOpen, onClose, demand, warehouses, onSu
           </button>
           <button
             onClick={handleVerify}
-            disabled={isSubmitting || isUpdatingQty || isRecentLoading || demand.is_verified === 'Yes'}
-            title={demand.is_verified === 'Yes' ? 'This demand is already verified' : 'Verify'}
+            disabled={isSubmitting || isUpdatingQty || isRecentLoading || isVerified || !canVerify}
+            title={
+              isVerified 
+                ? 'This demand is already verified' 
+                : !canVerify 
+                ? 'Only authorized roles (Procurement Manager, Technical Manager, Site Engineer) can verify demands' 
+                : 'Verify demand'
+            }
             className="flex items-center gap-2 justify-center px-5 py-2 text-[13px] font-bold text-white bg-blue-600 hover:bg-blue-700 active:scale-95 rounded-lg transition-all shadow disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}

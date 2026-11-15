@@ -1,4 +1,4 @@
-import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2, Trash2 } from 'lucide-react';
+import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2, Trash2, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
@@ -341,7 +341,15 @@ export default function PaymentDemandDetailModal({ isOpen, onClose, demandNo, pr
                       <td className="px-4 py-3 text-white text-center font-medium">{idx + 1}</td>
                       <td className="px-4 py-3 text-white">{row.demand_date || '-'}</td>
                       <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
-                      <td className="px-4 py-3 text-white">{row.item_name || '-'}</td>
+                      <td className="px-4 py-3 text-white">
+                        <div>{row.item_name || '-'}</div>
+                        {row.verified_comment && (
+                          <div className="text-[11px] text-gray-400 italic flex items-center gap-1 mt-0.5" title={`Comment: ${row.verified_comment}`}>
+                            <MessageSquare className="w-3 h-3 text-blue-400 shrink-0" />
+                            <span className="truncate max-w-[200px]">{row.verified_comment}</span>
+                          </div>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-white">{row.quantity_txt || row.quantity || '-'}</td>
                       <td className="px-4 py-3 text-white font-medium text-green-400">₹{Number(row.payment_amount || 0).toFixed(2)}</td>
                       <td className="px-4 py-3 text-white text-xs">
@@ -442,9 +450,17 @@ export default function PaymentDemandDetailModal({ isOpen, onClose, demandNo, pr
               
               <div className="p-6 flex flex-col gap-4 bg-[#1b202c]">
                  {configuringItem && (
-                   <div className="text-[13px] text-gray-300 border-b border-gray-700/50 pb-3">
-                     Configuring for <span className="font-semibold text-white">{configuringItem.item_name}</span>
-                     <span className="ml-2 px-2 py-0.5 bg-gray-700 rounded text-[11px]">Qty: {configuringItem.quantity}</span>
+                   <div className="text-[13px] text-gray-300 border-b border-gray-700/50 pb-3 flex flex-col gap-1.5">
+                     <div>
+                       Configuring for <span className="font-semibold text-white">{configuringItem.item_name}</span>
+                       <span className="ml-2 px-2 py-0.5 bg-gray-700 rounded text-[11px]">Qty: {configuringItem.quantity}</span>
+                     </div>
+                     {configuringItem.verified_comment && (
+                       <div className="text-[12px] text-gray-400 italic flex items-center gap-1.5 mt-1 bg-black/20 p-2 rounded border border-gray-700/50">
+                         <MessageSquare className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                         <span>Comment: {configuringItem.verified_comment}</span>
+                       </div>
+                     )}
                    </div>
                  )}
                  <div className="grid grid-cols-2 gap-4">

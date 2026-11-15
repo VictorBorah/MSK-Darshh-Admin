@@ -1,4 +1,4 @@
-import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2, Trash2, Lock, Eye, Check } from 'lucide-react';
+import { X, Maximize2, Minimize2, ClipboardList, Settings, Loader2, Trash2, Lock, Eye, Check, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
@@ -15,11 +15,38 @@ interface DemandDetailModalProps {
   priorities: any[];
   warehouses: any[];
   onSuccess?: () => void;
+  currentUserGrpId?: number;
+  demandVerifyingGroups?: number[];
+  isVerifyingAuthority?: boolean;
+  isHigherAuthority?: boolean;
 }
 
-export default function DemandDetailModal({ isOpen, onClose, demandNo, priorities, warehouses, onSuccess }: DemandDetailModalProps) {
+export default function DemandDetailModal({ 
+  isOpen, 
+  onClose, 
+  demandNo, 
+  priorities, 
+  warehouses, 
+  onSuccess,
+  currentUserGrpId,
+  demandVerifyingGroups,
+  isVerifyingAuthority,
+  isHigherAuthority
+}: DemandDetailModalProps) {
   useModalEscape(isOpen, onClose, 200);
   const { projects } = useAuth();
+
+  const effectiveUserGrp = currentUserGrpId || (typeof window !== 'undefined' ? parseInt(localStorage.getItem('g_3b7z1kw') || '0', 10) : 0);
+  const isVerifyingUser = isVerifyingAuthority !== undefined ? isVerifyingAuthority : (demandVerifyingGroups || [4, 5, 6]).includes(effectiveUserGrp);
+  const isHigherAuthUser = isHigherAuthority !== undefined ? isHigherAuthority : (effectiveUserGrp >= 1 && effectiveUserGrp <= 5);
+
+  const isDemandVerified = (row: any) => {
+    if (!row) return false;
+    if (row.verified === 'verified' || row.verified === 'yes' || row.verified === 1 || row.verified === '1') return true;
+    const isVerStr = String(row.is_verified ?? '').toLowerCase();
+    return isVerStr === 'verified' || isVerStr === 'yes' || isVerStr === '1';
+  };
+
   const [isMaximized, setIsMaximized] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [demandsData, setDemandsData] = useState<any[]>([]);
@@ -345,7 +372,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
               <tbody className="divide-y divide-gray-700">
                 {demandsData.map((row, idx) => {
                   const isRowLocked = String(row.is_locked) === '1' || row.is_locked === 1 || row.is_locked === 'Yes';
-                  const isVerified = String(row.is_verified).toLowerCase() === 'yes';
+                  const isVerified = isDemandVerified(row);
                   return (
                     <tr
                       key={row.demand_id || row.id}
@@ -366,14 +393,32 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                             <Lock className="w-3.5 h-3.5 text-red-400 shrink-0" />
                           )}
                           {isVerified ? (
-                            <span className="px-1 py-0.5 border border-emerald-500/35 text-[9px] font-bold text-emerald-400 rounded bg-emerald-500/5 select-none shrink-0" title="Verified">V</span>
+                            <span 
+                              className="inline-flex items-center justify-center px-1.5 py-0.5 border border-green-400 text-green-400 bg-green-500/10 text-[10px] font-bold rounded select-none shrink-0" 
+                              title="Verified Demand"
+                            >
+                              (v)
+                            </span>
                           ) : (
-                            <span className="px-1 py-0.5 border border-amber-500/35 text-[9px] font-bold text-amber-500 rounded bg-amber-500/5 select-none shrink-0" title="Un-Verified">UV</span>
+                            <span 
+                              className="inline-flex items-center justify-center px-1.5 py-0.5 border border-amber-500/50 text-amber-500 bg-amber-500/10 text-[10px] font-bold rounded select-none shrink-0" 
+                              title="Un-Verified Demand"
+                            >
+                              (uv)
+                            </span>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-3 text-white">{row.project_name || '-'}</td>
-                      <td className="px-4 py-3 text-white">{row.item_name || '-'}</td>
+                      <td className="px-4 py-3 text-white">
+                        <div>{row.item_name || '-'}</div>
+                        {row.verified_comment && (
+                          <div className="text-[11px] text-gray-400 italic flex items-center gap-1 mt-0.5" title={`Comment: ${row.verified_comment}`}>
+                            <MessageSquare className="w-3 h-3 text-blue-400 shrink-0" />
+                            <span className="truncate max-w-[200px]">{row.verified_comment}</span>
+                          </div>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-white whitespace-nowrap">{row.quantity_txt || row.quantity || '-'}</td>
                       <td className="px-4 py-3 text-white text-xs whitespace-nowrap">
                         <span className={`px-2 py-1 rounded-sm shadow border ${(row.priority_txt || '').toLowerCase() === 'high' ? 'bg-red-500/20 text-red-400 border-red-500/30' : (row.priority_txt || '').toLowerCase() === 'medium' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : 'bg-gray-500/20 text-gray-400 border-gray-500/30'}`}>
@@ -392,12 +437,28 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                         </button>
                       </td>
                       <td className="px-4 py-3 text-center">
-                        <button
-                          onClick={() => handleOpenConfigure(row)}
-                          className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
-                        >
-                          <Settings className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5">
+                          {isVerifyingUser && !isVerified && (
+                            <button
+                              onClick={() => {
+                                setVerifyDemandData(row);
+                                setIsVerifyDemandOpen(true);
+                              }}
+                              className="flex items-center gap-1 px-2 py-0.5 text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded shadow transition-all active:scale-95"
+                              title="Verify this demand"
+                            >
+                              <Check className="w-3 h-3 stroke-[2.5]" />
+                              Verify
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleOpenConfigure(row)}
+                            className="text-gray-300 hover:text-white p-1 hover:bg-white/10 rounded transition-colors"
+                            title="Configure / Details"
+                          >
+                            <Settings className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-center">
                         <button
@@ -489,9 +550,29 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
 
               <div className="p-6 flex flex-col gap-4 bg-[#1b202c]">
                 {configuringItem && (
-                  <div className="text-[13px] text-gray-300 border-b border-gray-700/50 pb-3">
-                    Configuring for <span className="font-semibold text-white">{configuringItem.item_name}</span>
-                    <span className="ml-2 px-2 py-0.5 bg-gray-700 rounded text-[11px]">Qty: {configuringItem.quantity}</span>
+                  <div className="text-[13px] text-gray-300 border-b border-gray-700/50 pb-3 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        Configuring for <span className="font-semibold text-white">{configuringItem.item_name}</span>
+                        <span className="ml-2 px-2 py-0.5 bg-gray-700 rounded text-[11px]">Qty: {configuringItem.quantity}</span>
+                      </div>
+                      {isDemandVerified(configuringItem) && (
+                        <span className="px-2 py-0.5 border border-green-400 text-green-400 bg-green-500/10 text-[10px] font-bold rounded">
+                          Verified
+                        </span>
+                      )}
+                    </div>
+                    {configuringItem.verified_comment && (
+                      <div className="text-[12px] text-gray-400 italic flex items-center gap-1.5 mt-1 bg-black/20 p-2 rounded border border-gray-700/50">
+                        <MessageSquare className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <span>Comment: {configuringItem.verified_comment}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {configuringItem && isDemandVerified(configuringItem) && !isHigherAuthUser && (
+                  <div className="bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-2 rounded text-xs font-medium">
+                    This demand is verified. Only higher authorities (User Groups 1-5) are authorized to modify verified demands.
                   </div>
                 )}
                 <div>
@@ -507,7 +588,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                         setConfigureTitle(e.target.value);
                         setTitleManuallyEdited(true);
                       }}
-                      disabled={isLocked || isAutoGenerating}
+                      disabled={isLocked || isAutoGenerating || (isDemandVerified(configuringItem) && !isHigherAuthUser)}
                       placeholder="Enter demand title"
                       className="w-full bg-[#161a25] border border-gray-600 rounded px-3 py-2 text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     />
@@ -524,7 +605,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                       setConfigureComment(e.target.value);
                       setTitleManuallyEdited(true);
                     }}
-                    disabled={isLocked || isAutoGenerating}
+                    disabled={isLocked || isAutoGenerating || (isDemandVerified(configuringItem) && !isHigherAuthUser)}
                     maxLength={200}
                     placeholder="Enter demand comment"
                     rows={3}
@@ -541,7 +622,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                       type="number"
                       value={configureQuantity}
                       onChange={(e) => setConfigureQuantity(e.target.value)}
-                      disabled={isLocked}
+                      disabled={isLocked || (isDemandVerified(configuringItem) && !isHigherAuthUser)}
                       placeholder="Enter quantity"
                       className="w-full bg-[#161a25] border border-gray-600 rounded px-3 py-[7px] text-white text-[13px] focus:outline-none focus:border-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     />
@@ -552,7 +633,7 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                       options={priorities?.map((p: any) => ({ value: String(p.id), label: p.priority })) || []}
                       value={priorities?.find(p => String(p.id) === configurePriority) ? { value: configurePriority, label: priorities.find((p: any) => String(p.id) === configurePriority)?.priority } : null}
                       onChange={(val: any) => setConfigurePriority(val ? val.value : '3')}
-                      isDisabled={isLocked}
+                      isDisabled={isLocked || (isDemandVerified(configuringItem) && !isHigherAuthUser)}
                       placeholder="Select priority..."
                       styles={{
                         control: (base, state) => ({ ...base, backgroundColor: '#161a25', borderColor: state.isFocused ? '#3b82f6' : '#4b5563', '&:hover': { borderColor: state.isFocused ? '#3b82f6' : '#4b5563' }, minHeight: '38px', borderRadius: '4px', fontWeight: 400, color: '#fff', boxShadow: 'none', cursor: 'pointer', fontSize: '13px' }),
@@ -578,8 +659,14 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
                 </button>
                 <button
                   onClick={() => setConfirmUpdateAlert(true)}
-                  disabled={isLocked || isUpdatingDemand || isAutoGenerating || (configureTitle === originalConfig.title && configureComment === originalConfig.comment && String(configureQuantity) === originalConfig.quantity && String(configurePriority) === originalConfig.priority)}
-                  title={isLocked ? "Demand Locked, cannot update" : "Update Demand"}
+                  disabled={isLocked || isUpdatingDemand || isAutoGenerating || (isDemandVerified(configuringItem) && !isHigherAuthUser) || (configureTitle === originalConfig.title && configureComment === originalConfig.comment && String(configureQuantity) === originalConfig.quantity && String(configurePriority) === originalConfig.priority)}
+                  title={
+                    isLocked 
+                      ? "Demand Locked, cannot update" 
+                      : (isDemandVerified(configuringItem) && !isHigherAuthUser)
+                      ? "Verified demands can only be modified by higher authorities (User Groups 1-5)"
+                      : "Update Demand"
+                  }
                   className="flex items-center gap-2 justify-center px-5 py-2 text-[13px] font-medium text-white bg-blue-600 hover:bg-blue-700 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isUpdatingDemand && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -594,6 +681,8 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
         isOpen={isVerificationDetailsOpen}
         onClose={() => setIsVerificationDetailsOpen(false)}
         verificationData={activeVerificationData}
+        currentUserGrpId={effectiveUserGrp}
+        isVerifyingAuthority={isVerifyingUser}
         onVerifyClick={(data) => {
           setIsVerificationDetailsOpen(false);
           setVerifyDemandData(data);
@@ -615,6 +704,8 @@ export default function DemandDetailModal({ isOpen, onClose, demandNo, prioritie
             : null
         }
         warehouses={warehouses}
+        currentUserGrpId={effectiveUserGrp}
+        isVerifyingAuthority={isVerifyingUser}
         onSuccess={() => {
           fetchDetails();
           onSuccess?.();

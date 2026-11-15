@@ -9,16 +9,27 @@ interface VerificationDetailsProps {
   onClose: () => void;
   verificationData: any | null;
   onVerifyClick?: (data: any) => void;
+  currentUserGrpId?: number;
+  isVerifyingAuthority?: boolean;
 }
 
-export default function VerificationDetails({ isOpen, onClose, verificationData, onVerifyClick }: VerificationDetailsProps) {
+export default function VerificationDetails({ 
+  isOpen, 
+  onClose, 
+  verificationData, 
+  onVerifyClick,
+  currentUserGrpId,
+  isVerifyingAuthority 
+}: VerificationDetailsProps) {
   useModalEscape(isOpen, onClose, 200);
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
   if (!isOpen || !verificationData) return null;
 
-  const isVerified = String(verificationData.is_verified).toLowerCase() === 'yes';
+  const effectiveUserGrp = currentUserGrpId || (typeof window !== 'undefined' ? parseInt(localStorage.getItem('g_3b7z1kw') || '0', 10) : 0);
+  const canVerify = isVerifyingAuthority !== undefined ? isVerifyingAuthority : [4, 5, 6].includes(effectiveUserGrp);
+  const isVerified = verificationData.verified === 'verified' || String(verificationData.is_verified).toLowerCase() === 'verified' || String(verificationData.is_verified).toLowerCase() === 'yes' || String(verificationData.is_verified) === '1';
   const isFulfilled = String(verificationData.is_fulfilled).toLowerCase() === 'yes';
   const isDelivered = String(verificationData.delivery_confirmed).toLowerCase() === 'yes';
 
@@ -88,6 +99,17 @@ export default function VerificationDetails({ isOpen, onClose, verificationData,
                 {verificationData.verification_status_txt || 'Status description unavailable'}
               </span>
             </div>
+
+            {/* Verified By Staff (if verified) */}
+            {isVerified && verificationData.verified_by_staff_name && (
+              <div className="flex flex-col gap-1">
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${labelColor}`}>Verified By</span>
+                <span className={`text-[13px] font-semibold flex items-center gap-1.5 ${textValColor}`}>
+                  <User className="w-3.5 h-3.5 text-emerald-400" />
+                  {verificationData.verified_by_staff_name}
+                </span>
+              </div>
+            )}
 
             {/* Verified Comment */}
             <div className="flex flex-col gap-1.5">
@@ -171,29 +193,44 @@ export default function VerificationDetails({ isOpen, onClose, verificationData,
         </div>
 
         {/* Footer */}
-        <div className={`px-6 py-4.5 border-t flex justify-end gap-3 ${isDark ? 'bg-[#1b202c]/50 border-gray-800' : 'bg-slate-50 border-slate-200'}`}>
-          <button
-            onClick={onClose}
-            className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-colors border ${
-              isDark 
-                ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-800 hover:text-white' 
-                : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-900'
-            }`}
-          >
-            Close
-          </button>
-          <button
-            onClick={() => onVerifyClick?.(verificationData)}
-            disabled={isVerified}
-            title={isVerified ? "Already verified" : "Verify Demand"}
-            className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-colors ${
-              isVerified
-                ? 'bg-gray-700/50 text-gray-500 border border-gray-600/30 cursor-not-allowed'
-                : 'bg-blue-600 hover:bg-blue-700 text-white shadow active:scale-95'
-            }`}
-          >
-            Verify
-          </button>
+        <div className={`px-6 py-4.5 border-t flex items-center justify-between gap-3 ${isDark ? 'bg-[#1b202c]/50 border-gray-800' : 'bg-slate-50 border-slate-200'}`}>
+          <div>
+            {!canVerify && !isVerified && (
+              <span className="text-[11px] text-amber-400 font-medium">
+                Verification restricted to authorized roles
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-colors border ${
+                isDark 
+                  ? 'bg-transparent text-gray-300 border-gray-600 hover:bg-gray-800 hover:text-white' 
+                  : 'bg-white text-slate-700 border-slate-300 hover:bg-slate-50 hover:text-slate-900'
+              }`}
+            >
+              Close
+            </button>
+            <button
+              onClick={() => onVerifyClick?.(verificationData)}
+              disabled={isVerified || !canVerify}
+              title={
+                isVerified 
+                  ? "Already verified" 
+                  : !canVerify 
+                  ? "Only authorized roles (Procurement Manager, Technical Manager, Site Engineer) can verify demands" 
+                  : "Verify Demand"
+              }
+              className={`px-5 py-2 text-[13px] font-bold rounded-lg transition-colors ${
+                isVerified || !canVerify
+                  ? 'bg-gray-700/50 text-gray-500 border border-gray-600/30 cursor-not-allowed'
+                  : 'bg-blue-600 hover:bg-blue-700 text-white shadow active:scale-95'
+              }`}
+            >
+              {isVerified ? 'Verified' : 'Verify'}
+            </button>
+          </div>
         </div>
 
       </div>
