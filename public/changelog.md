@@ -4,6 +4,36 @@ All notable changes to the **ZYN Construction Management System** (Backend API, 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-11-15] - Demand Verification Workflow & Role-Gated Governance Architecture
+
+### Added
+- **Dedicated Demand Verification Action (`admin/src/app/(admin)/demands/page.tsx`, `DemandDetailModal.tsx`)**:
+  - Introduced dedicated "Verify" button on unverified demands visible specifically to authorized verifying user groups (Procurement Manager, Technical Manager, Site Engineer).
+  - Added Green `(v)` letter box with green font (`text-green-400`) and light green border (`border-green-400/80`) to signify verified demands across the Demands Table and Demand Detail Modal.
+  - Added Verifier Name resolution (`verified_by_staff_name`) displaying the name of the assigned staff member who verified the demand inside `VerificationDetails.tsx`.
+- **Inline Demand Quantity & Audit Comment Update Flow (`admin/src/app/(admin)/demands/VerifyDemand.tsx`)**:
+  - Implemented automatic invocation of `POST /v1/app/updateDemand` before `POST /v1/app/verifyDemand` whenever the verifying authority amends the demand quantity during verification.
+  - Linked verification audit comments directly into `tbl_comments` and verification records.
+
+### Changed
+- **Dynamic Role-Gated Verification Gating (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Refactored `verify_Demand()` to dynamically resolve authorized verifying groups from `tbl_app_settings.demand_verifying_groups` (defaulting to user group IDs `[4, 5, 6]`).
+  - Added strict authorization check denying unauthorized user groups (including Super Admin `$usrGRP_ID = 1`) with HTTP 403 Forbidden.
+  - Enforced idempotency check preventing re-verification of already verified demands (`is_verified = 1`).
+- **Post-Verification Mutation Governance (`zyn-api/src/Application/Actions/AppController.php`, `admin/src/app/(admin)/demands/DemandDetailModal.tsx`)**:
+  - Restricted post-verification demand modifications in `update_Demand()`: once a demand is verified, only higher authorities (`$usrGRP_ID >= 1 && $usrGRP_ID <= 5`) can edit its specifications, quantities, or priority.
+  - Disabled editing controls and updated button tooltips in `DemandDetailModal.tsx` for non-higher-authority callers when attempting to modify verified demands.
+- **Explicit Verification Status Attributes (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Updated `fetch_Demands()` and `fetch_DemandDetails()` to return explicit `"verified"` => `"verified"|"unverified"` and `"is_verified"` => `"verified"|"unverified"` JSON attributes for robust frontend consumption.
+  - Resolved `verified_by_staff_id` and `verified_by_staff_name` by joining with `tbl_staff_list`.
+
+### Fixed
+- **Unverified Demand Purchase Bleed Guard (`zyn-api/src/Application/Actions/AppController.php`)**:
+  - Added strict `AND is_verified = 1` SQL predicates across `get_DemandInformation()`, `fetch_DemandItems()`, and `fetch_AvailableDemands()`.
+  - Guaranteed that unverified site material demands can never trigger procurement prompts or be pulled into purchase orders until verified by authorized engineering/procurement managers.
+
+---
+
 ## [2026-10-18] - Procurement Warehouse Resolution & Project Listing Engine Architecture
 
 ### Added

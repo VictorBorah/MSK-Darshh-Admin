@@ -80,9 +80,15 @@ export default function DemandsPage() {
   const [warehouses, setWarehouses] = useState<any[]>([]);
   const [showRecentDemandsSetting, setShowRecentDemandsSetting] = useState(false);
   const [enableDefaultProjectLoadingSetting, setEnableDefaultProjectLoadingSetting] = useState<boolean | null>(null);
+  const [currentUserGrpId, setCurrentUserGrpId] = useState<number>(0);
+  const [demandVerifyingGroups, setDemandVerifyingGroups] = useState<number[]>([4, 5, 6]);
 
   useEffect(() => {
     setIsMounted(true);
+    if (typeof window !== 'undefined') {
+      const grp = localStorage.getItem('g_3b7z1kw');
+      if (grp) setCurrentUserGrpId(parseInt(grp, 10));
+    }
   }, []);
 
   // Fetch Lookups / config
@@ -110,11 +116,20 @@ export default function DemandsPage() {
           if (configData.priority_data) setPriorityOptions(configData.priority_data);
           if (configData.warehouse_data) setWarehouses(configData.warehouse_data);
 
-          // Parse app_settings for showRecentDemands
+          // Parse app_settings for showRecentDemands & demand_verifying_groups
           const appSettings = Array.isArray(configData.app_settings) ? configData.app_settings[0] : configData.app_settings;
           if (appSettings) {
             setShowRecentDemandsSetting(String(appSettings.showRecentDemands) === '1');
             setEnableDefaultProjectLoadingSetting(String(appSettings.enableDefaultProjectLoading) === '1');
+            if (appSettings.demand_verifying_groups) {
+              const grps = String(appSettings.demand_verifying_groups)
+                .split(',')
+                .map((g: string) => parseInt(g.trim(), 10))
+                .filter((n: number) => !isNaN(n));
+              if (grps.length > 0) {
+                setDemandVerifyingGroups(grps);
+              }
+            }
           }
         }
       } catch (err) {
@@ -344,6 +359,16 @@ export default function DemandsPage() {
     } else {
       setActiveProject(null);
     }
+  };
+
+  const isVerifyingAuthority = demandVerifyingGroups.includes(currentUserGrpId);
+  const isHigherAuthority = currentUserGrpId >= 1 && currentUserGrpId <= 5;
+
+  const isDemandVerified = (row: any) => {
+    if (!row) return false;
+    if (row.verified === 'verified' || row.verified === 'yes' || row.verified === 1 || row.verified === '1') return true;
+    const isVerStr = String(row.is_verified ?? '').toLowerCase();
+    return isVerStr === 'verified' || isVerStr === 'yes' || isVerStr === '1';
   };
 
   const handlePageChange = (newPage: number) => {
@@ -578,7 +603,7 @@ export default function DemandsPage() {
                 ) : (
                   demandsList.map((row, idx) => {
                     const isLocked = String(row.is_locked) === '1' || row.is_locked === 1;
-                    const isVerified = String(row.is_verified).toLowerCase() === 'yes';
+                    const isVerified = isDemandVerified(row);
                     return (
                       <tr 
                         key={row.demand_id || row.demand_no} 
@@ -615,9 +640,19 @@ export default function DemandsPage() {
                           <div className="flex items-center gap-1.5">
                             <span>{row.item_name || '-'}</span>
                             {isVerified ? (
-                              <span className="px-1 py-0.5 border border-emerald-500/35 text-[9px] font-bold text-emerald-400 rounded bg-emerald-500/5 select-none shrink-0" title="Verified">V</span>
+                              <span 
+                                className="inline-flex items-center justify-center px-1.5 py-0.5 border border-green-400 text-green-400 bg-green-500/10 text-[10px] font-bold rounded select-none shrink-0" 
+                                title="Verified Demand"
+                              >
+                                (v)
+                              </span>
                             ) : (
-                              <span className="px-1 py-0.5 border border-amber-500/35 text-[9px] font-bold text-amber-500 rounded bg-amber-500/5 select-none shrink-0" title="Un-Verified">UV</span>
+                              <span 
+                                className="inline-flex items-center justify-center px-1.5 py-0.5 border border-amber-500/50 text-amber-500 bg-amber-500/10 text-[10px] font-bold rounded select-none shrink-0" 
+                                title="Un-Verified Demand"
+                              >
+                                (uv)
+                              </span>
                             )}
                           </div>
                         </td>
@@ -636,13 +671,25 @@ export default function DemandsPage() {
                           </span>
                         </td>
                         <td className="px-5 py-4 text-center">
-                          <button 
-                            onClick={() => setSelectedDemandNo(row.demand_no)}
-                            className="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10 transition-colors"
-                            title="Configure / Details"
-                          >
-                            <Settings className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center justify-center gap-1.5">
+                            {isVerifyingAuthority && !isVerified && (
+                              <button
+                                onClick={() => setSelectedVerifyDemand(row)}
+                                className="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded shadow transition-all active:scale-95"
+                                title="Verify this demand"
+                              >
+                                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                                Verify
+                              </button>
+                            )}
+                            <button 
+                              onClick={() => setSelectedDemandNo(row.demand_no)}
+                              className="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10 transition-colors"
+                              title="Configure / Details"
+                            >
+                              <Settings className="w-4 h-4" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -719,15 +766,15 @@ export default function DemandsPage() {
                 </div>
               ) : (
                 recentDemands.map((item) => {
-                  const isVerified = item.is_verified === 'Yes';
+                  const isVerified = isDemandVerified(item);
                   const tagText = item.verified_text || (isVerified ? 'Verified' : 'Un-Verified');
                   
                   let tagClass = 'bg-blue-500/10 text-blue-400 border-blue-500/20';
                   const lowerTag = tagText.toLowerCase();
                   if (isVerified || lowerTag === 'verified') {
-                    tagClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
+                    tagClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
                   } else if (lowerTag === 'un-verified') {
-                    tagClass = 'bg-red-500/10 text-red-400 border border-red-500/20';
+                    tagClass = 'bg-amber-500/10 text-amber-400 border border-amber-500/20';
                   } else if (lowerTag.includes('paid') || lowerTag.includes('order')) {
                     tagClass = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
                   }
@@ -807,6 +854,10 @@ export default function DemandsPage() {
         demandNo={selectedDemandNo}
         priorities={priorityOptions}
         warehouses={warehouses}
+        currentUserGrpId={currentUserGrpId}
+        demandVerifyingGroups={demandVerifyingGroups}
+        isVerifyingAuthority={isVerifyingAuthority}
+        isHigherAuthority={isHigherAuthority}
         onSuccess={handleDemandActionSuccess}
       />
 
@@ -826,6 +877,8 @@ export default function DemandsPage() {
             : null
         }
         warehouses={warehouses}
+        currentUserGrpId={currentUserGrpId}
+        isVerifyingAuthority={isVerifyingAuthority}
         isRecentLoading={isRecentLoading}
         onSuccess={handleDemandActionSuccess}
       />
