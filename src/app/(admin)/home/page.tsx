@@ -16,6 +16,7 @@ import {
   Database,
   ExternalLink,
   FlaskConical,
+  HardDrive,
 } from 'lucide-react';
 
 export default function Home() {
@@ -33,8 +34,8 @@ export default function Home() {
           An enterprise-grade, centralized cloud infrastructure explicitly engineered to orchestrate scaling site operations, real-time financial allocations, and comprehensive workforce logistics across distributed projects.
         </p>
 
-        {/* Two-column layout on wide screens: Current Status (Left) & Staging Information (Right) */}
-        <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
+        {/* Three-column layout on wide screens: Current Status (Left), Staging Information (Middle) & Production Information (Right) */}
+        <div className="mt-5 grid grid-cols-1 lg:grid-cols-3 gap-5 items-stretch">
           {/* Left Column: Current Status Box */}
           <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-md p-5 flex items-start gap-4 h-full">
             <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
@@ -48,12 +49,12 @@ export default function Home() {
                 </span>
               </div>
               <p className="text-gray-400 text-[11px] font-medium mt-4 flex items-center gap-1 border-t border-emerald-500/20 pt-2.5">
-                Status Updated on: 15/11/2026 11:05 PM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
+                Status Updated on: 16/11/2026 08:15 AM by <a href="https://www.victorborah.dev/" target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300 transition-colors">Dr. Einstein</a>
               </p>
             </div>
           </div>
 
-          {/* Right Column: Staging Environment Information Box */}
+          {/* Middle Column: Staging Environment Information Box */}
           <div className="bg-amber-950/20 border border-amber-500/30 rounded-md p-5 flex flex-col justify-between h-full">
             <div>
               <div className="flex items-center gap-2 mb-2 text-amber-400 font-bold text-[14px]">
@@ -136,6 +137,136 @@ export default function Home() {
                   >
                     https://kaiser.int3rnet.net:2083/
                     <span className="text-gray-400 text-[11px] no-underline ml-1">[cPanel/Requires Creds]</span>
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Production Information Box */}
+          <div className="bg-cyan-950/20 border border-cyan-500/30 rounded-md p-5 flex flex-col justify-between h-full">
+            <div>
+              <div className="flex items-center gap-2 mb-2 text-cyan-400 font-bold text-[14px]">
+                <Rocket className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span>Production Information</span>
+              </div>
+              <h3 className="text-white font-semibold text-[13px] leading-snug mb-3.5">
+                Live production cloud infrastructure &amp; endpoints for Zyn Management System.
+              </h3>
+
+              <div className="space-y-2.5 border-t border-cyan-500/20 pt-3 text-[13px]">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Server className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Backend Hosted at:</span>
+                  </span>
+                  <a
+                    href="https://www.digitalocean.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan-300 hover:text-cyan-200 font-semibold text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    Digital Ocean
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Globe className="w-4 h-4 text-teal-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Frontend Hosted at:</span>
+                  </span>
+                  <a
+                    href="https://www.hostinger.com/in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-teal-300 hover:text-teal-200 font-semibold text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    Hostinger
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Globe className="w-4 h-4 text-teal-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Domains Registered with:</span>
+                  </span>
+                  <a
+                    href="https://www.hostinger.com/in"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-teal-300 hover:text-teal-200 font-semibold text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    Hostinger
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Monitor className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Frontend URL (Admin &amp; Higher Staff):</span>
+                  </span>
+                  <a
+                    href="https://zynapp.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-cyan-400 hover:text-cyan-300 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    https://zynapp.in/
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Smartphone className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Frontend URL (Junior Staff PWA):</span>
+                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <a
+                      href="https://staff.zynapp.in/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:text-emerald-300 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                    >
+                      https://staff.zynapp.in/
+                      <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                    </a>
+                    <span className="text-gray-400 text-[11px]">[Installs both in Android and iOS]</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <Server className="w-4 h-4 text-blue-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Backend API: Base URL:</span>
+                  </span>
+                  <a
+                    href="https://zyncore.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    zyncore.in
+                    <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="flex items-center gap-2 text-gray-300">
+                    <HardDrive className="w-4 h-4 text-teal-400 shrink-0" />
+                    <span className="font-medium text-gray-200">Storage Bucket:</span>
+                  </span>
+                  <a
+                    href="https://zyn-app.sgp1.digitaloceanspaces.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-teal-300 hover:text-teal-200 font-mono text-[12px] inline-flex items-center gap-1 underline underline-offset-2 transition-colors"
+                  >
+                    Digital Ocean Spaces
                     <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                   </a>
                 </div>
