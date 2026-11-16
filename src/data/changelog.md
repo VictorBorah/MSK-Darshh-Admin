@@ -4,6 +4,21 @@ All notable changes to the **ZYN Construction Management System** (Backend API, 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-11-16] - Staff PWA Branding Realignment & Make Demand Quantity Expansion Modal
+
+### Added
+- **Enlarged Tertiary Quantity Popover Modal in Make Demand (`pwa/src/components/widgets/make_demand.tsx`)**:
+  - Implemented mobile-first tertiary modal for on-site quantity adjustment when users tap on the Quantity input or table line item quantity.
+  - Added high-contrast touch stepper controls (`-` and `+` buttons), 3xl bold quantity display, and quick preset buttons (`+1`, `+5`, `+10`, `+25`, `+50`, `+100`, and `Set 1`).
+  - Aligned modal styling with PWA design system (`rounded-xl`, dark/light theme support, `bg-black/60` backdrop blur, accessible touch targets).
+
+### Changed
+- **Staff PWA Splash Screen & App Name Realignment (`pwa/public/manifest.json`, `pwa/src/app/layout.tsx`)**:
+  - Replaced `"Zyn Constructions Network"` with concise `"Zyn"` in PWA Web App Manifest (`name` and `short_name`) to display "Zyn" cleanly on the native mobile splash screen.
+  - Aligned page metadata title and descriptions to `"Zyn"`.
+
+---
+
 ## [2026-11-15] - Demand Verification Workflow, Verification Filtering & Comment Visibility
 
 ### Added
